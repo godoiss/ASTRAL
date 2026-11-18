@@ -1,0 +1,10 @@
+{
+  "description": "Bounded Stage 05 validation sample; labelled objects belong to the Stage 04 training split.",
+  "objects": [
+    "K00752.01",
+    "K00755.01",
+    "K00754.01",
+    "K00114.01",
+    "K00753.01"
+  ]
+}

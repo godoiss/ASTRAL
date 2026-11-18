@@ -1,0 +1,197 @@
+{
+  "campaign_id": "stage04-scientific-validation-v1",
+  "split_seed": 104729,
+  "train_ratio": 0.7,
+  "validation_ratio": 0.15,
+  "test_ratio": 0.15,
+  "classification_threshold": 0.5,
+  "selection_metric": "pr_auc",
+  "stability_seeds": [
+    7,
+    42,
+    97,
+    2026,
+    31415
+  ],
+  "plot_dpi": 240,
+  "experiments": [
+    {
+      "experiment_id": "exp-001-ann01-original",
+      "label": "ANN-01 Original",
+      "category": "reference",
+      "layer_sizes": [
+        6,
+        8,
+        4,
+        1
+      ],
+      "learning_rate": 0.01,
+      "epochs": 120,
+      "batch_size": 64,
+      "seed": 42
+    },
+    {
+      "experiment_id": "exp-002-learning-rate-low",
+      "label": "Learning Rate 0.003",
+      "category": "learning_rate",
+      "layer_sizes": [
+        6,
+        8,
+        4,
+        1
+      ],
+      "learning_rate": 0.003,
+      "epochs": 120,
+      "batch_size": 64,
+      "seed": 42
+    },
+    {
+      "experiment_id": "exp-003-learning-rate-high",
+      "label": "Learning Rate 0.03",
+      "category": "learning_rate",
+      "layer_sizes": [
+        6,
+        8,
+        4,
+        1
+      ],
+      "learning_rate": 0.03,
+      "epochs": 120,
+      "batch_size": 64,
+      "seed": 42
+    },
+    {
+      "experiment_id": "exp-004-epochs-short",
+      "label": "60 Epochs",
+      "category": "epochs",
+      "layer_sizes": [
+        6,
+        8,
+        4,
+        1
+      ],
+      "learning_rate": 0.01,
+      "epochs": 60,
+      "batch_size": 64,
+      "seed": 42
+    },
+    {
+      "experiment_id": "exp-005-epochs-long",
+      "label": "200 Epochs",
+      "category": "epochs",
+      "layer_sizes": [
+        6,
+        8,
+        4,
+        1
+      ],
+      "learning_rate": 0.01,
+      "epochs": 200,
+      "batch_size": 64,
+      "seed": 42
+    },
+    {
+      "experiment_id": "exp-006-batch-small",
+      "label": "Batch Size 32",
+      "category": "batch_size",
+      "layer_sizes": [
+        6,
+        8,
+        4,
+        1
+      ],
+      "learning_rate": 0.01,
+      "epochs": 120,
+      "batch_size": 32,
+      "seed": 42
+    },
+    {
+      "experiment_id": "exp-007-batch-large",
+      "label": "Batch Size 128",
+      "category": "batch_size",
+      "layer_sizes": [
+        6,
+        8,
+        4,
+        1
+      ],
+      "learning_rate": 0.01,
+      "epochs": 120,
+      "batch_size": 128,
+      "seed": 42
+    },
+    {
+      "experiment_id": "exp-008-neurons-narrow",
+      "label": "Narrow 6-6-3-1",
+      "category": "neurons",
+      "layer_sizes": [
+        6,
+        6,
+        3,
+        1
+      ],
+      "learning_rate": 0.01,
+      "epochs": 120,
+      "batch_size": 64,
+      "seed": 42
+    },
+    {
+      "experiment_id": "exp-009-neurons-wide",
+      "label": "Wide 6-12-6-1",
+      "category": "neurons",
+      "layer_sizes": [
+        6,
+        12,
+        6,
+        1
+      ],
+      "learning_rate": 0.01,
+      "epochs": 120,
+      "batch_size": 64,
+      "seed": 42
+    },
+    {
+      "experiment_id": "exp-010-one-hidden-layer",
+      "label": "One Hidden Layer",
+      "category": "hidden_layers",
+      "layer_sizes": [
+        6,
+        8,
+        1
+      ],
+      "learning_rate": 0.01,
+      "epochs": 120,
+      "batch_size": 64,
+      "seed": 42
+    },
+    {
+      "experiment_id": "exp-011-three-hidden-layers",
+      "label": "Three Hidden Layers",
+      "category": "hidden_layers",
+      "layer_sizes": [
+        6,
+        12,
+        8,
+        4,
+        1
+      ],
+      "learning_rate": 0.01,
+      "epochs": 120,
+      "batch_size": 64,
+      "seed": 42
+    }
+  ],
+  "benchmarks": {
+    "logistic_regression": {
+      "max_iter": 3000
+    },
+    "decision_tree": {
+      "max_depth": 8,
+      "min_samples_leaf": 10
+    },
+    "random_forest": {
+      "n_estimators": 200,
+      "min_samples_leaf": 2
+    }
+  }
+}

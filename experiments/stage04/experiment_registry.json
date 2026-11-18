@@ -1,0 +1,495 @@
+{
+  "schema_version": 1,
+  "campaign_id": "stage04-scientific-validation-v1",
+  "created_at_utc": "2026-11-16T18:10:34.494503+00:00",
+  "dataset": {
+    "version_id": "sha256:a85348f20082d24f",
+    "sha256": "a85348f20082d24fb14d4a05a9a44c644b801998fad7cec36f8980eb1f0a69ab",
+    "path": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\data\\raw\\kepler_koi.csv",
+    "bytes": 11843781,
+    "records": 9564,
+    "columns": 153
+  },
+  "runs": [
+    {
+      "experiment_id": "exp-001-ann01-original",
+      "path": "runs\\exp-001-ann01-original.json",
+      "category": "reference",
+      "validation_metrics": {
+        "accuracy": 0.820017559262511,
+        "balanced_accuracy": 0.8133800251672296,
+        "precision": 0.7404921700223713,
+        "recall": 0.7880952380952381,
+        "f1": 0.7635524798154556,
+        "roc_auc": 0.8985661302072985,
+        "pr_auc": 0.7749641111072351,
+        "binary_cross_entropy": 0.3788310209797083,
+        "confusion_matrix": [
+          [
+            603,
+            116
+          ],
+          [
+            89,
+            331
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 1.7434299999149516
+    },
+    {
+      "experiment_id": "exp-002-learning-rate-low",
+      "path": "runs\\exp-002-learning-rate-low.json",
+      "category": "learning_rate",
+      "validation_metrics": {
+        "accuracy": 0.7875329236172081,
+        "balanced_accuracy": 0.7752731969004569,
+        "precision": 0.7050691244239631,
+        "recall": 0.7285714285714285,
+        "f1": 0.7166276346604216,
+        "roc_auc": 0.8686287171335849,
+        "pr_auc": 0.7434879860185496,
+        "binary_cross_entropy": 0.4410147249772121,
+        "confusion_matrix": [
+          [
+            591,
+            128
+          ],
+          [
+            114,
+            306
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 3.476800800068304
+    },
+    {
+      "experiment_id": "exp-003-learning-rate-high",
+      "path": "runs\\exp-003-learning-rate-high.json",
+      "category": "learning_rate",
+      "validation_metrics": {
+        "accuracy": 0.845478489903424,
+        "balanced_accuracy": 0.840972912113385,
+        "precision": 0.7723214285714286,
+        "recall": 0.8238095238095238,
+        "f1": 0.7972350230414746,
+        "roc_auc": 0.9220213259156236,
+        "pr_auc": 0.8194894416637372,
+        "binary_cross_entropy": 0.3376964800967822,
+        "confusion_matrix": [
+          [
+            617,
+            102
+          ],
+          [
+            74,
+            346
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 3.0994574999203905
+    },
+    {
+      "experiment_id": "exp-004-epochs-short",
+      "path": "runs\\exp-004-epochs-short.json",
+      "category": "epochs",
+      "validation_metrics": {
+        "accuracy": 0.7963125548726954,
+        "balanced_accuracy": 0.7876730247036228,
+        "precision": 0.7107623318385651,
+        "recall": 0.7547619047619047,
+        "f1": 0.7321016166281755,
+        "roc_auc": 0.876337836942844,
+        "pr_auc": 0.7437267602172247,
+        "binary_cross_entropy": 0.41982285505446,
+        "confusion_matrix": [
+          [
+            590,
+            129
+          ],
+          [
+            103,
+            317
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 0.9669778000097722
+    },
+    {
+      "experiment_id": "exp-005-epochs-long",
+      "path": "runs\\exp-005-epochs-long.json",
+      "category": "epochs",
+      "validation_metrics": {
+        "accuracy": 0.8340649692712906,
+        "balanced_accuracy": 0.8289621829260216,
+        "precision": 0.7572383073496659,
+        "recall": 0.8095238095238095,
+        "f1": 0.7825086306098964,
+        "roc_auc": 0.9103616133518777,
+        "pr_auc": 0.8004623795374325,
+        "binary_cross_entropy": 0.3578846902446964,
+        "confusion_matrix": [
+          [
+            610,
+            109
+          ],
+          [
+            80,
+            340
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 3.452140499954112
+    },
+    {
+      "experiment_id": "exp-006-batch-small",
+      "path": "runs\\exp-006-batch-small.json",
+      "category": "batch_size",
+      "validation_metrics": {
+        "accuracy": 0.8402107111501317,
+        "balanced_accuracy": 0.840760977548182,
+        "precision": 0.7531914893617021,
+        "recall": 0.8428571428571429,
+        "f1": 0.7955056179775281,
+        "roc_auc": 0.9145903702231936,
+        "pr_auc": 0.8037654115102051,
+        "binary_cross_entropy": 0.3497634463388968,
+        "confusion_matrix": [
+          [
+            603,
+            116
+          ],
+          [
+            66,
+            354
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 4.039739000028931
+    },
+    {
+      "experiment_id": "exp-007-batch-large",
+      "path": "runs\\exp-007-batch-large.json",
+      "category": "batch_size",
+      "validation_metrics": {
+        "accuracy": 0.7963125548726954,
+        "balanced_accuracy": 0.7876730247036228,
+        "precision": 0.7107623318385651,
+        "recall": 0.7547619047619047,
+        "f1": 0.7321016166281755,
+        "roc_auc": 0.8767915093714816,
+        "pr_auc": 0.7470620127206649,
+        "binary_cross_entropy": 0.419185409913546,
+        "confusion_matrix": [
+          [
+            590,
+            129
+          ],
+          [
+            103,
+            317
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 1.1045539999613538
+    },
+    {
+      "experiment_id": "exp-008-neurons-narrow",
+      "path": "runs\\exp-008-neurons-narrow.json",
+      "category": "neurons",
+      "validation_metrics": {
+        "accuracy": 0.8068481123792801,
+        "balanced_accuracy": 0.8044340684813563,
+        "precision": 0.7136752136752137,
+        "recall": 0.7952380952380952,
+        "f1": 0.7522522522522522,
+        "roc_auc": 0.8846678587985959,
+        "pr_auc": 0.7709758504712565,
+        "binary_cross_entropy": 0.40403290507212386,
+        "confusion_matrix": [
+          [
+            585,
+            134
+          ],
+          [
+            86,
+            334
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 1.7280670000473037
+    },
+    {
+      "experiment_id": "exp-009-neurons-wide",
+      "path": "runs\\exp-009-neurons-wide.json",
+      "category": "neurons",
+      "validation_metrics": {
+        "accuracy": 0.8235294117647058,
+        "balanced_accuracy": 0.8191320617259421,
+        "precision": 0.7406593406593407,
+        "recall": 0.8023809523809524,
+        "f1": 0.7702857142857142,
+        "roc_auc": 0.9024339360222531,
+        "pr_auc": 0.7815494377643836,
+        "binary_cross_entropy": 0.369790564166114,
+        "confusion_matrix": [
+          [
+            601,
+            118
+          ],
+          [
+            83,
+            337
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 1.8485357000026852
+    },
+    {
+      "experiment_id": "exp-010-one-hidden-layer",
+      "path": "runs\\exp-010-one-hidden-layer.json",
+      "category": "hidden_layers",
+      "validation_metrics": {
+        "accuracy": 0.800702370500439,
+        "balanced_accuracy": 0.7916451420623882,
+        "precision": 0.7178329571106095,
+        "recall": 0.7571428571428571,
+        "f1": 0.7369640787949016,
+        "roc_auc": 0.8804457248824425,
+        "pr_auc": 0.7485235517746552,
+        "binary_cross_entropy": 0.4103615850294159,
+        "confusion_matrix": [
+          [
+            594,
+            125
+          ],
+          [
+            102,
+            318
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 1.4359057999681681
+    },
+    {
+      "experiment_id": "exp-011-three-hidden-layers",
+      "path": "runs\\exp-011-three-hidden-layers.json",
+      "category": "hidden_layers",
+      "validation_metrics": {
+        "accuracy": 0.835820895522388,
+        "balanced_accuracy": 0.8348085965958011,
+        "precision": 0.7505376344086021,
+        "recall": 0.830952380952381,
+        "f1": 0.7887005649717514,
+        "roc_auc": 0.9068150208623088,
+        "pr_auc": 0.7867718053548528,
+        "binary_cross_entropy": 0.35944306245552987,
+        "confusion_matrix": [
+          [
+            603,
+            116
+          ],
+          [
+            71,
+            349
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 2.776954200002365
+    },
+    {
+      "experiment_id": "stability-001-seed-7",
+      "path": "runs\\stability-001-seed-7.json",
+      "category": "seed_stability",
+      "validation_metrics": {
+        "accuracy": 0.8349429323968394,
+        "balanced_accuracy": 0.8346082522021325,
+        "precision": 0.7478632478632479,
+        "recall": 0.8333333333333334,
+        "f1": 0.7882882882882883,
+        "roc_auc": 0.9066726273263129,
+        "pr_auc": 0.7791536001081429,
+        "binary_cross_entropy": 0.35837850400690185,
+        "confusion_matrix": [
+          [
+            601,
+            118
+          ],
+          [
+            70,
+            350
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 1.568277299986221
+    },
+    {
+      "experiment_id": "stability-002-seed-42",
+      "path": "runs\\stability-002-seed-42.json",
+      "category": "seed_stability",
+      "validation_metrics": {
+        "accuracy": 0.845478489903424,
+        "balanced_accuracy": 0.840972912113385,
+        "precision": 0.7723214285714286,
+        "recall": 0.8238095238095238,
+        "f1": 0.7972350230414746,
+        "roc_auc": 0.9220213259156236,
+        "pr_auc": 0.8194894416637372,
+        "binary_cross_entropy": 0.3376964800967822,
+        "confusion_matrix": [
+          [
+            617,
+            102
+          ],
+          [
+            74,
+            346
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 1.5959087000228465
+    },
+    {
+      "experiment_id": "stability-003-seed-97",
+      "path": "runs\\stability-003-seed-97.json",
+      "category": "seed_stability",
+      "validation_metrics": {
+        "accuracy": 0.839332748024583,
+        "balanced_accuracy": 0.8385803695608981,
+        "precision": 0.7548387096774194,
+        "recall": 0.8357142857142857,
+        "f1": 0.7932203389830509,
+        "roc_auc": 0.9111629909265514,
+        "pr_auc": 0.8154163826759294,
+        "binary_cross_entropy": 0.35616623152267585,
+        "confusion_matrix": [
+          [
+            605,
+            114
+          ],
+          [
+            69,
+            351
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 1.6212104000151157
+    },
+    {
+      "experiment_id": "stability-004-seed-2026",
+      "path": "runs\\stability-004-seed-2026.json",
+      "category": "seed_stability",
+      "validation_metrics": {
+        "accuracy": 0.8331870061457419,
+        "balanced_accuracy": 0.8262865090403337,
+        "precision": 0.7601809954751131,
+        "recall": 0.8,
+        "f1": 0.7795823665893271,
+        "roc_auc": 0.919594012848533,
+        "pr_auc": 0.8337062511218148,
+        "binary_cross_entropy": 0.3453147180661738,
+        "confusion_matrix": [
+          [
+            613,
+            106
+          ],
+          [
+            84,
+            336
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 1.575297600007616
+    },
+    {
+      "experiment_id": "stability-005-seed-31415",
+      "path": "runs\\stability-005-seed-31415.json",
+      "category": "seed_stability",
+      "validation_metrics": {
+        "accuracy": 0.8340649692712906,
+        "balanced_accuracy": 0.8363881714020795,
+        "precision": 0.7411273486430062,
+        "recall": 0.8452380952380952,
+        "f1": 0.7897664071190211,
+        "roc_auc": 0.9127922378965494,
+        "pr_auc": 0.822472949475754,
+        "binary_cross_entropy": 0.3533191728370279,
+        "confusion_matrix": [
+          [
+            595,
+            124
+          ],
+          [
+            65,
+            355
+          ]
+        ],
+        "records": 1139,
+        "positive_prevalence": 0.3687445127304653,
+        "threshold": 0.5
+      },
+      "training_seconds": 1.4703819999704137
+    }
+  ],
+  "artifacts": [
+    "figures/01_loss.png",
+    "figures/02_accuracy.png",
+    "figures/03_confusion_matrix.png",
+    "figures/04_roc_curve.png",
+    "figures/05_precision_recall_curve.png",
+    "figures/06_model_benchmark.png",
+    "figures/07_weight_distribution.png",
+    "figures/08_activation_distribution.png",
+    "figures/09_prediction_score_distribution.png",
+    "candidate_ranking.csv",
+    "candidate_ranking.json",
+    "selected_model/model.npz",
+    "selected_model/network_snapshot.json",
+    "scientific_validation_results.json"
+  ]
+}

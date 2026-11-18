@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-16T18:56:15.019255+00:00",
+  "configuration": {
+    "mission": "Kepler",
+    "author": "Kepler",
+    "cadence": "long",
+    "quarter": 3,
+    "max_products": 1,
+    "timeout_seconds": 60,
+    "retries": 2,
+    "quality_bitmask": 1130799,
+    "flatten_window_length": 101,
+    "flatten_polyorder": 2,
+    "transit_mask_duration_multiplier": 1.5,
+    "local_view_duration_multiplier": 3.0,
+    "global_view_size": 2001,
+    "local_view_size": 201
+  },
+  "sample_description": "Bounded Stage 05 validation sample; labelled objects belong to the Stage 04 training split.",
+  "objects": [
+    {
+      "object_id": "K00752.01",
+      "display_name": "KOI-752.01",
+      "kic": 10797460,
+      "disposition": "CONFIRMED",
+      "split": "train",
+      "raw_records": 4228,
+      "processed_records": 4134,
+      "segments": [
+        "Kepler Q03"
+      ],
+      "global_observed_bins": 1933,
+      "local_observed_bins": 161,
+      "provenance": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\data\\observatory\\provenance\\K00752.01.json"
+    },
+    {
+      "object_id": "K00755.01",
+      "display_name": "KOI-755.01",
+      "kic": 10854555,
+      "disposition": "CONFIRMED",
+      "split": "train",
+      "raw_records": 4228,
+      "processed_records": 4134,
+      "segments": [
+        "Kepler Q03"
+      ],
+      "global_observed_bins": 1858,
+      "local_observed_bins": 201,
+      "provenance": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\data\\observatory\\provenance\\K00755.01.json"
+    },
+    {
+      "object_id": "K00754.01",
+      "display_name": "KOI-754.01",
+      "kic": 10848459,
+      "disposition": "FALSE POSITIVE",
+      "split": "train",
+      "raw_records": 4228,
+      "processed_records": 4134,
+      "segments": [
+        "Kepler Q03"
+      ],
+      "global_observed_bins": 829,
+      "local_observed_bins": 104,
+      "provenance": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\data\\observatory\\provenance\\K00754.01.json"
+    },
+    {
+      "object_id": "K00114.01",
+      "display_name": "KOI-114.01",
+      "kic": 6721123,
+      "disposition": "FALSE POSITIVE",
+      "split": "train",
+      "raw_records": 4228,
+      "processed_records": 4134,
+      "segments": [
+        "Kepler Q03"
+      ],
+      "global_observed_bins": 1996,
+      "local_observed_bins": 201,
+      "provenance": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\data\\observatory\\provenance\\K00114.01.json"
+    },
+    {
+      "object_id": "K00753.01",
+      "display_name": "KOI-753.01",
+      "kic": 10811496,
+      "disposition": "CANDIDATE",
+      "split": "candidate",
+      "raw_records": 4228,
+      "processed_records": 4134,
+      "segments": [
+        "Kepler Q03"
+      ],
+      "global_observed_bins": 1810,
+      "local_observed_bins": 87,
+      "provenance": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\data\\observatory\\provenance\\K00753.01.json"
+    }
+  ],
+  "neural_dataset": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\data\\observatory\\neural\\stage05_validation_sample.npz",
+  "test_partition_used_for_tuning": false
+}

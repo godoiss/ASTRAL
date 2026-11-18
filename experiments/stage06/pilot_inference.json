@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "experiment_id": "ann02-20261118T124527Z",
+  "object_id": "K00753.01",
+  "kic": 10811496,
+  "original_disposition": "CANDIDATE",
+  "ann02": {
+    "score": 0.5147281289100647,
+    "threshold": 0.5,
+    "decision": "CONFIRMED-LIKE",
+    "device": "cpu"
+  },
+  "ann01": {
+    "score": 0.41476689547130086,
+    "threshold": 0.5,
+    "decision": "FALSE-POSITIVE-LIKE"
+  },
+  "scientific_interpretation": "Uncalibrated exploratory model scores; not a catalog reclassification, confirmation, or discovery claim."
+}

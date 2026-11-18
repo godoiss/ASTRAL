@@ -1,0 +1,103 @@
+{
+  "dataset": {
+    "version_id": "sha256:a85348f20082d24f",
+    "sha256": "a85348f20082d24fb14d4a05a9a44c644b801998fad7cec36f8980eb1f0a69ab",
+    "path": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\data\\raw\\kepler_koi.csv",
+    "bytes": 11843781,
+    "records": 9564,
+    "columns": 153
+  },
+  "split_seed": 104729,
+  "forward_output_shape": [
+    5,
+    1
+  ],
+  "forward_outputs_finite": true,
+  "forward_outputs_in_unit_interval": true,
+  "parameter_integrity": {
+    "parameter_count": 97,
+    "weight_shapes": [
+      [
+        6,
+        8
+      ],
+      [
+        8,
+        4
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "bias_shapes": [
+      [
+        1,
+        8
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "finite_weights": true,
+    "finite_biases": true,
+    "expected_shapes_match": true
+  },
+  "gradient_integrity": {
+    "finite": true,
+    "weight_shapes": [
+      [
+        6,
+        8
+      ],
+      [
+        8,
+        4
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "bias_shapes": [
+      [
+        1,
+        8
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "relative_error": 3.6493655203197193e-11,
+    "maximum_absolute_error": 9.498353492620737e-12,
+    "checked_parameters": 97
+  },
+  "group_overlap_counts": {
+    "train_validation": 0,
+    "train_test": 0,
+    "validation_test": 0
+  },
+  "preprocessor_fitted_rows": 5311,
+  "split_records": {
+    "train": 5311,
+    "validation": 1139,
+    "test": 1137,
+    "candidates": 1977
+  },
+  "prior_test_usage": {
+    "previous_test_was_evaluated": true,
+    "previous_split_seed": 42,
+    "previous_test_accuracy": 0.8012313104661389,
+    "limitation": "The earlier Stage 03 test metric was observed and reported. Stage 04 therefore freezes a new grouped split before search, but this is not equivalent to an external independent dataset."
+  }
+}

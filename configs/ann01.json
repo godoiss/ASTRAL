@@ -1,0 +1,14 @@
+{
+  "engine_name": "ANN-01",
+  "layer_sizes": [6, 8, 4, 1],
+  "learning_rate": 0.01,
+  "epochs": 120,
+  "batch_size": 64,
+  "seed": 42,
+  "train_ratio": 0.7,
+  "validation_ratio": 0.15,
+  "test_ratio": 0.15,
+  "classification_threshold": 0.5,
+  "log_every": 10,
+  "snapshot_sample_size": 16
+}

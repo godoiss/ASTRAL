@@ -1,0 +1,16 @@
+{
+  "mission": "Kepler",
+  "author": "Kepler",
+  "cadence": "long",
+  "quarter": 3,
+  "max_products": 1,
+  "timeout_seconds": 60,
+  "retries": 2,
+  "quality_bitmask": 1130799,
+  "flatten_window_length": 101,
+  "flatten_polyorder": 2,
+  "transit_mask_duration_multiplier": 1.5,
+  "local_view_duration_multiplier": 3.0,
+  "global_view_size": 2001,
+  "local_view_size": 201
+}

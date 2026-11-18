@@ -1,0 +1,37 @@
+{
+  "dataset": {
+    "pilot_size": 8,
+    "candidate_size": 1,
+    "seed": 2026,
+    "quarter": 3,
+    "max_products_per_object": 1,
+    "max_new_downloads": 5,
+    "storage_limit_mb": 250.0,
+    "per_object_timeout_seconds": 120,
+    "max_period_days": 30.0,
+    "min_global_coverage": 0.2,
+    "min_local_coverage": 0.3,
+    "min_observed_transits": 1
+  },
+  "model": {
+    "input_channels": 2,
+    "branch_channels": [8, 16],
+    "kernel_size": 5,
+    "global_pool_size": 4,
+    "local_pool_size": 2,
+    "fused_features": 16,
+    "dropout": 0.2
+  },
+  "training": {
+    "learning_rate": 0.001,
+    "epochs": 40,
+    "batch_size": 8,
+    "weight_decay": 0.0001,
+    "patience": 8,
+    "min_delta": 0.0001,
+    "seed": 2026,
+    "threshold": 0.5,
+    "device": "auto",
+    "num_workers": 0
+  }
+}

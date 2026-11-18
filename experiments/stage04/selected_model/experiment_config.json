@@ -1,0 +1,15 @@
+{
+  "experiment_id": "stability-004-seed-2026",
+  "label": "Learning Rate 0.03 / seed 2026",
+  "category": "seed_stability",
+  "layer_sizes": [
+    6,
+    8,
+    4,
+    1
+  ],
+  "learning_rate": 0.03,
+  "epochs": 120,
+  "batch_size": 64,
+  "seed": 2026
+}

@@ -1,0 +1,23 @@
+{
+  "accuracy": 0.8249780123131046,
+  "balanced_accuracy": 0.8195323246217332,
+  "precision": 0.7370786516853932,
+  "recall": 0.8,
+  "f1": 0.7672514619883041,
+  "roc_auc": 0.9060053007682758,
+  "pr_auc": 0.8279919294072008,
+  "binary_cross_entropy": 0.3699036919784223,
+  "confusion_matrix": [
+    [
+      610,
+      117
+    ],
+    [
+      82,
+      328
+    ]
+  ],
+  "records": 1137,
+  "positive_prevalence": 0.3605980650835532,
+  "threshold": 0.5
+}

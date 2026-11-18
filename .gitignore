@@ -1,0 +1,57 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Coverage and build artifacts
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Astronomical datasets and generated model artifacts
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+models/*
+!models/.gitkeep
+
+# Deep Space Observatory downloads and derived local signal artifacts
+data/observatory/cache/*
+data/observatory/raw/*
+data/observatory/processed/*
+data/observatory/neural/*
+data/observatory/provenance/*
+data/observatory/catalog/*
+!data/observatory/cache/.gitkeep
+!data/observatory/raw/.gitkeep
+!data/observatory/processed/.gitkeep
+!data/observatory/neural/.gitkeep
+!data/observatory/provenance/.gitkeep
+!data/observatory/catalog/.gitkeep
+
+# ANN-02 incremental signals, checkpoints, and trained artifacts
+data/ann02/*
+!data/ann02/.gitkeep
