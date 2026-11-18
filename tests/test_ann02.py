@@ -120,7 +120,7 @@ def test_training_persists_best_checkpoint_and_real_snapshot(tmp_path) -> None:
     model_directory = tmp_path / "model"
     bundle = train_ann02(
         ANN02Config(),
-        TrainingConfig(epochs=2, batch_size=4, patience=2, seed=31),
+        TrainingConfig(epochs=2, batch_size=3, patience=2, seed=31),
         dataset_path=dataset_path,
         model_directory=model_directory,
         experiment_directory=tmp_path / "experiments",
@@ -128,6 +128,10 @@ def test_training_persists_best_checkpoint_and_real_snapshot(tmp_path) -> None:
 
     assert bundle.experiment["scientific_guardrails"]["test_accessed"] is False
     assert bundle.experiment["validation_metrics"]["records"] == 4
+    best_history = bundle.experiment["history"][bundle.experiment["best_epoch"] - 1]
+    assert best_history["validation_loss"] == pytest.approx(
+        bundle.experiment["validation_metrics"]["binary_cross_entropy"], abs=1e-6
+    )
     assert (model_directory / "model.pt").is_file()
     snapshot = json.loads((model_directory / "observability_snapshot.json").read_text(encoding="utf-8"))
     assert snapshot["architecture"]["trainable_parameters"] == 2033

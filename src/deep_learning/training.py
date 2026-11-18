@@ -117,7 +117,8 @@ def _epoch(
 ) -> tuple[float, np.ndarray, np.ndarray]:
     training = optimizer is not None
     model.train(training)
-    losses: list[float] = []
+    weighted_loss = 0.0
+    record_count = 0
     targets: list[np.ndarray] = []
     scores: list[np.ndarray] = []
     for batch in loader:
@@ -132,10 +133,14 @@ def _epoch(
             if training:
                 loss.backward()
                 optimizer.step()
-        losses.append(float(loss.detach().cpu()))
+        batch_records = int(labels.numel())
+        weighted_loss += float(loss.detach().cpu()) * batch_records
+        record_count += batch_records
         targets.append(labels.detach().cpu().numpy())
         scores.append(torch.sigmoid(logits).detach().cpu().numpy())
-    return float(np.mean(losses)), np.concatenate(targets), np.concatenate(scores)
+    if not record_count:
+        raise ValueError("ANN-02 cannot evaluate an empty dataset split")
+    return weighted_loss / record_count, np.concatenate(targets), np.concatenate(scores)
 
 
 def validate_dataset_integrity(path: Path = DEFAULT_DATASET_PATH) -> dict[str, Any]:
