@@ -155,7 +155,7 @@ Stage 08 provides a local, versioned FastAPI interface over the existing ASTRAL 
 .\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
 ```
 
-Open `http://127.0.0.1:8000/docs` for local interactive documentation. The Streamlit Developer Lab remains independently available on port 8501. See the [Stage 08 technical report](docs/stage08-backend-scientific-api.md).
+Open `http://127.0.0.1:8000/docs` for local interactive documentation. The Streamlit Developer Lab remains independently available on port 8501. See the [Stage 08 technical report](docs/stage08-backend-scientific-api.md) and the [technical and scientific API audit](docs/stage08-api-audit.md).
 
 ## Project structure
 

@@ -11,7 +11,7 @@ from src.api.services import ScientificService
 router = APIRouter(tags=["system"])
 
 
-@router.get("/health", response_model=HealthResponse, summary="Check local API readiness")
+@router.get("/health", response_model=HealthResponse, summary="Check local API readiness", operation_id="getHealth")
 def health(
     service: ScientificService = Depends(get_scientific_service),
     settings: ApiSettings = Depends(get_settings),
@@ -28,7 +28,7 @@ def health(
     )
 
 
-@router.get("/api/v1/info", response_model=ApiInfoResponse, summary="Describe API version and scientific guardrails")
+@router.get("/api/v1/info", response_model=ApiInfoResponse, summary="Describe API version and scientific guardrails", operation_id="getApiInfo")
 def info(settings: ApiSettings = Depends(get_settings)) -> ApiInfoResponse:
     return ApiInfoResponse(
         name=settings.title,

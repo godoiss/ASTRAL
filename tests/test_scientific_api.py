@@ -76,7 +76,16 @@ def test_openapi_exposes_no_training_or_download_routes(client: TestClient) -> N
     schema = client.get("/openapi.json").json()
     paths = schema["paths"]
 
+    operations = [
+        operation
+        for path_item in paths.values()
+        for method, operation in path_item.items()
+        if method.lower() in {"get", "post", "put", "patch", "delete"}
+    ]
+
     assert "/api/v1/inference/{model_id}" in paths
+    assert len(operations) == 18
+    assert len({operation["operationId"] for operation in operations}) == 18
     assert not any("train" in path.lower() or "download" in path.lower() for path in paths)
     write_operations = [
         (path, method)
@@ -85,6 +94,44 @@ def test_openapi_exposes_no_training_or_download_routes(client: TestClient) -> N
         if method.lower() in {"post", "put", "patch", "delete"}
     ]
     assert write_operations == [("/api/v1/inference/{model_id}", "post")]
+
+    for operation in operations:
+        success_schema = operation["responses"]["200"]["content"]["application/json"]["schema"]
+        assert "$ref" in success_schema
+        assert operation["responses"]["422"]["content"]["application/json"]["schema"] == {
+            "$ref": "#/components/schemas/ErrorResponse"
+        }
+
+
+def test_all_eighteen_operations_have_a_real_success_path(client: TestClient) -> None:
+    experiment_page = client.get("/api/v1/experiments", params={"stage": "stage07", "limit": 1})
+    experiment_id = experiment_page.json()["items"][0]["experiment_id"]
+    requests = [
+        ("get", "/health", None),
+        ("get", "/api/v1/info", None),
+        ("get", "/api/v1/datasets", None),
+        ("get", "/api/v1/observatory/summary", None),
+        ("get", "/api/v1/objects?query=K00753.01&limit=1", None),
+        ("get", "/api/v1/objects/K00753.01", None),
+        ("get", "/api/v1/objects/K00753.01/observation", None),
+        ("get", "/api/v1/objects/K00753.01/light-curve?view=phase&limit=50", None),
+        ("get", "/api/v1/models", None),
+        ("get", "/api/v1/models/ann-02", None),
+        ("get", "/api/v1/models/ann-02/history?limit=5", None),
+        ("post", "/api/v1/inference/ann-02", {"object_id": "K00753.01"}),
+        ("get", "/api/v1/metrics/comparison", None),
+        ("get", "/api/v1/explanations", None),
+        ("get", "/api/v1/explanations/K00753.01?include_saliency=true&saliency_points=50", None),
+        ("get", "/api/v1/experiments?stage=stage07&limit=1", None),
+        ("get", f"/api/v1/experiments/{experiment_id}", None),
+        ("get", "/api/v1/tess/experimental", None),
+    ]
+
+    assert len(requests) == 18
+    for method, url, body in requests:
+        response = client.request(method, url, json=body)
+        assert response.status_code == 200, (method, url, response.text)
+        _assert_no_internal_path(response.json())
 
 
 def test_dataset_and_observatory_summaries_are_sanitized(client: TestClient) -> None:
@@ -118,10 +165,10 @@ def test_frozen_test_identity_is_not_served_or_inferred(client: TestClient) -> N
     test_object = str(manifest.loc[manifest["split"].eq("test"), "kepoi_name"].iloc[0])
 
     detail = client.get(f"/api/v1/objects/{test_object}")
-    inference = client.post("/api/v1/inference/ann-01", json={"object_id": test_object})
+    ann01 = client.post("/api/v1/inference/ann-01", json={"object_id": test_object})
+    ann02 = client.post("/api/v1/inference/ann-02", json={"object_id": test_object})
 
-    assert detail.status_code == 404
-    assert inference.status_code == 404
+    assert detail.status_code == ann01.status_code == ann02.status_code == 404
     assert detail.json()["error"]["code"] == "object_not_found"
 
 
@@ -191,6 +238,7 @@ def test_inference_errors_are_consistent(client: TestClient) -> None:
     invalid_body = client.post("/api/v1/inference/ann-01", json={"object_id": "../secret"})
     missing = client.get("/api/v1/objects/DOES-NOT-EXIST")
     unknown_route = client.get("/api/v1/not-a-route")
+    invalid_path = client.get("/api/v1/objects/%2E%2E%5Csecret")
 
     assert unknown_model.status_code == 404
     assert unknown_model.json()["error"]["code"] == "model_not_found"
@@ -199,6 +247,8 @@ def test_inference_errors_are_consistent(client: TestClient) -> None:
     assert missing.status_code == 404
     assert unknown_route.status_code == 404
     assert unknown_route.json()["error"]["code"] == "route_not_found"
+    assert invalid_path.status_code == 422
+    assert invalid_path.json()["error"]["code"] == "validation_error"
 
 
 def test_metrics_explanations_and_saliency_are_persisted_and_bounded(client: TestClient) -> None:

@@ -25,7 +25,13 @@ from src.lab.services import (
     load_scientific_model,
 )
 from src.observatory.catalog import find_koi, load_observatory_catalog
-from src.observatory.persistence import artifact_is_cached, load_artifact
+from src.observatory.persistence import (
+    PROCESSED_DIRECTORY,
+    PROVENANCE_DIRECTORY,
+    RAW_DIRECTORY,
+    artifact_is_cached,
+    load_artifact,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -125,6 +131,26 @@ class ScientificService:
         return frame.loc[frame[OBJECT_ID_COLUMN].astype(str).isin(safe_ids)].copy()
 
     @cached_property
+    def ann01_overview(self) -> dict[str, Any]:
+        """Compute the catalog checksum once per process, not once per request."""
+        return dataset_overview(self.ann01_frame, DEFAULT_DATA_PATH)
+
+    def cached_observation_ids(self) -> frozenset[str]:
+        """Index complete artifacts and refresh when a cache directory changes."""
+        stamp = tuple(
+            directory.stat().st_mtime_ns if directory.exists() else 0
+            for directory in (RAW_DIRECTORY, PROCESSED_DIRECTORY, PROVENANCE_DIRECTORY)
+        )
+        if getattr(self, "_observation_cache_stamp", None) == stamp:
+            return self._observation_cache_ids
+        raw = {path.stem for path in RAW_DIRECTORY.glob("*.npz")}
+        processed = {path.stem for path in PROCESSED_DIRECTORY.glob("*.npz")}
+        provenance = {path.stem for path in PROVENANCE_DIRECTORY.glob("*.json")}
+        self._observation_cache_stamp = stamp
+        self._observation_cache_ids = frozenset(raw & processed & provenance)
+        return self._observation_cache_ids
+
+    @cached_property
     def ann01(self) -> LabModelState:
         state = load_scientific_model()
         if state is None:
@@ -185,7 +211,7 @@ class ScientificService:
         }
 
     def datasets(self) -> list[dict[str, Any]]:
-        overview = dataset_overview(self.ann01_frame, DEFAULT_DATA_PATH)
+        overview = self.ann01_overview
         ann02 = load_json(DATASET_REPORT_PATH)
         tess = load_json(TESS_REPORT_PATH)
         return [
@@ -251,14 +277,13 @@ class ScientificService:
                 )
                 frame = frame.loc[mask]
         if observed_only:
-            frame = frame.loc[frame["kepoi_name"].map(artifact_is_cached)]
+            frame = frame.loc[frame["kepoi_name"].astype(str).isin(self.cached_observation_ids())]
         total = int(len(frame))
         selected = frame.iloc[offset : offset + limit]
         items = [self._object_summary(row) for _, row in selected.iterrows()]
         return items, total
 
-    @staticmethod
-    def _object_summary(row: pd.Series) -> dict[str, Any]:
+    def _object_summary(self, row: pd.Series) -> dict[str, Any]:
         return {
             "object_id": str(row["kepoi_name"]),
             "display_name": str(row["display_name"]),
@@ -267,7 +292,7 @@ class ScientificService:
             "catalog_disposition": str(row["koi_disposition"]),
             "split": str(row["split"]),
             "period_days": None if pd.isna(row["koi_period"]) else float(row["koi_period"]),
-            "has_cached_observation": artifact_is_cached(str(row["kepoi_name"])),
+            "has_cached_observation": str(row["kepoi_name"]) in self.cached_observation_ids(),
         }
 
     def object_metadata(self, identifier: str) -> dict[str, Any]:
@@ -279,7 +304,7 @@ class ScientificService:
         metadata = matches[0]
         if metadata.split == "test":
             raise ApiError(404, "object_not_found", "No accessible astronomical object matches the identifier.")
-        return {**metadata.to_dict(), "has_cached_observation": artifact_is_cached(metadata.object_id)}
+        return {**metadata.to_dict(), "has_cached_observation": metadata.object_id in self.cached_observation_ids()}
 
     def _artifact(self, identifier: str):
         metadata_dict = self.object_metadata(identifier)
@@ -535,7 +560,46 @@ class ScientificService:
                     continue
                 identity = payload.get("experiment_id") or payload.get("campaign_id")
                 if str(identity) == experiment_id:
-                    return public_payload(payload)
+                    if "campaign_id" in payload:
+                        return {
+                            "experiment_id": str(payload["campaign_id"]),
+                            "stage": stage,
+                            "kind": "campaign",
+                            "generated_at_utc": payload.get("generated_at_utc"),
+                            "selected_trial": payload.get("selected_trial"),
+                            "selected_experiment_id": payload.get("selected_experiment_id"),
+                            "selection_metric": payload.get("selection_metric"),
+                            "runs": [
+                                {
+                                    "name": run["name"],
+                                    "changed_factor": run["changed_factor"],
+                                    "experiment_id": run["experiment_id"],
+                                    "best_epoch": run["best_epoch"],
+                                    "epochs_completed": run["epochs_completed"],
+                                    "duration_seconds": run["duration_seconds"],
+                                    "validation_metrics": run["validation_metrics"],
+                                }
+                                for run in payload.get("runs", [])
+                            ],
+                            "guardrails": payload.get("guardrails", {}),
+                            "limitations": payload.get("limitations", []),
+                        }
+                    return {
+                        "experiment_id": str(payload["experiment_id"]),
+                        "stage": stage,
+                        "kind": "training_run",
+                        "generated_at_utc": payload.get("generated_at_utc"),
+                        "architecture": public_payload(payload.get("architecture")),
+                        "configuration": public_payload(payload.get("training_config")),
+                        "best_epoch": payload.get("best_epoch"),
+                        "epochs_completed": payload.get("epochs_completed"),
+                        "duration_seconds": payload.get("duration_seconds"),
+                        "early_stopped": payload.get("early_stopped"),
+                        "history": public_payload(payload.get("history", [])),
+                        "validation_metrics": public_payload(payload.get("validation_metrics")),
+                        "guardrails": payload.get("scientific_guardrails", payload.get("guardrails", {})),
+                        "limitations": payload.get("limitations", []),
+                    }
         raise ApiError(404, "experiment_not_found", "No persisted experiment matches the identifier.")
 
     def tess(self) -> dict[str, Any]:

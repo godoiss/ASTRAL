@@ -113,7 +113,10 @@ configuration.
 
 ## Reliability and security controls
 
-- Pydantic validates request bodies, pagination, filters, view names, and limits.
+- Strict resource-specific Pydantic schemas validate request and response bodies,
+  pagination, filters, view names, identifiers, and limits.
+- All 18 operations expose stable `operationId` values and concrete response/error
+  schemas for future generated clients.
 - Object lists return at most 100 rows; curves return at most 5,000 points.
 - Frozen test identities are removed from the service catalog and rejected by
   object and inference endpoints.
@@ -126,7 +129,7 @@ configuration.
 
 ## Testing protocol
 
-`tests/test_scientific_api.py` validates endpoint contracts, OpenAPI methods,
+`tests/test_scientific_api.py` exercises all 18 operations and validates endpoint contracts, OpenAPI methods,
 pagination, validation failures, CORS, path sanitization, frozen-test rejection,
 real ANN-01/ANN-02 inference, cached curves, experiment artifacts, persisted
 explanations, TESS isolation, and absence of training/download calls.
@@ -139,6 +142,9 @@ explanations, TESS isolation, and absence of training/download calls.
 Tests patch acquisition and training entry points to fail if an API read invokes
 them. No test downloads scientific data, trains a model, activates a checkpoint,
 or evaluates the frozen test partition.
+
+The post-implementation technical and scientific verification is recorded in
+the [Stage 08 API audit](stage08-api-audit.md).
 
 ## Known limitations
 

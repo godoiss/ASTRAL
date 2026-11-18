@@ -16,6 +16,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from src.api.config import ApiSettings
 from src.api.errors import ApiError
 from src.api.routers import catalog, experiments, health, science
+from src.api.schemas import ErrorResponse
 
 
 LOGGER = logging.getLogger("astral.api")
@@ -35,6 +36,14 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
+        responses={
+            400: {"model": ErrorResponse, "description": "Malformed or disallowed request"},
+            404: {"model": ErrorResponse, "description": "Resource is unavailable or inaccessible"},
+            409: {"model": ErrorResponse, "description": "Ambiguous scientific identifier"},
+            422: {"model": ErrorResponse, "description": "Request validation failed"},
+            500: {"model": ErrorResponse, "description": "Unexpected local API error"},
+            503: {"model": ErrorResponse, "description": "Persisted scientific artifact is unavailable"},
+        },
     )
     app.state.settings = settings
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(settings.allowed_hosts))
