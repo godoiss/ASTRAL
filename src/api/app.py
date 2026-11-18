@@ -1,0 +1,130 @@
+"""FastAPI application factory for local scientific serving."""
+
+from __future__ import annotations
+
+import logging
+import time
+import uuid
+
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+
+from src.api.config import ApiSettings
+from src.api.errors import ApiError
+from src.api.routers import catalog, experiments, health, science
+
+
+LOGGER = logging.getLogger("astral.api")
+
+
+def create_app(settings: ApiSettings | None = None) -> FastAPI:
+    """Create a deterministic local-only API without scientific side effects."""
+    settings = settings or ApiSettings.from_environment()
+    app = FastAPI(
+        title=settings.title,
+        version=settings.version,
+        summary="Read-only access to persisted ASTRAL scientific resources",
+        description=(
+            "Local Stage 08 API. It exposes existing Kepler/TESS artifacts and "
+            "trained ANN-01/ANN-02 inference without training or downloading data."
+        ),
+        docs_url="/docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json",
+    )
+    app.state.settings = settings
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(settings.allowed_hosts))
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=list(settings.cors_origins),
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Accept", "Content-Type", "X-Request-ID"],
+    )
+
+    @app.middleware("http")
+    async def request_context(request: Request, call_next):
+        request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))[:128]
+        request.state.request_id = request_id
+        started = time.perf_counter()
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
+        response.headers["X-Process-Time-Ms"] = f"{1000 * (time.perf_counter() - started):.3f}"
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+    @app.exception_handler(ApiError)
+    async def api_error_handler(request: Request, exc: ApiError) -> JSONResponse:
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "error": {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "details": exc.details,
+                    "request_id": getattr(request.state, "request_id", None),
+                }
+            },
+        )
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+        details = [
+            {"location": list(error["loc"]), "message": error["msg"], "type": error["type"]}
+            for error in exc.errors()
+        ]
+        return JSONResponse(
+            status_code=422,
+            content={
+                "error": {
+                    "code": "validation_error",
+                    "message": "Request parameters or body are invalid.",
+                    "details": details,
+                    "request_id": getattr(request.state, "request_id", None),
+                }
+            },
+        )
+
+    @app.exception_handler(StarletteHTTPException)
+    async def http_error_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+        code = "route_not_found" if exc.status_code == 404 else "http_error"
+        message = "The requested API route does not exist." if exc.status_code == 404 else str(exc.detail)
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "error": {
+                    "code": code,
+                    "message": message,
+                    "details": None,
+                    "request_id": getattr(request.state, "request_id", None),
+                }
+            },
+        )
+
+    @app.exception_handler(Exception)
+    async def unexpected_error_handler(request: Request, exc: Exception) -> JSONResponse:
+        LOGGER.exception("Unhandled API error", extra={"request_id": getattr(request.state, "request_id", None)})
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": {
+                    "code": "internal_error",
+                    "message": "An unexpected local API error occurred.",
+                    "details": None,
+                    "request_id": getattr(request.state, "request_id", None),
+                }
+            },
+        )
+
+    app.include_router(health.router)
+    app.include_router(catalog.router)
+    app.include_router(science.router)
+    app.include_router(experiments.router)
+    return app
+
+
+app = create_app()

@@ -147,6 +147,16 @@ The original CPU pilot used 6 training records, 2 validation records, and one re
 
 Stage 07 adds real dataset-quality and bias diagnostics, model-faithful ANN-01 and ANN-02 explanations, like-for-like model comparison on shared KOI identities, versioned CPU experiment campaigns, and an isolated TESS compatibility pilot. The materialized cohort contains 146 training objects, 47 validation objects, and one unlabelled candidate across 194 distinct stars; six requested KICs lacked a bounded Quarter 3 product and one failed the coverage rule. The Developer Lab exposes **Dataset Intelligence**, **Model Comparison**, **Explainable AI**, and **Research Experiments** while preserving every earlier surface. Kepler/TESS data are not mixed, candidates remain unlabelled, and the frozen test set remains outside development decisions. See the [Stage 07 technical report](docs/stage07-astronomical-intelligence.md).
 
+## Backend & Scientific API
+
+Stage 08 provides a local, versioned FastAPI interface over the existing ASTRAL scientific services and persisted artifacts. It exposes bounded read access to datasets, KOIs, cached observations, processed light curves, ANN-01/ANN-02 models, inference, comparison metrics, explanations, experiment histories, and the isolated TESS pilot. The API has no training or download endpoint, excludes frozen test identities, strips internal filesystem paths, and pins ANN-02 inference to the Stage 07 `seed_stability` checkpoint.
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
+```
+
+Open `http://127.0.0.1:8000/docs` for local interactive documentation. The Streamlit Developer Lab remains independently available on port 8501. See the [Stage 08 technical report](docs/stage08-backend-scientific-api.md).
+
 ## Project structure
 
 ```text
@@ -161,6 +171,7 @@ ASTRAL/
 ├── docs/              # Architecture, mathematics, and technical reports
 ├── experiments/       # Versioned scientific-validation artifacts
 ├── src/
+│   ├── api/           # FastAPI routers, schemas, services, and local safeguards
 │   ├── core/          # Mathematical and neural-network primitives
 │   ├── data/          # Data ingestion and preprocessing
 │   ├── training/      # Training and evaluation workflows
@@ -173,6 +184,7 @@ ASTRAL/
 ├── tests/             # Automated tests
 ├── main.py            # Local application entry point
 ├── developer_lab.py   # Streamlit Developer Lab entry point
+├── api.py             # Local FastAPI ASGI entry point
 ├── requirements.txt   # Direct Python dependencies
 ├── .gitignore
 └── README.md
@@ -180,4 +192,4 @@ ASTRAL/
 
 ## Current scope
 
-The current platform excludes REST APIs, external AI services, automatic model combination, and standalone frontend frameworks. TESS support is an isolated technical experiment and is not part of Kepler training. ANN-01 remains an exclusively NumPy neural engine. PyTorch is used only by ANN-02. Scikit-learn provides scientific metrics and classical comparison models. Network access is limited to public scientific archives such as the NASA Exoplanet Archive and MAST; processing, training, persistence, observability, inference, and visualization remain local.
+The current platform includes a local read-only REST API but excludes public deployment, external AI services, automatic model combination, authentication infrastructure, and standalone frontend frameworks. TESS support is an isolated technical experiment and is not part of Kepler training. ANN-01 remains an exclusively NumPy neural engine. PyTorch is used only by ANN-02. Scikit-learn provides scientific metrics and classical comparison models. Network access is limited to explicitly invoked public scientific acquisition workflows; API inference and scientific queries remain local.
