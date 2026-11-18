@@ -26,11 +26,14 @@ from src.deep_learning.dataset import DEFAULT_DATASET_PATH, KeplerSignalDataset
 from src.deep_learning.hardware import hardware_report, select_device
 from src.deep_learning.model import DualBranchCNN
 from src.deep_learning.observability import build_snapshot, export_snapshot
+from src.observatory.catalog import load_observatory_catalog
 from src.validation.metrics import compute_classification_metrics, compute_curve_data
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL_DIRECTORY = PROJECT_ROOT / "models" / "ann02"
+DEFAULT_RUNS_DIRECTORY = DEFAULT_MODEL_DIRECTORY / "runs"
+DEFAULT_ACTIVE_MODEL_POINTER = DEFAULT_MODEL_DIRECTORY / "active_model.json"
 DEFAULT_EXPERIMENT_DIRECTORY = PROJECT_ROOT / "experiments" / "stage06"
 EpochCallback = Callable[[dict[str, float]], None]
 
@@ -146,6 +149,8 @@ def validate_dataset_integrity(path: Path = DEFAULT_DATASET_PATH) -> dict[str, A
     if not required.issubset(values):
         raise ValueError(f"ANN-02 dataset is missing fields: {sorted(required - values.keys())}")
     records = len(values["object_ids"])
+    if len(np.unique(values["object_ids"].astype(str))) != records:
+        raise ValueError("ANN-02 object identifiers must be unique")
     if values["global_flux"].shape != (records, 2001):
         raise ValueError("Global view must have shape (records, 2001)")
     if values["local_flux"].shape != (records, 201):
@@ -154,14 +159,42 @@ def validate_dataset_integrity(path: Path = DEFAULT_DATASET_PATH) -> dict[str, A
         raise ValueError("Global NaN values and availability mask disagree")
     if not np.array_equal(np.isnan(values["local_flux"]), ~values["local_mask"]):
         raise ValueError("Local NaN values and availability mask disagree")
+    allowed_splits = {"train", "validation", "test", "candidate"}
+    observed_splits = set(values["splits"].astype(str))
+    if not observed_splits.issubset(allowed_splits):
+        raise ValueError(f"Unsupported ANN-02 splits: {sorted(observed_splits - allowed_splits)}")
+    labelled_mask = np.isin(values["splits"].astype(str), ["train", "validation", "test"])
+    if not np.all(np.isin(values["class_labels"][labelled_mask], [0, 1])):
+        raise ValueError("Train, validation, and test records must use binary labels 0 or 1")
+    candidate_mask = values["splits"].astype(str) == "candidate"
+    if not np.all(values["class_labels"][candidate_mask] == -1):
+        raise ValueError("Candidate records must remain unlabelled with class_label=-1")
+
     assignments: dict[int, set[str]] = {}
     for kic, split, label in zip(values["kic"], values["splits"], values["class_labels"], strict=True):
-        if int(label) >= 0:
-            assignments.setdefault(int(kic), set()).add(str(split))
+        assignments.setdefault(int(kic), set()).add(str(split))
     conflicts = {kic: splits for kic, splits in assignments.items() if len(splits) > 1}
     if conflicts:
         raise ValueError(f"KIC leakage detected: {conflicts}")
-    summary: dict[str, Any] = {"records": records, "splits": {}, "test_records": 0}
+    frozen_test_overlap: list[int] = []
+    if Path(path).resolve() == DEFAULT_DATASET_PATH.resolve():
+        catalog = load_observatory_catalog()
+        frozen_test_stars = set(
+            catalog.loc[catalog["split"].eq("test"), "kepid"].dropna().astype(int)
+        )
+        materialized_stars = set(values["kic"].astype(int).tolist())
+        frozen_test_overlap = sorted(materialized_stars & frozen_test_stars)
+        if frozen_test_overlap:
+            raise ValueError(
+                f"Frozen Stage 04 test-star leakage detected: {frozen_test_overlap}"
+            )
+    summary: dict[str, Any] = {
+        "records": records,
+        "stars": int(np.unique(values["kic"]).size),
+        "splits": {},
+        "test_records": 0,
+        "frozen_test_star_overlap": frozen_test_overlap,
+    }
     for split in ("train", "validation", "test", "candidate"):
         mask = values["splits"].astype(str) == split
         labels = values["class_labels"][mask]
@@ -182,12 +215,14 @@ def train_ann02(
     model_config: ANN02Config,
     training_config: TrainingConfig,
     dataset_path: Path = DEFAULT_DATASET_PATH,
-    model_directory: Path = DEFAULT_MODEL_DIRECTORY,
+    model_directory: Path | None = None,
     experiment_directory: Path = DEFAULT_EXPERIMENT_DIRECTORY,
     epoch_callback: EpochCallback | None = None,
 ) -> ANN02Bundle:
-    """Train on train/validation only, early-stop, and persist the best real model."""
+    """Optimize on train only, monitor validation, and persist a versioned best model."""
     started = time.perf_counter()
+    experiment_id = datetime.now(UTC).strftime("ann02-%Y%m%dT%H%M%SZ")
+    versioned_persistence = model_directory is None
     integrity = validate_dataset_integrity(dataset_path)
     if integrity["test_records"]:
         raise ValueError("Stage 06 pilot dataset must not materialize frozen test records")
@@ -247,7 +282,9 @@ def train_ann02(
     )
     curves = compute_curve_data(validation_targets, validation_scores)
     duration = float(time.perf_counter() - started)
-    experiment_id = datetime.now(UTC).strftime("ann02-%Y%m%dT%H%M%SZ")
+    if model_directory is None:
+        model_directory = DEFAULT_RUNS_DIRECTORY / experiment_id
+    model_directory = Path(model_directory)
     experiment = {
         "schema_version": 1,
         "experiment_id": experiment_id,
@@ -269,6 +306,11 @@ def train_ann02(
             "sha256": _sha256(Path(dataset_path)),
             "integrity": integrity,
         },
+        "persistence": {
+            "model_directory": str(model_directory.resolve()),
+            "versioned": versioned_persistence,
+            "previous_model_preserved": versioned_persistence,
+        },
         "scientific_guardrails": {
             "test_accessed": False,
             "test_used_for_hyperparameters": False,
@@ -276,7 +318,6 @@ def train_ann02(
             "definitive_scientific_validation": False,
         },
     }
-    model_directory = Path(model_directory)
     _atomic_torch(model_directory / "model.pt", best_state)
     _atomic_json(model_directory / "model_config.json", model_config.to_dict())
     _atomic_json(model_directory / "training_config.json", training_config.to_dict())
@@ -295,15 +336,39 @@ def train_ann02(
     loss.backward()
     snapshot = build_snapshot(model, str(sample["object_id"]), device, duration)
     export_snapshot(model_directory / "observability_snapshot.json", snapshot)
+    if versioned_persistence:
+        relative_directory = model_directory.resolve().relative_to(PROJECT_ROOT.resolve())
+        _atomic_json(
+            DEFAULT_ACTIVE_MODEL_POINTER,
+            {
+                "schema_version": 1,
+                "experiment_id": experiment_id,
+                "model_directory": relative_directory.as_posix(),
+                "activated_at_utc": datetime.now(UTC).isoformat(),
+            },
+        )
     return ANN02Bundle(model, model_config, training_config, experiment, device)
 
 
+def active_ann02_model_directory() -> Path:
+    """Resolve the active versioned model, falling back to the original pilot bundle."""
+    if not DEFAULT_ACTIVE_MODEL_POINTER.is_file():
+        return DEFAULT_MODEL_DIRECTORY
+    try:
+        payload = json.loads(DEFAULT_ACTIVE_MODEL_POINTER.read_text(encoding="utf-8"))
+        directory = (PROJECT_ROOT / str(payload["model_directory"])).resolve()
+        directory.relative_to(PROJECT_ROOT.resolve())
+    except (OSError, ValueError, KeyError, json.JSONDecodeError):
+        return DEFAULT_MODEL_DIRECTORY
+    return directory if (directory / "model.pt").is_file() else DEFAULT_MODEL_DIRECTORY
+
+
 def load_ann02(
-    model_directory: Path = DEFAULT_MODEL_DIRECTORY,
+    model_directory: Path | None = None,
     device_preference: str = "auto",
 ) -> ANN02Bundle | None:
     """Load a persisted ANN-02 bundle, or return None when it is unavailable."""
-    directory = Path(model_directory)
+    directory = active_ann02_model_directory() if model_directory is None else Path(model_directory)
     required = [
         directory / "model.pt",
         directory / "model_config.json",

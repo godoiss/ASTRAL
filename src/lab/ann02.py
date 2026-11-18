@@ -21,6 +21,7 @@ from src.deep_learning.dataset import (
 from src.deep_learning.hardware import hardware_report
 from src.deep_learning.model import DualBranchCNN
 from src.deep_learning.training import (
+    DEFAULT_MODEL_DIRECTORY,
     infer_ann02,
     load_ann02,
     train_ann02,
@@ -70,6 +71,24 @@ def _line_chart(history: list[dict[str, Any]], fields: tuple[str, str], title: s
         legend={"orientation": "h"},
     )
     return figure
+
+
+def _experiment_row(label: str, experiment: dict[str, Any]) -> dict[str, Any]:
+    """Flatten real persisted metadata for a concise experiment comparison."""
+    metrics = experiment["validation_metrics"]
+    splits = experiment["dataset"]["integrity"]["splits"]
+    return {
+        "Experiment": label,
+        "ID": experiment["experiment_id"],
+        "Train objects": splits["train"]["records"],
+        "Validation objects": splits["validation"]["records"],
+        "Best epoch": experiment["best_epoch"],
+        "Accuracy": metrics["accuracy"],
+        "Balanced accuracy": metrics["balanced_accuracy"],
+        "F1": metrics["f1"],
+        "ROC-AUC": metrics["roc_auc"],
+        "BCE": metrics["binary_cross_entropy"],
+    }
 
 
 def _view_figure(sample: dict[str, Any], view: str) -> go.Figure:
@@ -215,14 +234,48 @@ def _training_section() -> Any:
         chart_columns = st.columns(2)
         chart_columns[0].plotly_chart(_line_chart(experiment["history"], ("train_loss", "validation_loss"), "Training and Validation Loss"), width="stretch")
         chart_columns[1].plotly_chart(_line_chart(experiment["history"], ("train_accuracy", "validation_accuracy"), "Training and Validation Accuracy"), width="stretch")
-        st.warning("Pilot validation metrics describe this small selected cohort only; they are not definitive scientific validation and the frozen test set remains untouched.")
+        st.warning("Validation metrics describe this small selected cohort only; they are not definitive scientific validation and the frozen test set remains untouched.")
+
+        original_pilot = load_ann02(DEFAULT_MODEL_DIRECTORY)
+        comparison = [_experiment_row("Active expanded run", experiment)]
+        if (
+            original_pilot is not None
+            and original_pilot.experiment["experiment_id"] != experiment["experiment_id"]
+        ):
+            comparison.append(_experiment_row("Original pilot", original_pilot.experiment))
+        if len(comparison) > 1:
+            st.markdown("##### Persisted experiment comparison")
+            st.dataframe(
+                pd.DataFrame(comparison),
+                width="stretch",
+                hide_index=True,
+                column_config={
+                    field: st.column_config.NumberColumn(field, format="%.4f")
+                    for field in ("Accuracy", "Balanced accuracy", "F1", "ROC-AUC", "BCE")
+                },
+            )
+            st.caption(
+                "These validation cohorts are small and differ in size. The table is descriptive; "
+                "it is not a definitive model comparison and the frozen test set remains unopened."
+            )
 
     controls = st.columns(4)
     learning_rate = controls[0].select_slider("Learning rate", [0.0003, 0.001, 0.003], value=0.001, key="ann02_lr")
     epochs = controls[1].slider("Maximum epochs", 10, 100, 40, 5, key="ann02_epochs")
     batch_size = controls[2].select_slider("Batch size", [4, 8, 16, 32], value=8, key="ann02_batch")
     seed = int(controls[3].number_input("Random seed", 1, 999999, 2026, key="ann02_seed"))
-    if st.button("Train ANN-02 on train + validation", key="ann02_train", disabled=not DEFAULT_DATASET_PATH.is_file()):
+    integrity = validate_dataset_integrity() if DEFAULT_DATASET_PATH.is_file() else None
+    train_records = 0 if integrity is None else integrity["splits"]["train"]["records"]
+    validation_records = 0 if integrity is None else integrity["splits"]["validation"]["records"]
+    st.caption(
+        f"Optimization uses {train_records} training objects only. "
+        f"The {validation_records} validation objects monitor loss and select the best checkpoint."
+    )
+    if st.button(
+        f"Train ANN-02 on {train_records} training objects",
+        key="ann02_train",
+        disabled=not DEFAULT_DATASET_PATH.is_file(),
+    ):
         chart = st.empty()
         status = st.empty()
         history: list[dict[str, float]] = []
@@ -246,7 +299,7 @@ def _training_section() -> Any:
         except Exception as exc:
             st.error(f"ANN-02 training could not start: {exc}")
         else:
-            st.success("Best validation checkpoint persisted. The Stage 04 test set was not accessed.")
+            st.success("Versioned best checkpoint persisted. The prior model and Stage 04 test set were not touched.")
             st.rerun()
     return bundle
 

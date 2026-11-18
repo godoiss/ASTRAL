@@ -141,7 +141,7 @@ python -m src.deep_learning.cli train
 python -m src.deep_learning.cli infer K00753.01
 ```
 
-The completed CPU pilot used 6 training records, 2 validation records, and one reserved candidate. Its metrics are operational smoke evidence only; the sample is far too small for scientific performance claims. Read the [Stage 06 technical report](docs/stage06-ann02-deep-learning.md) and machine-readable experiment at `experiments/stage06/latest_experiment.json`.
+The original CPU pilot used 6 training records, 2 validation records, and one reserved candidate. A subsequent versioned experiment used 30 training records, 10 validation records, and the same unlabelled candidate while preserving the pilot model. Both experiments are operational evidence only; the samples are too small for definitive scientific claims. Read the [Stage 06 technical report](docs/stage06-ann02-deep-learning.md) and machine-readable active experiment at `experiments/stage06/latest_experiment.json`.
 
 ## Project structure
 

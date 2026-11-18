@@ -88,6 +88,32 @@ def test_tensor_preparation_keeps_mask_and_neutral_missing_bins(tmp_path) -> Non
     assert torch.isfinite(sample["global_view"]).all()
 
 
+def test_integrity_rejects_labelled_candidate(tmp_path) -> None:
+    """Candidates must never enter ANN-02 as labelled supervision."""
+    dataset_path = tmp_path / "dataset.npz"
+    _write_small_dataset(dataset_path)
+    with np.load(dataset_path, allow_pickle=False) as payload:
+        values = {key: payload[key] for key in payload.files}
+    values["class_labels"][-1] = 1
+    np.savez_compressed(dataset_path, **values)
+
+    with pytest.raises(ValueError, match="Candidate records must remain unlabelled"):
+        validate_dataset_integrity(dataset_path)
+
+
+def test_integrity_rejects_host_star_crossing_splits(tmp_path) -> None:
+    """No host KIC may cross training, validation, test, or candidate partitions."""
+    dataset_path = tmp_path / "dataset.npz"
+    _write_small_dataset(dataset_path)
+    with np.load(dataset_path, allow_pickle=False) as payload:
+        values = {key: payload[key] for key in payload.files}
+    values["kic"][8] = values["kic"][0]
+    np.savez_compressed(dataset_path, **values)
+
+    with pytest.raises(ValueError, match="KIC leakage detected"):
+        validate_dataset_integrity(dataset_path)
+
+
 def test_training_persists_best_checkpoint_and_real_snapshot(tmp_path) -> None:
     dataset_path = tmp_path / "dataset.npz"
     _write_small_dataset(dataset_path)

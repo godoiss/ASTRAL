@@ -119,3 +119,61 @@ This IdeaPad exposed no NVIDIA device, so the verified distribution is CPU-only.
 - Investigate availability bias, low-SNR behavior, secondary eclipses, centroid information, and calibration.
 
 TESS, model combination, FastAPI, Next.js, and Stage 07 remain outside this implementation.
+
+## Expanded-dataset experiment (Stage 06 continuation)
+
+Experiment `ann02-20261118T134320Z` used dataset SHA-256
+`4ccb35e47b786023d8ee5e7fd5c02b286f50e781cbad8f5c82054fe6ed098142`.
+The immutable collection contains 41 distinct KOIs hosted by 41 distinct KIC stars:
+
+| Split | Confirmed | False positive | Unlabelled candidate | Total |
+|---|---:|---:|---:|---:|
+| Train | 15 | 15 | 0 | 30 |
+| Validation | 5 | 5 | 0 | 10 |
+| Candidate | 0 | 0 | 1 | 1 |
+| Test | 0 | 0 | 0 | 0 |
+
+Only the 30 training objects produced optimizer updates. The 10 validation objects
+were evaluated with gradients disabled and selected the lowest-validation-loss
+checkpoint. KOI-753.01 retained `class_label=-1` and was not supplied to either
+loader. No KIC occurs in more than one split, and the materialized KIC set has zero
+intersection with the 1,005 host stars in the frozen Stage 04 test partition.
+
+Training used the unchanged 2,033-parameter architecture, seed 2026, Adam,
+learning rate 0.001, batch size 8, weight decay 0.0001, and at most 40 epochs on
+CPU. It completed 40 epochs in 6.672 seconds. Epoch 39 was selected; epoch 40 was
+not persisted because its validation loss was higher.
+
+| Metric | Original pilot (2 validation) | Expanded run (10 validation) |
+|---|---:|---:|
+| Accuracy | 0.5000 | 0.8000 |
+| Balanced accuracy | 0.5000 | 0.8000 |
+| Precision | 0.5000 | 0.8000 |
+| Recall | 1.0000 | 0.8000 |
+| F1 | 0.6667 | 0.8000 |
+| ROC-AUC | 1.0000 | 0.7600 |
+| PR-AUC | 1.0000 | 0.8600 |
+| Binary cross-entropy | 0.6792 | 0.6355 |
+| Confusion matrix | `[[0, 1], [0, 1]]` | `[[4, 1], [1, 4]]` |
+
+The apparent improvement is descriptive, not a definitive validation: the
+validation set has only five examples per class, the cohorts differ in size, and
+selection remains balanced, short-period-, Q3-, cache-, quality-, and SNR-biased.
+The pilot's perfect ROC/PR ranking arose from one example per class and is not
+statistically meaningful. No test-set result is reported because that partition
+remains unopened.
+
+On the reserved KOI-753.01 candidate, the expanded model emitted an uncalibrated
+score of `0.341610`, compared with `0.514728` from the original pilot. This change
+is not evidence for or against planetary status: the candidate supplied no label,
+did not participate in optimization or checkpoint selection, and neither score is
+a calibrated probability.
+
+The expanded checkpoint is stored separately under
+`models/ann02/runs/ann02-20261118T134320Z`. The original pilot hash remains
+`39fb14c1a47d23b5ec61f1de107c3e35587149b51909c16c7c407c116df71afa`; the
+expanded model hash is
+`7863c249588cc16b8ef60cacaf609b6717ce434f2dec898b4e023a609f444e45`.
+The Developer Lab resolves the active-model pointer, renders the expanded learning
+curves and metrics, and compares them with the preserved pilot. Its training button
+now states that optimization uses training records only.
