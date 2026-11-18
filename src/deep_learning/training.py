@@ -342,16 +342,7 @@ def train_ann02(
     snapshot = build_snapshot(model, str(sample["object_id"]), device, duration)
     export_snapshot(model_directory / "observability_snapshot.json", snapshot)
     if versioned_persistence:
-        relative_directory = model_directory.resolve().relative_to(PROJECT_ROOT.resolve())
-        _atomic_json(
-            DEFAULT_ACTIVE_MODEL_POINTER,
-            {
-                "schema_version": 1,
-                "experiment_id": experiment_id,
-                "model_directory": relative_directory.as_posix(),
-                "activated_at_utc": datetime.now(UTC).isoformat(),
-            },
-        )
+        activate_ann02_model(model_directory)
     return ANN02Bundle(model, model_config, training_config, experiment, device)
 
 
@@ -366,6 +357,27 @@ def active_ann02_model_directory() -> Path:
     except (OSError, ValueError, KeyError, json.JSONDecodeError):
         return DEFAULT_MODEL_DIRECTORY
     return directory if (directory / "model.pt").is_file() else DEFAULT_MODEL_DIRECTORY
+
+
+def activate_ann02_model(model_directory: Path) -> Path:
+    """Activate one persisted local ANN-02 bundle without copying or overwriting it."""
+    directory = Path(model_directory).resolve()
+    directory.relative_to(PROJECT_ROOT.resolve())
+    required = ("model.pt", "model_config.json", "training_config.json", "experiment.json")
+    if not all((directory / name).is_file() for name in required):
+        raise ValueError(f"Incomplete ANN-02 model bundle: {directory}")
+    experiment = json.loads((directory / "experiment.json").read_text(encoding="utf-8"))
+    relative_directory = directory.relative_to(PROJECT_ROOT.resolve())
+    _atomic_json(
+        DEFAULT_ACTIVE_MODEL_POINTER,
+        {
+            "schema_version": 1,
+            "experiment_id": experiment["experiment_id"],
+            "model_directory": relative_directory.as_posix(),
+            "activated_at_utc": datetime.now(UTC).isoformat(),
+        },
+    )
+    return directory
 
 
 def load_ann02(

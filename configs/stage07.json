@@ -1,0 +1,25 @@
+{
+  "dataset_target": {
+    "labelled_objects": 200,
+    "candidate_objects": 1,
+    "quarter": 3,
+    "max_new_downloads_per_run": 40,
+    "max_parallel_downloads": 2,
+    "max_products_per_object": 1,
+    "storage_limit_mb": 250,
+    "max_period_days": 30,
+    "seed": 2026
+  },
+  "campaign": {
+    "selection_metric": "validation_binary_cross_entropy",
+    "test_accessed": false,
+    "activate_selected_checkpoint": true
+  },
+  "tess_pilot": {
+    "target": "TIC 441420236",
+    "sector": 27,
+    "exptime_seconds": 120,
+    "max_products": 1,
+    "mixed_with_kepler_training": false
+  }
+}

@@ -165,11 +165,14 @@ def _dataset_section() -> None:
                 st.caption(f"• {bias}")
 
     acquisition_columns = st.columns(4)
+    cohort_options = [8, 16, 24, 32, 40, 64, 80, 100, 120, 160, 200]
+    configured_size = 40 if manifest is None else int(manifest.get("configuration", {}).get("pilot_size", 40))
+    configured_size = configured_size if configured_size in cohort_options else 40
     pilot_size = acquisition_columns[0].select_slider(
-        "Classified pilot size", options=[8, 16, 24, 32, 40, 64], value=8, key="ann02_pilot_size"
+        "Classified cohort target", options=cohort_options, value=configured_size, key="ann02_pilot_size"
     )
     max_downloads = acquisition_columns[1].number_input(
-        "Maximum new downloads", 0, 64, min(40, pilot_size + 1), key="ann02_max_downloads"
+        "Maximum new downloads this run", 0, 40, min(40, pilot_size + 1), key="ann02_max_downloads"
     )
     products = acquisition_columns[2].select_slider(
         "FITS per object", options=[1, 2, 3], value=1, key="ann02_products"
@@ -178,10 +181,10 @@ def _dataset_section() -> None:
         "Storage ceiling (MB)", 50, 1000, 250, step=50, key="ann02_storage"
     )
     st.caption(
-        "The default pilot is balanced, prefers cached Q3 observations, and excludes periods above 30 days. "
+        "The cohort is balanced, prefers cached Q3 observations, and excludes periods above 30 days. "
         "These controls reduce storage but introduce documented selection bias. Stage 04 test stars are never acquired here."
     )
-    if st.button("Acquire / resume bounded pilot", key="ann02_acquire", type="primary"):
+    if st.button("Acquire / resume bounded cohort", key="ann02_acquire", type="primary"):
         progress = st.progress(0.0, text="Validating Stage 05 pipeline…")
         status = st.empty()
 
@@ -194,6 +197,7 @@ def _dataset_section() -> None:
                 DatasetBuildConfig(
                     pilot_size=int(pilot_size),
                     max_new_downloads=int(max_downloads),
+                    max_parallel_downloads=2,
                     max_products_per_object=int(products),
                     storage_limit_mb=float(storage),
                 ),

@@ -18,6 +18,7 @@ class DatasetBuildConfig:
     quarter: int | None = 3
     max_products_per_object: int = 1
     max_new_downloads: int = 5
+    max_parallel_downloads: int = 1
     storage_limit_mb: float = 250.0
     per_object_timeout_seconds: int = 120
     max_period_days: float = 30.0
@@ -36,6 +37,8 @@ class DatasetBuildConfig:
             raise ValueError("max_products_per_object must be between 1 and 8")
         if not 0 <= self.max_new_downloads <= 200:
             raise ValueError("max_new_downloads must be between 0 and 200")
+        if not 1 <= self.max_parallel_downloads <= 4:
+            raise ValueError("max_parallel_downloads must be between 1 and 4")
         if self.storage_limit_mb < 10:
             raise ValueError("storage_limit_mb must be at least 10")
         if not 30 <= self.per_object_timeout_seconds <= 900:

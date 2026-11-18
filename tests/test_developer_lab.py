@@ -91,4 +91,8 @@ def test_streamlit_exposes_ann02_without_breaking_existing_tabs() -> None:
         "ANN-02 — Signal Intelligence",
         "Scientific Validation",
         "NASA Dataset",
+        "Dataset Intelligence",
+        "Model Comparison",
+        "Explainable AI",
+        "Research Experiments",
     ]

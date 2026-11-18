@@ -1,11 +1,12 @@
 {
   "dataset": {
-    "pilot_size": 8,
+    "pilot_size": 200,
     "candidate_size": 1,
     "seed": 2026,
     "quarter": 3,
     "max_products_per_object": 1,
-    "max_new_downloads": 5,
+    "max_new_downloads": 40,
+    "max_parallel_downloads": 2,
     "storage_limit_mb": 250.0,
     "per_object_timeout_seconds": 120,
     "max_period_days": 30.0,

@@ -143,6 +143,10 @@ python -m src.deep_learning.cli infer K00753.01
 
 The original CPU pilot used 6 training records, 2 validation records, and one reserved candidate. A subsequent versioned experiment used 30 training records, 10 validation records, and the same unlabelled candidate while preserving the pilot model. Both experiments are operational evidence only; the samples are too small for definitive scientific claims. Read the [Stage 06 technical report](docs/stage06-ann02-deep-learning.md) and machine-readable active experiment at `experiments/stage06/latest_experiment.json`.
 
+## Astronomical Intelligence
+
+Stage 07 adds real dataset-quality and bias diagnostics, model-faithful ANN-01 and ANN-02 explanations, like-for-like model comparison on shared KOI identities, versioned CPU experiment campaigns, and an isolated TESS compatibility pilot. The materialized cohort contains 146 training objects, 47 validation objects, and one unlabelled candidate across 194 distinct stars; six requested KICs lacked a bounded Quarter 3 product and one failed the coverage rule. The Developer Lab exposes **Dataset Intelligence**, **Model Comparison**, **Explainable AI**, and **Research Experiments** while preserving every earlier surface. Kepler/TESS data are not mixed, candidates remain unlabelled, and the frozen test set remains outside development decisions. See the [Stage 07 technical report](docs/stage07-astronomical-intelligence.md).
+
 ## Project structure
 
 ```text
@@ -176,4 +180,4 @@ ASTRAL/
 
 ## Current scope
 
-The current platform excludes REST APIs, external AI services, TESS integration, model combination, and standalone frontend frameworks. ANN-01 remains an exclusively NumPy neural engine. PyTorch is used only by ANN-02. Scikit-learn provides scientific metrics and classical comparison models. Network access is limited to public scientific archives such as the NASA Exoplanet Archive and MAST; processing, training, persistence, observability, inference, and visualization remain local.
+The current platform excludes REST APIs, external AI services, automatic model combination, and standalone frontend frameworks. TESS support is an isolated technical experiment and is not part of Kepler training. ANN-01 remains an exclusively NumPy neural engine. PyTorch is used only by ANN-02. Scikit-learn provides scientific metrics and classical comparison models. Network access is limited to public scientific archives such as the NASA Exoplanet Archive and MAST; processing, training, persistence, observability, inference, and visualization remain local.

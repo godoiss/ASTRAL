@@ -24,6 +24,12 @@ from src.lab.services import (
     train_developer_model,
 )
 from src.lab.ann02 import render_ann02
+from src.lab.intelligence import (
+    render_dataset_intelligence,
+    render_explainable_ai,
+    render_model_comparison,
+    render_research_experiments,
+)
 from src.lab.visualization import (
     CYAN,
     VIOLET,
@@ -733,6 +739,10 @@ def main() -> None:
             "ANN-02 — Signal Intelligence",
             "Scientific Validation",
             "NASA Dataset",
+            "Dataset Intelligence",
+            "Model Comparison",
+            "Explainable AI",
+            "Research Experiments",
         ]
     )
     with tabs[0]:
@@ -749,6 +759,14 @@ def main() -> None:
         _render_validation(results)
     with tabs[6]:
         _render_dataset(frame, overview)
+    with tabs[7]:
+        render_dataset_intelligence()
+    with tabs[8]:
+        render_model_comparison(state, frame)
+    with tabs[9]:
+        render_explainable_ai(state, frame)
+    with tabs[10]:
+        render_research_experiments()
 
     st.divider()
     st.caption("ASTRAL Developer Lab · Local execution · NumPy ANN-01 + PyTorch ANN-02 · No external AI services")

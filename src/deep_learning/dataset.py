@@ -9,6 +9,8 @@ import random
 import subprocess
 import sys
 import tempfile
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -50,7 +52,18 @@ def _atomic_json(path: Path, payload: Any) -> Path:
             json.dumps(payload, indent=2, ensure_ascii=False, allow_nan=False),
             encoding="utf-8",
         )
-        os.replace(temporary, path)
+        last_error: PermissionError | None = None
+        for attempt in range(6):
+            try:
+                os.replace(temporary, path)
+                last_error = None
+                break
+            except PermissionError as exc:
+                last_error = exc
+                if attempt < 5:
+                    time.sleep(0.05 * (2**attempt))
+        if last_error is not None:
+            raise last_error
     finally:
         temporary.unlink(missing_ok=True)
     return path
@@ -196,7 +209,21 @@ def select_balanced_cohort(
             )
             if sum(item["split"] == "candidate" for item in selected) == config.candidate_size:
                 break
-    return selected
+    buckets = {
+        (split, label): [
+            item for item in selected
+            if item["split"] == split and item["class_label"] == label
+        ]
+        for split in ("train", "validation")
+        for label in (0, 1)
+    }
+    ordered: list[dict[str, Any]] = []
+    for index in range(max((len(items) for items in buckets.values()), default=0)):
+        for key in (("train", 0), ("train", 1), ("validation", 0), ("validation", 1)):
+            if index < len(buckets[key]):
+                ordered.append(buckets[key][index])
+    ordered.extend(item for item in selected if item["split"] == "candidate")
+    return ordered
 
 
 def signal_quality(
@@ -328,38 +355,28 @@ def build_incremental_dataset(
         quarter=config.quarter,
         max_products=config.max_products_per_object,
     )
-    examples: list[NeuralLightCurveExample] = []
-    records: list[dict[str, Any]] = []
-    new_downloads = 0
-    for index, selected in enumerate(cohort, start=1):
+    example_by_id: dict[str, NeuralLightCurveExample] = {}
+    record_by_id: dict[str, dict[str, Any]] = {}
+
+    def acquire_selected(
+        selected: dict[str, Any],
+        was_cached: bool,
+    ) -> tuple[dict[str, Any], NeuralLightCurveExample]:
         object_id = selected["object_id"]
-        if progress_callback:
-            progress_callback("acquisition", index, len(cohort), object_id)
         row = catalog[catalog["kepoi_name"].eq(object_id)].iloc[0]
         metadata = metadata_from_row(row)
-        was_cached = artifact_is_cached(object_id)
-        if not was_cached:
-            if new_downloads >= config.max_new_downloads:
-                checkpoint["failed"][object_id] = "new_download_limit_reached"
-                _atomic_json(checkpoint_path, checkpoint)
-                continue
-            if _directory_size(OBSERVATORY_ROOT) >= config.storage_limit_mb * 1024**2:
-                checkpoint["failed"][object_id] = "storage_limit_reached"
-                _atomic_json(checkpoint_path, checkpoint)
-                continue
-            new_downloads += 1
-        try:
-            if was_cached:
-                artifact, example = acquire_observation(metadata, observatory_config)
-            else:
-                artifact, example = _acquire_with_hard_timeout(
-                    metadata,
-                    observatory_config,
-                    config.per_object_timeout_seconds,
-                )
-            quality = signal_quality(artifact, example)
-            exclusion = quality_exclusion(quality, config)
-            record = {
+        if was_cached:
+            artifact, example = acquire_observation(metadata, observatory_config)
+        else:
+            artifact, example = _acquire_with_hard_timeout(
+                metadata,
+                observatory_config,
+                config.per_object_timeout_seconds,
+            )
+        quality = signal_quality(artifact, example)
+        exclusion = quality_exclusion(quality, config)
+        return (
+            {
                 **selected,
                 "status": "excluded" if exclusion else "accepted",
                 "exclusion_reason": exclusion,
@@ -367,16 +384,63 @@ def build_incremental_dataset(
                 "provenance_path": str(artifact.provenance_path.resolve()),
                 "raw_path": str(artifact.raw_path.resolve()),
                 "processed_path": str(artifact.processed_path.resolve()),
-            }
+            },
+            example,
+        )
+
+    pending: list[tuple[int, dict[str, Any]]] = []
+    new_downloads = 0
+    for index, selected in enumerate(cohort, start=1):
+        object_id = selected["object_id"]
+        was_cached = artifact_is_cached(object_id)
+        if not was_cached:
+            if new_downloads >= config.max_new_downloads:
+                checkpoint["failed"][object_id] = "new_download_limit_reached"
+                continue
+            if _directory_size(OBSERVATORY_ROOT) >= config.storage_limit_mb * 1024**2:
+                checkpoint["failed"][object_id] = "storage_limit_reached"
+                continue
+            new_downloads += 1
+            pending.append((index, selected))
+            continue
+        if progress_callback:
+            progress_callback("cache", index, len(cohort), object_id)
+        try:
+            record, example = acquire_selected(selected, True)
             checkpoint["completed"][object_id] = record
             checkpoint["failed"].pop(object_id, None)
-            records.append(record)
-            if exclusion is None:
-                examples.append(example)
-        except Exception as exc:  # archive/network/scientific errors are recorded per object
+            record_by_id[object_id] = record
+            if record["status"] == "accepted":
+                example_by_id[object_id] = example
+        except Exception as exc:
             checkpoint["failed"][object_id] = f"{type(exc).__name__}: {exc}"
         checkpoint["updated_at_utc"] = datetime.now(UTC).isoformat()
         _atomic_json(checkpoint_path, checkpoint)
+
+    with ThreadPoolExecutor(max_workers=config.max_parallel_downloads) as executor:
+        futures = {
+            executor.submit(acquire_selected, selected, False): (index, selected)
+            for index, selected in pending
+        }
+        for future in as_completed(futures):
+            index, selected = futures[future]
+            object_id = selected["object_id"]
+            if progress_callback:
+                progress_callback("download", index, len(cohort), object_id)
+            try:
+                record, example = future.result()
+                checkpoint["completed"][object_id] = record
+                checkpoint["failed"].pop(object_id, None)
+                record_by_id[object_id] = record
+                if record["status"] == "accepted":
+                    example_by_id[object_id] = example
+            except Exception as exc:
+                checkpoint["failed"][object_id] = f"{type(exc).__name__}: {exc}"
+            checkpoint["updated_at_utc"] = datetime.now(UTC).isoformat()
+            _atomic_json(checkpoint_path, checkpoint)
+
+    records = [record_by_id[item["object_id"]] for item in cohort if item["object_id"] in record_by_id]
+    examples = [example_by_id[item["object_id"]] for item in cohort if item["object_id"] in example_by_id]
 
     if not examples:
         raise RuntimeError("No observation passed the ANN-02 quality criteria")

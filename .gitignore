@@ -6,6 +6,7 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .cache/
+logs/
 
 # Virtual environments
 .venv/
@@ -55,3 +56,6 @@ data/observatory/catalog/*
 # ANN-02 incremental signals, checkpoints, and trained artifacts
 data/ann02/*
 !data/ann02/.gitkeep
+
+# Isolated Stage 07 TESS pilot products (never mixed with Kepler training)
+data/tess_experimental/

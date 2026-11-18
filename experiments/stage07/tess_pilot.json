@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-18T18:07:17.254976+00:00",
+  "target": "TIC 441420236",
+  "sector_requested": 27,
+  "exptime_requested_seconds": 120,
+  "search_records": 1,
+  "selected_records": 1,
+  "product": {
+    "target_name": "441420236",
+    "mission": "TESS Sector 27",
+    "author": "SPOC",
+    "exptime": "120.0",
+    "obsid": "27810378",
+    "productFilename": "tess2020186164531-s0027-0000000441420236-0189-s_lc.fits",
+    "dataURI": "mast:TESS/product/tess2020186164531-s0027-0000000441420236-0189-s_lc.fits"
+  },
+  "downloaded": true,
+  "compatibility": {
+    "schema_version": 1,
+    "status": "technical_compatibility_only",
+    "common_contract": {
+      "container": "FITS light-curve products readable as Lightkurve LightCurve/Astropy Table",
+      "core_columns": [
+        "time",
+        "flux",
+        "flux_err",
+        "quality"
+      ],
+      "search_interface": "lightkurve.search_lightcurve(..., mission='TESS')"
+    },
+    "differences": [
+      {
+        "topic": "identity",
+        "kepler": "KIC/KOI",
+        "tess": "TIC/TOI"
+      },
+      {
+        "topic": "segment",
+        "kepler": "quarter",
+        "tess": "sector"
+      },
+      {
+        "topic": "time zero-point",
+        "kepler": "BKJD = BJD - 2454833",
+        "tess": "BTJD = BJD - 2457000"
+      },
+      {
+        "topic": "cadence",
+        "kepler": "typically ~30-minute long cadence",
+        "tess": "20 s, 120 s, 200 s, 10 min, or 30 min depending on product/epoch"
+      },
+      {
+        "topic": "coverage",
+        "kepler": "repeated quarters over years",
+        "tess": "typically sector-scale windows near 27 days, with overlap-dependent revisits"
+      },
+      {
+        "topic": "pixels",
+        "kepler": "~4 arcsec/pixel",
+        "tess": "~21 arcsec/pixel; blending risk differs"
+      }
+    ],
+    "requirements_before_cross_mission_validation": [
+      "Mission-specific provenance, quality masks, time conversion, cadence handling, and detrending.",
+      "TIC/TOI labels with host-star grouped partitions and explicit label provenance.",
+      "Separate Kepler and TESS calibration studies before any mixed training.",
+      "Evaluation of dilution, crowding, sector coverage, domain shift, and score calibration."
+    ],
+    "sources": [
+      "https://lightkurve.github.io/lightkurve/reference/api/lightkurve.search_lightcurve.html",
+      "https://lightkurve.github.io/lightkurve/tutorials/1-getting-started/using-light-curve-file-products.html",
+      "https://archive.stsci.edu/missions-and-data/tess",
+      "https://outerspace.stsci.edu/spaces/TESS/pages/14563420/2.0%2B-%2BData%2BProduct%2BOverview"
+    ],
+    "mixed_with_kepler_training": false
+  },
+  "guardrails": {
+    "files_requested": 1,
+    "mixed_with_kepler_training": false
+  },
+  "observation": {
+    "mission": "TESS",
+    "author": "SPOC",
+    "sector": 27,
+    "target_id": "441420236",
+    "time_format": "btjd",
+    "time_scale": "tdb",
+    "cadence_seconds_median": 120.00256014580373,
+    "records": 16812,
+    "finite_records": 16781,
+    "quality_flagged_records": 45,
+    "time_start": 2036.2784750696424,
+    "time_end": 2060.6468989260707,
+    "time_span_days": 24.368423856428308
+  },
+  "elapsed_seconds": 19.431616900023073
+}

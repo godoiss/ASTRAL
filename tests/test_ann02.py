@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import json
+from unittest.mock import patch
 
 import numpy as np
 import pytest
 import torch
 
 from src.deep_learning.config import ANN02Config, DatasetBuildConfig, TrainingConfig
-from src.deep_learning.dataset import KeplerSignalDataset, select_balanced_cohort
+from src.deep_learning.dataset import KeplerSignalDataset, _atomic_json, select_balanced_cohort
 from src.deep_learning.model import DualBranchCNN
 from src.deep_learning.training import load_ann02, train_ann02, validate_dataset_integrity
 from src.observatory.catalog import load_observatory_catalog
@@ -72,6 +73,13 @@ def test_balanced_selection_never_uses_frozen_test_stars() -> None:
     assert sum(item["class_label"] == 1 for item in labelled) == 8
     assert len({item["kic"] for item in cohort}) == len(cohort)
     assert any(item["object_id"] == "K00753.01" for item in cohort)
+    first_four = [(item["split"], item["class_label"]) for item in cohort[:4]]
+    assert first_four == [
+        ("train", 0),
+        ("train", 1),
+        ("validation", 0),
+        ("validation", 1),
+    ]
 
 
 def test_tensor_preparation_keeps_mask_and_neutral_missing_bins(tmp_path) -> None:
@@ -112,6 +120,27 @@ def test_integrity_rejects_host_star_crossing_splits(tmp_path) -> None:
 
     with pytest.raises(ValueError, match="KIC leakage detected"):
         validate_dataset_integrity(dataset_path)
+
+
+def test_checkpoint_atomic_replace_retries_transient_windows_lock(tmp_path) -> None:
+    """OneDrive/antivirus locks must not discard a valid acquisition checkpoint."""
+    path = tmp_path / "checkpoint.json"
+    from os import replace as real_replace
+
+    attempts = 0
+
+    def flaky_replace(source, destination):
+        nonlocal attempts
+        attempts += 1
+        if attempts < 3:
+            raise PermissionError("transient file lock")
+        return real_replace(source, destination)
+
+    with patch("src.deep_learning.dataset.os.replace", side_effect=flaky_replace):
+        _atomic_json(path, {"completed": 3})
+
+    assert attempts == 3
+    assert json.loads(path.read_text(encoding="utf-8")) == {"completed": 3}
 
 
 def test_training_persists_best_checkpoint_and_real_snapshot(tmp_path) -> None:

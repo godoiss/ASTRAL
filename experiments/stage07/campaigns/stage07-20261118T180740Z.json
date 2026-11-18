@@ -1,0 +1,933 @@
+{
+  "schema_version": 1,
+  "campaign_id": "stage07-20261118T180740Z",
+  "generated_at_utc": "2026-11-18T18:08:47.121549+00:00",
+  "selection_metric": "validation binary cross-entropy",
+  "selected_trial": "seed_stability",
+  "selected_experiment_id": "ann02-20261118T180835Z",
+  "dataset_integrity": {
+    "records": 194,
+    "stars": 194,
+    "splits": {
+      "train": {
+        "records": 146,
+        "stars": 146,
+        "class_0": 75,
+        "class_1": 71
+      },
+      "validation": {
+        "records": 47,
+        "stars": 47,
+        "class_0": 24,
+        "class_1": 23
+      },
+      "test": {
+        "records": 0,
+        "stars": 0,
+        "class_0": 0,
+        "class_1": 0
+      },
+      "candidate": {
+        "records": 1,
+        "stars": 1,
+        "class_0": 0,
+        "class_1": 0
+      }
+    },
+    "test_records": 0,
+    "frozen_test_star_overlap": []
+  },
+  "runs": [
+    {
+      "name": "baseline",
+      "changed_factor": "reference",
+      "experiment_id": "ann02-20261118T180740Z",
+      "model_directory": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\models\\ann02\\stage07\\stage07-20261118T180740Z\\baseline",
+      "architecture": {
+        "name": "ANN-02 Signal Intelligence",
+        "input_views": {
+          "global": [
+            2,
+            2001
+          ],
+          "local": [
+            2,
+            201
+          ]
+        },
+        "channels": [
+          "median-centered flux",
+          "availability mask"
+        ],
+        "modules": [
+          {
+            "name": "global_branch",
+            "type": "SignalBranch",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers",
+            "type": "ModuleDict",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.conv_1",
+            "type": "Conv1d",
+            "parameters": 88
+          },
+          {
+            "name": "global_branch.layers.relu_1",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.pool_1",
+            "type": "MaxPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.conv_2",
+            "type": "Conv1d",
+            "parameters": 656
+          },
+          {
+            "name": "global_branch.layers.relu_2",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.adaptive_pool",
+            "type": "AdaptiveAvgPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch",
+            "type": "SignalBranch",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers",
+            "type": "ModuleDict",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.conv_1",
+            "type": "Conv1d",
+            "parameters": 88
+          },
+          {
+            "name": "local_branch.layers.relu_1",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.pool_1",
+            "type": "MaxPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.conv_2",
+            "type": "Conv1d",
+            "parameters": 656
+          },
+          {
+            "name": "local_branch.layers.relu_2",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.adaptive_pool",
+            "type": "AdaptiveAvgPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "fusion",
+            "type": "Linear",
+            "parameters": 528
+          },
+          {
+            "name": "fusion_activation",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "dropout",
+            "type": "Dropout",
+            "parameters": 0
+          },
+          {
+            "name": "classifier",
+            "type": "Linear",
+            "parameters": 17
+          }
+        ],
+        "trainable_parameters": 2033,
+        "configuration": {
+          "input_channels": 2,
+          "branch_channels": [
+            8,
+            16
+          ],
+          "kernel_size": 5,
+          "global_pool_size": 4,
+          "local_pool_size": 2,
+          "fused_features": 16,
+          "dropout": 0.2
+        }
+      },
+      "training_config": {
+        "learning_rate": 0.001,
+        "epochs": 60,
+        "batch_size": 16,
+        "weight_decay": 0.0001,
+        "patience": 10,
+        "min_delta": 0.0001,
+        "seed": 2027,
+        "threshold": 0.5,
+        "device": "cpu",
+        "num_workers": 0
+      },
+      "best_epoch": 33,
+      "epochs_completed": 43,
+      "duration_seconds": 16.83577899984084,
+      "validation_metrics": {
+        "accuracy": 0.723404255319149,
+        "balanced_accuracy": 0.723731884057971,
+        "precision": 0.7083333333333334,
+        "recall": 0.7391304347826086,
+        "f1": 0.723404255319149,
+        "roc_auc": 0.7789855072463768,
+        "pr_auc": 0.7333758453729765,
+        "binary_cross_entropy": 0.579121526871124,
+        "confusion_matrix": [
+          [
+            17,
+            7
+          ],
+          [
+            6,
+            17
+          ]
+        ],
+        "records": 47,
+        "positive_prevalence": 0.48936170212765956,
+        "threshold": 0.5
+      }
+    },
+    {
+      "name": "low_learning_rate",
+      "changed_factor": "learning_rate=0.0003",
+      "experiment_id": "ann02-20261118T180757Z",
+      "model_directory": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\models\\ann02\\stage07\\stage07-20261118T180740Z\\low_learning_rate",
+      "architecture": {
+        "name": "ANN-02 Signal Intelligence",
+        "input_views": {
+          "global": [
+            2,
+            2001
+          ],
+          "local": [
+            2,
+            201
+          ]
+        },
+        "channels": [
+          "median-centered flux",
+          "availability mask"
+        ],
+        "modules": [
+          {
+            "name": "global_branch",
+            "type": "SignalBranch",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers",
+            "type": "ModuleDict",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.conv_1",
+            "type": "Conv1d",
+            "parameters": 88
+          },
+          {
+            "name": "global_branch.layers.relu_1",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.pool_1",
+            "type": "MaxPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.conv_2",
+            "type": "Conv1d",
+            "parameters": 656
+          },
+          {
+            "name": "global_branch.layers.relu_2",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.adaptive_pool",
+            "type": "AdaptiveAvgPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch",
+            "type": "SignalBranch",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers",
+            "type": "ModuleDict",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.conv_1",
+            "type": "Conv1d",
+            "parameters": 88
+          },
+          {
+            "name": "local_branch.layers.relu_1",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.pool_1",
+            "type": "MaxPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.conv_2",
+            "type": "Conv1d",
+            "parameters": 656
+          },
+          {
+            "name": "local_branch.layers.relu_2",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.adaptive_pool",
+            "type": "AdaptiveAvgPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "fusion",
+            "type": "Linear",
+            "parameters": 528
+          },
+          {
+            "name": "fusion_activation",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "dropout",
+            "type": "Dropout",
+            "parameters": 0
+          },
+          {
+            "name": "classifier",
+            "type": "Linear",
+            "parameters": 17
+          }
+        ],
+        "trainable_parameters": 2033,
+        "configuration": {
+          "input_channels": 2,
+          "branch_channels": [
+            8,
+            16
+          ],
+          "kernel_size": 5,
+          "global_pool_size": 4,
+          "local_pool_size": 2,
+          "fused_features": 16,
+          "dropout": 0.2
+        }
+      },
+      "training_config": {
+        "learning_rate": 0.0003,
+        "epochs": 60,
+        "batch_size": 16,
+        "weight_decay": 0.0001,
+        "patience": 10,
+        "min_delta": 0.0001,
+        "seed": 2027,
+        "threshold": 0.5,
+        "device": "cpu",
+        "num_workers": 0
+      },
+      "best_epoch": 59,
+      "epochs_completed": 60,
+      "duration_seconds": 17.516830399865285,
+      "validation_metrics": {
+        "accuracy": 0.6595744680851063,
+        "balanced_accuracy": 0.6585144927536233,
+        "precision": 0.6666666666666666,
+        "recall": 0.6086956521739131,
+        "f1": 0.6363636363636364,
+        "roc_auc": 0.7373188405797101,
+        "pr_auc": 0.7047768942462578,
+        "binary_cross_entropy": 0.6028403296607537,
+        "confusion_matrix": [
+          [
+            17,
+            7
+          ],
+          [
+            9,
+            14
+          ]
+        ],
+        "records": 47,
+        "positive_prevalence": 0.48936170212765956,
+        "threshold": 0.5
+      }
+    },
+    {
+      "name": "wider_branches",
+      "changed_factor": "branch_channels=(12,24), fused_features=24",
+      "experiment_id": "ann02-20261118T180814Z",
+      "model_directory": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\models\\ann02\\stage07\\stage07-20261118T180740Z\\wider_branches",
+      "architecture": {
+        "name": "ANN-02 Signal Intelligence",
+        "input_views": {
+          "global": [
+            2,
+            2001
+          ],
+          "local": [
+            2,
+            201
+          ]
+        },
+        "channels": [
+          "median-centered flux",
+          "availability mask"
+        ],
+        "modules": [
+          {
+            "name": "global_branch",
+            "type": "SignalBranch",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers",
+            "type": "ModuleDict",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.conv_1",
+            "type": "Conv1d",
+            "parameters": 132
+          },
+          {
+            "name": "global_branch.layers.relu_1",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.pool_1",
+            "type": "MaxPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.conv_2",
+            "type": "Conv1d",
+            "parameters": 1464
+          },
+          {
+            "name": "global_branch.layers.relu_2",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.adaptive_pool",
+            "type": "AdaptiveAvgPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch",
+            "type": "SignalBranch",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers",
+            "type": "ModuleDict",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.conv_1",
+            "type": "Conv1d",
+            "parameters": 132
+          },
+          {
+            "name": "local_branch.layers.relu_1",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.pool_1",
+            "type": "MaxPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.conv_2",
+            "type": "Conv1d",
+            "parameters": 1464
+          },
+          {
+            "name": "local_branch.layers.relu_2",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.adaptive_pool",
+            "type": "AdaptiveAvgPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "fusion",
+            "type": "Linear",
+            "parameters": 1176
+          },
+          {
+            "name": "fusion_activation",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "dropout",
+            "type": "Dropout",
+            "parameters": 0
+          },
+          {
+            "name": "classifier",
+            "type": "Linear",
+            "parameters": 25
+          }
+        ],
+        "trainable_parameters": 4393,
+        "configuration": {
+          "input_channels": 2,
+          "branch_channels": [
+            12,
+            24
+          ],
+          "kernel_size": 5,
+          "global_pool_size": 4,
+          "local_pool_size": 2,
+          "fused_features": 24,
+          "dropout": 0.2
+        }
+      },
+      "training_config": {
+        "learning_rate": 0.001,
+        "epochs": 60,
+        "batch_size": 16,
+        "weight_decay": 0.0001,
+        "patience": 10,
+        "min_delta": 0.0001,
+        "seed": 2027,
+        "threshold": 0.5,
+        "device": "cpu",
+        "num_workers": 0
+      },
+      "best_epoch": 19,
+      "epochs_completed": 29,
+      "duration_seconds": 8.837729800026864,
+      "validation_metrics": {
+        "accuracy": 0.6808510638297872,
+        "balanced_accuracy": 0.681159420289855,
+        "precision": 0.6666666666666666,
+        "recall": 0.6956521739130435,
+        "f1": 0.6808510638297872,
+        "roc_auc": 0.75,
+        "pr_auc": 0.676776024566192,
+        "binary_cross_entropy": 0.5859009822249683,
+        "confusion_matrix": [
+          [
+            16,
+            8
+          ],
+          [
+            7,
+            16
+          ]
+        ],
+        "records": 47,
+        "positive_prevalence": 0.48936170212765956,
+        "threshold": 0.5
+      }
+    },
+    {
+      "name": "stronger_regularization",
+      "changed_factor": "dropout=0.35, weight_decay=0.0005",
+      "experiment_id": "ann02-20261118T180823Z",
+      "model_directory": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\models\\ann02\\stage07\\stage07-20261118T180740Z\\stronger_regularization",
+      "architecture": {
+        "name": "ANN-02 Signal Intelligence",
+        "input_views": {
+          "global": [
+            2,
+            2001
+          ],
+          "local": [
+            2,
+            201
+          ]
+        },
+        "channels": [
+          "median-centered flux",
+          "availability mask"
+        ],
+        "modules": [
+          {
+            "name": "global_branch",
+            "type": "SignalBranch",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers",
+            "type": "ModuleDict",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.conv_1",
+            "type": "Conv1d",
+            "parameters": 88
+          },
+          {
+            "name": "global_branch.layers.relu_1",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.pool_1",
+            "type": "MaxPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.conv_2",
+            "type": "Conv1d",
+            "parameters": 656
+          },
+          {
+            "name": "global_branch.layers.relu_2",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.adaptive_pool",
+            "type": "AdaptiveAvgPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch",
+            "type": "SignalBranch",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers",
+            "type": "ModuleDict",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.conv_1",
+            "type": "Conv1d",
+            "parameters": 88
+          },
+          {
+            "name": "local_branch.layers.relu_1",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.pool_1",
+            "type": "MaxPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.conv_2",
+            "type": "Conv1d",
+            "parameters": 656
+          },
+          {
+            "name": "local_branch.layers.relu_2",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.adaptive_pool",
+            "type": "AdaptiveAvgPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "fusion",
+            "type": "Linear",
+            "parameters": 528
+          },
+          {
+            "name": "fusion_activation",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "dropout",
+            "type": "Dropout",
+            "parameters": 0
+          },
+          {
+            "name": "classifier",
+            "type": "Linear",
+            "parameters": 17
+          }
+        ],
+        "trainable_parameters": 2033,
+        "configuration": {
+          "input_channels": 2,
+          "branch_channels": [
+            8,
+            16
+          ],
+          "kernel_size": 5,
+          "global_pool_size": 4,
+          "local_pool_size": 2,
+          "fused_features": 16,
+          "dropout": 0.35
+        }
+      },
+      "training_config": {
+        "learning_rate": 0.001,
+        "epochs": 60,
+        "batch_size": 16,
+        "weight_decay": 0.0005,
+        "patience": 10,
+        "min_delta": 0.0001,
+        "seed": 2027,
+        "threshold": 0.5,
+        "device": "cpu",
+        "num_workers": 0
+      },
+      "best_epoch": 34,
+      "epochs_completed": 44,
+      "duration_seconds": 11.891274300171062,
+      "validation_metrics": {
+        "accuracy": 0.7021276595744681,
+        "balanced_accuracy": 0.7028985507246377,
+        "precision": 0.68,
+        "recall": 0.7391304347826086,
+        "f1": 0.7083333333333334,
+        "roc_auc": 0.7826086956521738,
+        "pr_auc": 0.7368419280001732,
+        "binary_cross_entropy": 0.562324786553489,
+        "confusion_matrix": [
+          [
+            16,
+            8
+          ],
+          [
+            6,
+            17
+          ]
+        ],
+        "records": 47,
+        "positive_prevalence": 0.48936170212765956,
+        "threshold": 0.5
+      }
+    },
+    {
+      "name": "seed_stability",
+      "changed_factor": "random_seed=97",
+      "experiment_id": "ann02-20261118T180835Z",
+      "model_directory": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\models\\ann02\\stage07\\stage07-20261118T180740Z\\seed_stability",
+      "architecture": {
+        "name": "ANN-02 Signal Intelligence",
+        "input_views": {
+          "global": [
+            2,
+            2001
+          ],
+          "local": [
+            2,
+            201
+          ]
+        },
+        "channels": [
+          "median-centered flux",
+          "availability mask"
+        ],
+        "modules": [
+          {
+            "name": "global_branch",
+            "type": "SignalBranch",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers",
+            "type": "ModuleDict",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.conv_1",
+            "type": "Conv1d",
+            "parameters": 88
+          },
+          {
+            "name": "global_branch.layers.relu_1",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.pool_1",
+            "type": "MaxPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.conv_2",
+            "type": "Conv1d",
+            "parameters": 656
+          },
+          {
+            "name": "global_branch.layers.relu_2",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "global_branch.layers.adaptive_pool",
+            "type": "AdaptiveAvgPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch",
+            "type": "SignalBranch",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers",
+            "type": "ModuleDict",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.conv_1",
+            "type": "Conv1d",
+            "parameters": 88
+          },
+          {
+            "name": "local_branch.layers.relu_1",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.pool_1",
+            "type": "MaxPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.conv_2",
+            "type": "Conv1d",
+            "parameters": 656
+          },
+          {
+            "name": "local_branch.layers.relu_2",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "local_branch.layers.adaptive_pool",
+            "type": "AdaptiveAvgPool1d",
+            "parameters": 0
+          },
+          {
+            "name": "fusion",
+            "type": "Linear",
+            "parameters": 528
+          },
+          {
+            "name": "fusion_activation",
+            "type": "ReLU",
+            "parameters": 0
+          },
+          {
+            "name": "dropout",
+            "type": "Dropout",
+            "parameters": 0
+          },
+          {
+            "name": "classifier",
+            "type": "Linear",
+            "parameters": 17
+          }
+        ],
+        "trainable_parameters": 2033,
+        "configuration": {
+          "input_channels": 2,
+          "branch_channels": [
+            8,
+            16
+          ],
+          "kernel_size": 5,
+          "global_pool_size": 4,
+          "local_pool_size": 2,
+          "fused_features": 16,
+          "dropout": 0.2
+        }
+      },
+      "training_config": {
+        "learning_rate": 0.001,
+        "epochs": 60,
+        "batch_size": 16,
+        "weight_decay": 0.0001,
+        "patience": 10,
+        "min_delta": 0.0001,
+        "seed": 97,
+        "threshold": 0.5,
+        "device": "cpu",
+        "num_workers": 0
+      },
+      "best_epoch": 27,
+      "epochs_completed": 37,
+      "duration_seconds": 10.850866599939764,
+      "validation_metrics": {
+        "accuracy": 0.7659574468085106,
+        "balanced_accuracy": 0.7681159420289855,
+        "precision": 0.7142857142857143,
+        "recall": 0.8695652173913043,
+        "f1": 0.7843137254901961,
+        "roc_auc": 0.7663043478260869,
+        "pr_auc": 0.6988284621671701,
+        "binary_cross_entropy": 0.5417328980206426,
+        "confusion_matrix": [
+          [
+            16,
+            8
+          ],
+          [
+            3,
+            20
+          ]
+        ],
+        "records": 47,
+        "positive_prevalence": 0.48936170212765956,
+        "threshold": 0.5
+      }
+    }
+  ],
+  "guardrails": {
+    "test_accessed": false,
+    "candidates_used_for_training": false,
+    "selection_used_train_and_validation_only": true,
+    "definitive_scientific_validation": false
+  },
+  "limitations": [
+    "The validation partition is reused across a small hyperparameter campaign and can itself become a source of selection overfitting.",
+    "The campaign is CPU-bounded and is not an exhaustive architecture search.",
+    "The selected checkpoint requires future evaluation on the still-frozen test partition before any final performance claim."
+  ]
+}

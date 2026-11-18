@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-18T18:15:13.646843+00:00",
+  "dataset": {
+    "path": "D:\\OneDrive - LATIN-RE\\Área de Trabalho\\ASTRAL\\data\\ann02\\ann02_dataset.npz",
+    "sha256": "6992ae2a0a1652c7ba4e6c021eba92cc1644609edb6bb21ca70145ba8475f14b",
+    "requested": 201,
+    "accepted": 194,
+    "excluded": 1,
+    "failed": 6,
+    "stars": 194
+  },
+  "class_distribution": {
+    "candidate": {
+      "CANDIDATE": 1
+    },
+    "train": {
+      "FALSE POSITIVE": 75,
+      "CONFIRMED": 71
+    },
+    "validation": {
+      "FALSE POSITIVE": 24,
+      "CONFIRMED": 23
+    }
+  },
+  "quality": {
+    "global_coverage": {
+      "records": 194,
+      "minimum": 0.223888055972014,
+      "q25": 0.8408295852073963,
+      "median": 0.9837581209395302,
+      "q75": 0.9965017491254373,
+      "maximum": 1.0,
+      "mean": 0.8910956892687675
+    },
+    "local_coverage": {
+      "records": 194,
+      "minimum": 0.38308457711442784,
+      "q25": 0.8731343283582089,
+      "median": 1.0,
+      "q75": 1.0,
+      "maximum": 1.0,
+      "mean": 0.9067548853669795
+    },
+    "observed_transits": {
+      "records": 194,
+      "minimum": 2.0,
+      "q25": 7.0,
+      "median": 14.0,
+      "q75": 25.75,
+      "maximum": 140.0,
+      "mean": 21.211340206185568
+    },
+    "raw_cadences": {
+      "records": 194,
+      "minimum": 4228.0,
+      "q25": 4228.0,
+      "median": 4228.0,
+      "q75": 4228.0,
+      "maximum": 4228.0,
+      "mean": 4228.0
+    },
+    "retained_cadences": {
+      "records": 194,
+      "minimum": 4134.0,
+      "q25": 4134.0,
+      "median": 4134.0,
+      "q75": 4134.0,
+      "maximum": 4134.0,
+      "mean": 4134.0
+    },
+    "retention_fraction": {
+      "records": 194,
+      "minimum": 0.977767265846736,
+      "q25": 0.977767265846736,
+      "median": 0.977767265846736,
+      "q75": 0.977767265846736,
+      "maximum": 0.977767265846736,
+      "mean": 0.9777672658467361
+    },
+    "segments": {
+      "records": 194,
+      "minimum": 1.0,
+      "q25": 1.0,
+      "median": 1.0,
+      "q75": 1.0,
+      "maximum": 1.0,
+      "mean": 1.0
+    },
+    "cadence_seconds": {
+      "records": 194,
+      "minimum": 1765.375985763967,
+      "q25": 1765.3861667902675,
+      "median": 1765.392258495558,
+      "q75": 1765.4004039766733,
+      "maximum": 1765.413562883623,
+      "mean": 1765.3937432071261
+    },
+    "observation_span_days": {
+      "records": 194,
+      "minimum": 89.27001195782941,
+      "q25": 89.27050068570679,
+      "median": 89.2708723809119,
+      "q75": 89.27125937137316,
+      "maximum": 89.27191451524413,
+      "mean": 89.27092036038617
+    }
+  },
+  "astronomy": {
+    "orbital_period_days": {
+      "records": 194,
+      "minimum": 0.609662423,
+      "q25": 3.33715719925,
+      "median": 6.2490700125,
+      "q75": 12.560243392,
+      "maximum": 28.45489091,
+      "mean": 8.78943981431959
+    },
+    "transit_duration_hours": {
+      "records": 194,
+      "minimum": 1.1134,
+      "q25": 3.1644550000000002,
+      "median": 4.75814,
+      "q75": 6.285495,
+      "maximum": 19.4093,
+      "mean": 5.124141649484536
+    },
+    "transit_depth_ppm": {
+      "records": 194,
+      "minimum": 190.4,
+      "q25": 6567.125,
+      "median": 29953.550000000003,
+      "q75": 246685.5,
+      "maximum": 921671.0,
+      "mean": 128622.66649484537
+    },
+    "catalog_model_snr": {
+      "records": 194,
+      "minimum": 35.8,
+      "q25": 503.125,
+      "median": 2854.5,
+      "q75": 5034.25,
+      "maximum": 8755.2,
+      "mean": 2974.645360824742
+    },
+    "kepler_magnitude": {
+      "records": 194,
+      "minimum": 7.631,
+      "q25": 12.966000000000001,
+      "median": 13.745,
+      "q75": 14.603,
+      "maximum": 15.979,
+      "mean": 13.585561855670104
+    }
+  },
+  "exclusions": {
+    "local_coverage_below_threshold": 1
+  },
+  "failures": {
+    "K07075.01": "RuntimeError: isolated MAST worker failed: src.observatory.mast.MastAcquisitionError: No Kepler light curves found for KIC 8690001",
+    "K01320.01": "RuntimeError: isolated MAST worker failed: src.observatory.mast.MastAcquisitionError: No Kepler light curves found for KIC 4164994",
+    "K00094.01": "RuntimeError: isolated MAST worker failed: src.observatory.mast.MastAcquisitionError: No Kepler light curves found for KIC 6462863",
+    "K01457.01": "RuntimeError: isolated MAST worker failed: src.observatory.mast.MastAcquisitionError: No Kepler light curves found for KIC 9643874",
+    "K01456.01": "RuntimeError: isolated MAST worker failed: src.observatory.mast.MastAcquisitionError: No Kepler light curves found for KIC 7832356",
+    "K01323.01": "RuntimeError: isolated MAST worker failed: src.observatory.mast.MastAcquisitionError: No Kepler light curves found for KIC 4076098"
+  },
+  "bias_analysis": {
+    "quarter": 3,
+    "period_limit_days": 30.0,
+    "eligible_labelled_records_before_period_limit": 6450,
+    "eligible_labelled_records_after_period_limit": 4832,
+    "fraction_eligible_removed_by_period_limit": 0.2508527131782946,
+    "eligible_period_days": {
+      "records": 6450,
+      "minimum": 0.241842544,
+      "q25": 2.24631989425,
+      "median": 8.101260884999999,
+      "q75": 30.224606105,
+      "maximum": 1071.232624,
+      "mean": 51.4212819335293
+    },
+    "selected_period_days": {
+      "records": 193,
+      "minimum": 0.609662423,
+      "q25": 3.311864148,
+      "median": 6.099032889,
+      "q75": 12.466004437,
+      "maximum": 28.45489091,
+      "mean": 8.731876601181348
+    },
+    "eligible_model_snr": {
+      "records": 4741,
+      "minimum": 0.0,
+      "q25": 17.6,
+      "median": 35.5,
+      "q75": 137.6,
+      "maximum": 8755.2,
+      "mean": 338.70953385361736
+    },
+    "selected_model_snr": {
+      "records": 193,
+      "minimum": 35.8,
+      "q25": 505.6,
+      "median": 2857.7,
+      "q75": 5083.9,
+      "maximum": 8755.2,
+      "mean": 2989.6626943005176
+    },
+    "documented_effects": [
+      "Quarter 3-only observations shorten the temporal baseline and do not measure quarter-to-quarter robustness.",
+      "The <=30-day period rule favors systems with multiple transits in one quarter and excludes long-period planets.",
+      "Cached and higher-SNR targets are preferred, so difficult low-SNR signals are under-represented.",
+      "Class balancing is useful for optimization but does not represent KOI catalog prevalence.",
+      "Quality thresholds can preferentially exclude sparse, faint, or incompletely covered signals."
+    ]
+  },
+  "guardrails": {
+    "frozen_test_accessed": false,
+    "candidates_used_as_labels": false,
+    "cross_mission_training": false
+  }
+}
