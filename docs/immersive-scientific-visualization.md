@@ -55,6 +55,15 @@ is coordinate selection; Canvas offers clearer equatorial axes, lower CPU/GPU
 cost, pointer zoom/pan, and an accessible catalog fallback. Real RA/Dec values are
 shown in degrees and the projection is identified as equatorial catalog data.
 
+The atlas camera is fitted to the actual Kepler catalog extent instead of the
+entire celestial sphere, preventing the narrow Kepler field from collapsing into
+an unreadable cluster. Its graticule, boundary, density glow, and optional screen-
+proximity mesh are all derived from displayed catalog coordinates. The mesh is
+explicitly labeled as a visual index and never as a physical stellar association.
+Confirmed, candidate, and false-positive records use different glyph shapes in
+addition to color. Zoom is pointer-anchored, pan uses pointer capture, and the
+selected object can be focused without altering its catalog coordinates.
+
 Plotly's basic distribution is loaded only on pages that render scientific
 graphs. ScatterGL is used for dense luminosity and phase measurements. Vector
 SVG is used for ANN-01 topology and orbital context because both require sharp,

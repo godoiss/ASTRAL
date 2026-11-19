@@ -2,8 +2,9 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { NeuralGraph } from "@/components/neural-graph";
 import { OrbitalSystem } from "@/components/orbital-system";
+import { computeAtlasBounds, projectCatalogCoordinate } from "@/lib/atlas";
 import { formatNumber } from "@/lib/format";
-import type { ModelEntry, NeuralVisualization, ObjectDetail } from "@/lib/types";
+import type { ModelEntry, NeuralVisualization, ObjectDetail, ObjectSummary } from "@/lib/types";
 
 describe("scientific visualization contracts", () => {
   it("labels orbital geometry as illustrative while preserving catalog values", () => {
@@ -36,5 +37,16 @@ describe("scientific visualization contracts", () => {
 
   it("formats unavailable scientific values without inventing a number", () => {
     expect(formatNumber(null)).toBe("Unavailable");
+  });
+
+  it("fits real catalog coordinates to the Kepler field while preserving RA orientation", () => {
+    const object = (object_id: string, ra_deg: number, dec_deg: number): ObjectSummary => ({ object_id, display_name: object_id, kic: 1, kepler_name: null, catalog_disposition: "CONFIRMED", split: "train", period_days: 1, has_cached_observation: true, ra_deg, dec_deg });
+    const objects = [object("west", 280, 37), object("east", 301, 52)];
+    const bounds = computeAtlasBounds(objects);
+    const west = projectCatalogCoordinate(280, 37, bounds, 900, 600);
+    const east = projectCatalogCoordinate(301, 52, bounds, 900, 600);
+    expect(west.x).toBeGreaterThan(east.x);
+    expect(west.y).toBeGreaterThan(east.y);
+    expect(Math.abs(west.x - east.x)).toBeGreaterThan(650);
   });
 });
