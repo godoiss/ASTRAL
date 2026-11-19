@@ -64,6 +64,24 @@ The orbital diagram is explicitly schematic: period, radius, and semi-major-axis
 labels are real when present, but inclination, projected phase, perspective, and
 body scale are not claimed as measured geometry.
 
+### Atlas experience refinement
+
+The publication client uses a dedicated `experience.css` layer over the reusable
+scientific primitives. This separates decorative atmosphere from scientific
+encoding and introduces:
+
+- a floating translucent mission rail and responsive mobile command bar;
+- an editorial Newsreader display face paired with Manrope for instrument UI;
+- a procedural star field and orbital geometry that never encode measurements;
+- higher-contrast instrument surfaces, restrained spectral light, and clearer
+  visual hierarchy for plots, dossiers, neural state, and experiment records;
+- responsive Plotly, Canvas, and SVG containers without permanent GPU-heavy 3D
+  rendering.
+
+The experience layer changes presentation only. Catalog values, observation
+arrays, inference outputs, explanations, and experiment artifacts continue to
+come from the existing FastAPI contracts.
+
 ## Accessibility and performance
 
 - keyboard-focus indicators and 44 px minimum interactive targets;

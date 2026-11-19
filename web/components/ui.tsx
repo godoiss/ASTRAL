@@ -2,7 +2,7 @@ import { AlertTriangle, Database, LoaderCircle } from "lucide-react";
 import { formatNumber } from "@/lib/format";
 
 export function PageIntro({ eyebrow, title, description, children }: { eyebrow: string; title: string; description: string; children?: React.ReactNode }) {
-  return <section className="page-intro"><div><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{description}</p></div>{children && <div className="intro-actions">{children}</div>}</section>;
+  return <section className="page-intro"><div className="intro-copy"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{description}</p></div>{children && <div className="intro-actions">{children}</div>}<div className="intro-orbit" aria-hidden="true"><i /><i /><span /></div></section>;
 }
 
 export function Panel({ title, eyebrow, className = "", children, action }: { title: string; eyebrow?: string; className?: string; children: React.ReactNode; action?: React.ReactNode }) {
@@ -10,7 +10,9 @@ export function Panel({ title, eyebrow, className = "", children, action }: { ti
 }
 
 export function Metric({ label, value, unit, tone = "default" }: { label: string; value: number | string | null | undefined; unit?: string; tone?: string }) {
-  return <div className={`metric tone-${tone}`}><span>{label}</span><strong>{typeof value === "number" ? formatNumber(value) : value ?? "Unavailable"}</strong>{unit && <small>{unit}</small>}</div>;
+  const renderedValue = typeof value === "number" ? formatNumber(value) : value ?? "Unavailable";
+  const lengthClass = String(renderedValue).length > 11 ? " metric-long" : "";
+  return <div className={`metric tone-${tone}${lengthClass}`}><span>{label}</span><strong>{renderedValue}</strong>{unit && <small>{unit}</small>}</div>;
 }
 
 export function Loading({ label = "Calibrating instrument…" }: { label?: string }) {

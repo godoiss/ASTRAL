@@ -19,6 +19,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
   const current = routes.find((route) => pathname.startsWith(route.href)) ?? routes[0];
   return (
     <div className="platform-shell">
+      <div className="cosmic-field" aria-hidden="true"><i /><i /><i /><span /></div>
       <a className="skip-link" href="#main-content">Skip to scientific content</a>
       <header className="mobile-header">
         <Brand />
@@ -36,10 +37,10 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
         </nav>
         <footer><span>ASTRAL / ATLAS</span><small>Scientific exploration interface</small><small>No score is a discovery claim.</small></footer>
       </aside>
-      <div className="workspace">
+      <div className="workspace" data-route={current.href.slice(1)}>
         <header className="context-bar">
-          <div><span className="context-kicker">Active instrument</span><strong>{current.label}</strong></div>
-          <div className="context-meta"><span>FastAPI linked</span><span>CPU compatible</span><span className="status-good">Scientific guardrails active</span></div>
+          <div className="instrument-title"><span className="context-kicker">ASTRAL / Active instrument</span><strong>{current.label}</strong></div>
+          <div className="context-meta"><span className="context-coordinate">Kepler field · J2000</span><span>FastAPI linked</span><span className="status-good">Guardrails active</span></div>
         </header>
         <main id="main-content">{children}</main>
       </div>

@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { PlatformShell } from "@/components/platform-shell";
+import "@fontsource-variable/manrope";
+import "@fontsource-variable/newsreader";
 import "./globals.css";
+import "./experience.css";
 
 export const metadata: Metadata = {
   title: { default: "ASTRAL Atlas", template: "%s · ASTRAL" },
