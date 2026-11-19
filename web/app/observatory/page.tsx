@@ -41,7 +41,18 @@ export default function ObservatoryPage() {
         <Panel eyebrow="Catalog ephemeris" title="Phase-folded orbit"><ScientificPlot title="Phase-folded light curve" data={phasePlot} layout={{ height: 340, xaxis: { title: "Orbital phase" }, yaxis: { title: "Detrended flux" } }} /><p className="caption">Repeated measurements are folded using the NASA catalog period and transit epoch.</p></Panel>
         <Panel eyebrow="Transit window" title="Expected event detail"><ScientificPlot title="Local transit window" data={localPlot} layout={{ height: 340, xaxis: { title: "Hours from catalog transit center" }, yaxis: { title: "Relative flux" }, shapes: [{ type: "line", x0: 0, x1: 0, y0: 0, y1: 1, yref: "paper", line: { color: "#EFB681", dash: "dot" } }] }} /><p className="caption">The center marker follows the catalog ephemeris; it is not a newly measured transit time.</p></Panel>
       </section>
-      <section className="two-column orbit-neural"><Panel eyebrow="System context" title="Orbital representation"><OrbitalSystem object={detail} /></Panel><Panel eyebrow="Independent model readings" title="Neural interpretation"><div className="inference-stack">{inferences.map((item) => <article key={item.model_id}><span>{item.model_id.toUpperCase()}</span><strong>{formatNumber(item.score, 6)}</strong><small>{item.predicted_class}</small><progress value={item.score} max={1} /></article>)}</div><ScientificNotice>Scores are uncalibrated model outputs. They are neither posterior probabilities nor confirmations.</ScientificNotice></Panel></section>
+      <section className="orbit-neural-grid">
+        <Panel className="orbital-context-panel" eyebrow="System context" title="Orbital representation"><OrbitalSystem object={detail} /></Panel>
+        <Panel className="neural-interpretation-panel" eyebrow="Independent model readings" title="Neural interpretation" action={<span className="data-tag"><Activity /> Real inference</span>}>
+          <div className="neural-readings">{inferences.map((item) => <article key={item.model_id}>
+            <header><span>{item.model_id.toUpperCase()}</span><small>{item.input_kind.replaceAll("_", " ")}</small></header>
+            <div className="reading-score"><strong>{formatNumber(item.score, 6)}</strong><span>model score</span></div>
+            <div className="reading-decision"><span>{item.predicted_class.replaceAll("_", " ")}</span><small>decision threshold {formatNumber(item.threshold, 3)}</small></div>
+            <div className="score-track" aria-label={`${item.model_id} score ${item.score}`}><i style={{ width: `${Math.max(0, Math.min(1, item.score)) * 100}%` }} /><b style={{ left: `${Math.max(0, Math.min(1, item.threshold)) * 100}%` }} /></div>
+          </article>)}</div>
+          <ScientificNotice>Scores are uncalibrated model outputs. They are neither posterior probabilities nor confirmations.</ScientificNotice>
+        </Panel>
+      </section>
       <Panel eyebrow="Secondary technical view" title="Observation provenance"><AuditTable headers={["Mission", "Author", "Segments", "Raw records", "Processed records", "BKJD interval"]} rows={[[observation?.mission, observation?.author, observation?.segments.join(", "), observation?.raw_records, observation?.processed_records, `${formatNumber(observation?.observation_start_bkjd, 4)} — ${formatNumber(observation?.observation_end_bkjd, 4)}`]]} /></Panel>
     </>}
   </div>;

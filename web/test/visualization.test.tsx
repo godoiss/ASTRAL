@@ -4,7 +4,8 @@ import { NeuralGraph } from "@/components/neural-graph";
 import { OrbitalSystem } from "@/components/orbital-system";
 import { computeAtlasBounds, projectCatalogCoordinate } from "@/lib/atlas";
 import { formatNumber } from "@/lib/format";
-import type { ModelEntry, NeuralVisualization, ObjectDetail, ObjectSummary } from "@/lib/types";
+import { mergeExperimentTimeline } from "@/lib/research";
+import type { ExperimentSummary, ModelEntry, NeuralVisualization, ObjectDetail, ObjectSummary } from "@/lib/types";
 
 describe("scientific visualization contracts", () => {
   it("labels orbital geometry as illustrative while preserving catalog values", () => {
@@ -18,7 +19,7 @@ describe("scientific visualization contracts", () => {
     } satisfies ObjectDetail;
     render(<OrbitalSystem object={object} />);
     expect(screen.getByText(/Illustrative orbital projection/)).toBeInTheDocument();
-    expect(screen.getByText("0.14 AU")).toBeInTheDocument();
+    expect(screen.getByText((_, element) => element?.tagName === "STRONG" && element.textContent === "0.14 AU")).toBeInTheDocument();
   });
 
   it("renders ANN-01 from real architecture and tensor state", () => {
@@ -31,7 +32,7 @@ describe("scientific visualization contracts", () => {
     const tensor = (name: string, role: "weight" | "activation", values: unknown[]) => ({ name, role, values, shape: [1], minimum: 0, maximum: 1, mean: .5, standard_deviation: .1 });
     const state = { model_id: "ann-01", object_id: "K00753.01", architecture: model.architecture, parameters: [tensor("layer_1.weights", "weight", [[.4]])], activations: [tensor("input.activation", "activation", [.2]), tensor("output.activation", "activation", [.7])], notes: [] } satisfies NeuralVisualization;
     render(<NeuralGraph model={model} state={state} />);
-    expect(screen.getByLabelText("ANN-01 real weighted neural architecture")).toBeInTheDocument();
+    expect(screen.getByLabelText("ANN-01 interactive real weighted neural architecture")).toBeInTheDocument();
     expect(screen.getByText("Positive weight")).toBeInTheDocument();
   });
 
@@ -48,5 +49,19 @@ describe("scientific visualization contracts", () => {
     expect(west.x).toBeGreaterThan(east.x);
     expect(west.y).toBeGreaterThan(east.y);
     expect(Math.abs(west.x - east.x)).toBeGreaterThan(650);
+  });
+
+  it("deduplicates experiment artifacts by stage and scientific identity", () => {
+    const artifact = (generated_at_utc: string | null): ExperimentSummary => ({
+      experiment_id: "ann02-20261118T124527Z", stage: "stage06", kind: "training_run",
+      generated_at_utc, selected: false,
+    });
+    const timeline = mergeExperimentTimeline(
+      [artifact(null)],
+      [artifact("2026-11-18T12:45:27.000Z")],
+    );
+
+    expect(timeline).toHaveLength(1);
+    expect(timeline[0].generated_at_utc).toBe("2026-11-18T12:45:27.000Z");
   });
 });

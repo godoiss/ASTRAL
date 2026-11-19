@@ -309,6 +309,19 @@ def test_experiments_histories_and_tess_remain_read_only(client: TestClient) -> 
     _assert_no_internal_path(tess.json())
 
 
+def test_experiment_registry_has_unique_semantic_identities(client: TestClient) -> None:
+    response = client.get("/api/v1/experiments", params={"stage": "stage06", "limit": 100})
+
+    assert response.status_code == 200
+    experiments = response.json()["items"]
+    identities = [(item["stage"], item["experiment_id"]) for item in experiments]
+    assert len(identities) == len(set(identities))
+
+    pilot = [item for item in experiments if item["experiment_id"] == "ann02-20261118T124527Z"]
+    assert len(pilot) == 1
+    assert pilot[0]["generated_at_utc"] is not None
+
+
 def test_endpoint_reads_never_call_training_or_downloads(client: TestClient) -> None:
     forbidden = RuntimeError("forbidden scientific side effect")
     with (

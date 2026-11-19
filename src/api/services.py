@@ -611,7 +611,11 @@ class ScientificService:
             path for path in root.rglob("*.json")
             if path.name != "latest_experiment.json" and path.name != "latest_campaign.json"
         )
-        rows: list[dict[str, Any]] = []
+        # A persisted run can be referenced by more than one JSON artifact
+        # (for example, a detailed run and a compact campaign export).  The
+        # experiment identity is semantic, not the artifact path, so expose it
+        # once and prefer the record carrying the strongest provenance.
+        rows_by_id: dict[str, dict[str, Any]] = {}
         for path in files:
             try:
                 payload = json.loads(path.read_text(encoding="utf-8"))
@@ -619,15 +623,27 @@ class ScientificService:
                 continue
             experiment_id = payload.get("experiment_id") or payload.get("campaign_id")
             if experiment_id:
-                rows.append(
-                    {
-                        "experiment_id": str(experiment_id),
-                        "stage": stage,
-                        "kind": "campaign" if "campaign_id" in payload else "training_run",
-                        "generated_at_utc": payload.get("generated_at_utc"),
-                        "selected": str(experiment_id) == str(self.stage07_campaign.get("selected_experiment_id")),
-                    }
-                )
+                identity = str(experiment_id)
+                candidate = {
+                    "experiment_id": identity,
+                    "stage": stage,
+                    "kind": "campaign" if "campaign_id" in payload else "training_run",
+                    "generated_at_utc": payload.get("generated_at_utc"),
+                    "selected": identity == str(self.stage07_campaign.get("selected_experiment_id")),
+                }
+                current = rows_by_id.get(identity)
+                if current is None or (
+                    current.get("generated_at_utc") is None
+                    and candidate.get("generated_at_utc") is not None
+                ):
+                    rows_by_id[identity] = candidate
+                elif candidate["selected"]:
+                    current["selected"] = True
+        rows = sorted(
+            rows_by_id.values(),
+            key=lambda row: str(row.get("generated_at_utc") or ""),
+            reverse=True,
+        )
         return rows[offset : offset + limit], len(rows)
 
     def experiment(self, experiment_id: str) -> dict[str, Any]:
