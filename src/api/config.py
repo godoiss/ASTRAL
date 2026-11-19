@@ -7,7 +7,7 @@ import os
 from pydantic import BaseModel, ConfigDict, Field
 
 
-API_VERSION = "0.8.0"
+API_VERSION = "0.10.0"
 
 
 class ApiSettings(BaseModel):
@@ -27,6 +27,7 @@ class ApiSettings(BaseModel):
     maximum_page_size: int = Field(default=100, ge=1, le=100)
     default_curve_points: int = Field(default=1000, ge=10, le=5000)
     maximum_curve_points: int = Field(default=5000, ge=10, le=5000)
+    discovery_execution_enabled: bool = False
 
     @classmethod
     def from_environment(cls) -> "ApiSettings":
@@ -42,4 +43,7 @@ class ApiSettings(BaseModel):
             values["allowed_hosts"] = tuple(
                 item.strip() for item in hosts.split(",") if item.strip()
             )
+        execution = os.getenv("ASTRAL_DISCOVERY_EXECUTION_ENABLED", "").strip().lower()
+        if execution:
+            values["discovery_execution_enabled"] = execution in {"1", "true", "yes", "on"}
         return cls(**values)

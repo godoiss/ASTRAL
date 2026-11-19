@@ -6,16 +6,20 @@ import logging
 import time
 import uuid
 
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from src.api.config import ApiSettings
 from src.api.errors import ApiError
-from src.api.routers import catalog, experiments, health, science
+from src.api.routers import catalog, discovery, experiments, health, science
 from src.api.schemas import ErrorResponse
 
 
@@ -28,16 +32,18 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
     app = FastAPI(
         title=settings.title,
         version=settings.version,
-        summary="Read-only access to persisted ASTRAL scientific resources",
+        summary="Scientific services for the ASTRAL Atlas product interface",
         description=(
-            "Local Stage 08 API. It exposes existing Kepler/TESS artifacts and "
-            "trained ANN-01/ANN-02 inference without training or downloading data."
+            "ASTRAL scientific API. It exposes persisted Kepler/TESS artifacts, "
+            "trained ANN-01/ANN-02 inference, and cache-only Discovery Engine campaigns. "
+            "It never trains models or downloads observations through HTTP."
         ),
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
         responses={
             400: {"model": ErrorResponse, "description": "Malformed or disallowed request"},
+            403: {"model": ErrorResponse, "description": "Operation disabled for this deployment"},
             404: {"model": ErrorResponse, "description": "Resource is unavailable or inaccessible"},
             409: {"model": ErrorResponse, "description": "Ambiguous scientific identifier"},
             422: {"model": ErrorResponse, "description": "Request validation failed"},
@@ -64,6 +70,19 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Process-Time-Ms"] = f"{1000 * (time.perf_counter() - started):.3f}"
         response.headers["Cache-Control"] = "no-store"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self'; "
+            "style-src 'self'; "
+            "img-src 'self' data:; "
+            "connect-src 'self'; "
+            "object-src 'none'; "
+            "base-uri 'self'; "
+            "frame-ancestors 'none'"
+        )
         return response
 
     @app.exception_handler(ApiError)
@@ -133,6 +152,15 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
     app.include_router(catalog.router)
     app.include_router(science.router)
     app.include_router(experiments.router)
+    app.include_router(discovery.router)
+
+    interface_directory = Path(__file__).resolve().parents[2] / "design" / "stage09" / "preview"
+
+    @app.get("/", include_in_schema=False)
+    def product_interface() -> RedirectResponse:
+        return RedirectResponse(url="/app/")
+
+    app.mount("/app", StaticFiles(directory=interface_directory, html=True), name="atlas-interface")
     return app
 
 

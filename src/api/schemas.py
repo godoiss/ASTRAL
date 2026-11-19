@@ -572,6 +572,94 @@ class TessExperimentalData(StrictModel):
     elapsed_seconds: float
 
 
+class DiscoveryPlanTarget(StrictModel):
+    kic: int
+    mission: Literal["Kepler"]
+    cache_available: bool
+    selection_reference: str | None
+    label: Literal[-1]
+
+
+class DiscoveryPlanData(StrictModel):
+    sample_size: int = Field(ge=1, le=25)
+    cached_targets: int = Field(ge=0)
+    network_enabled: Literal[False]
+    execution_enabled: bool
+    protected_host_overlap: list[int]
+    targets: list[DiscoveryPlanTarget]
+
+
+class DiscoveryCampaignSummary(StrictModel):
+    campaign_id: str
+    status: str
+    started_at_utc: str
+    completed_at_utc: str | None
+    investigated_stars: int = Field(ge=0)
+    screening_detections: int = Field(ge=0)
+    catalog_associated_detections: int = Field(ge=0)
+    unassociated_inconclusive_detections: int = Field(ge=0)
+    below_threshold: int = Field(ge=0)
+    failed_or_excluded_stars: int = Field(ge=0)
+    confirmed_discoveries: Literal[0]
+
+
+class DiscoveryDetection(StrictModel):
+    kic: int
+    selection_reference: str | None
+    status: str
+    period_days: float
+    duration_hours: float
+    depth_ppm: float
+    depth_snr: float
+    ranking_score: float
+    observed_events: int
+    event_coverage: float
+    phase_coverage: float
+    possible_eclipsing_binary: bool
+    catalog_period_association: bool
+    catalog_relations: list[str]
+    interpretation: str
+    limitations: list[str]
+
+
+class DiscoveryCampaignDetail(StrictModel):
+    campaign: DiscoveryCampaignSummary
+    targets: list[DiscoveryDetection]
+    failures: list[dict[str, Any]]
+    scientific_boundaries: list[str]
+
+
+class DiscoverySeriesData(StrictModel):
+    campaign_id: str
+    kic: int
+    records_total: int
+    records_returned: int
+    downsampled: bool
+    time_bkjd: list[float]
+    detrended_flux: list[float]
+    periods: list[float]
+    powers: list[float]
+    phase: list[float]
+    phase_flux: list[float]
+    phase_bin_centers: list[float | None]
+    phase_bin_flux: list[float | None]
+
+
+class DiscoveryRunRequest(StrictModel):
+    sample_size: int = Field(default=10, ge=1, le=25)
+
+
+class DiscoveryJob(StrictModel):
+    job_id: str
+    status: Literal["queued", "running", "completed", "failed"]
+    stage: str
+    current: int = Field(ge=0)
+    total: int = Field(ge=0)
+    message: str
+    campaign_id: str | None = None
+    error_code: str | None = None
+
+
 class ErrorBody(StrictModel):
     code: str
     message: str

@@ -2,8 +2,8 @@
   "$schema": "https://design-tokens.github.io/community-group/format/",
   "meta": {
     "name": "ASTRAL Atlas",
-    "version": "0.9.1-evaluation",
-    "status": "awaiting-visual-approval",
+    "version": "1.0.0",
+    "status": "approved",
     "recommendedDirection": "atlas"
   },
   "direction": {

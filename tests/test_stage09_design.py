@@ -84,7 +84,7 @@ def test_preview_has_five_discovery_first_views_and_unique_ids() -> None:
 def test_all_visual_directions_meet_core_text_contrast() -> None:
     tokens = json.loads((DESIGN_ROOT / "design_tokens.json").read_text(encoding="utf-8"))
 
-    assert tokens["meta"]["status"] == "awaiting-visual-approval"
+    assert tokens["meta"]["status"] == "approved"
     assert tokens["meta"]["recommendedDirection"] == "atlas"
     assert tokens["spacingPx"] == [4, 8, 12, 16, 24, 32, 48, 64]
     assert tokens["radiusPx"] == [6, 8, 10, 14, 20]
@@ -95,21 +95,21 @@ def test_all_visual_directions_meet_core_text_contrast() -> None:
         assert _contrast(direction["accent"], direction["canvas"]) >= 4.5
 
 
-def test_preview_is_non_executing_and_uses_only_audited_snapshots() -> None:
+def test_atlas_interface_uses_real_scientific_api_without_hardcoded_results() -> None:
     script = (PREVIEW_ROOT / "app.js").read_text(encoding="utf-8")
     html = (PREVIEW_ROOT / "index.html").read_text(encoding="utf-8")
     combined = f"{script}\n{html}".lower()
 
-    assert "fetch(" not in script
+    assert "fetch(" in script
     assert "xmlhttprequest" not in script.lower()
     assert "websocket" not in script.lower()
-    assert "0.4147668955" in script
-    assert "0.7588245273" in script
-    assert "0.8280777101" in script
-    assert "0.6251904964" in script
-    assert "no newly found candidates have been demonstrated" in combined
-    assert "discovery engine is not implemented" in combined
-    assert "no execution" in combined
+    assert "0.4147668955" not in script
+    assert "/api/v1/discovery/campaigns" in script
+    assert "/api/v1/discovery/jobs" in script
+    assert "/api/v1/objects" in script
+    assert "discovery engine operational" in combined
+    assert "no novelty claim" in combined
+    assert "cache-only execution" in combined
     assert "showmodal" in script.lower()
 
 
@@ -120,8 +120,8 @@ def test_scientific_boundaries_and_schematic_disclaimer_are_visible() -> None:
     assert "not confirmation probabilities" in html
     assert "not an exact topology recovered from a checkpoint" in html
     assert "no live activation, gradient, or weight" in html
-    assert "frozen test data remains inaccessible" in html
-    assert "draws no fictional series" in html
+    assert "frozen test records remain inaccessible" in html
+    assert "detection screens are not confirmations" in html
 
 
 def test_stage09_does_not_introduce_a_nextjs_application() -> None:

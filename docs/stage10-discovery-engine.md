@@ -104,9 +104,15 @@ Final cache-reproducibility campaign: `stage10-kepler-reference-final`
 
 The exact values above come from persisted real campaign results. In particular, the five unmatched screens are not discovery claims. The local KOI snapshot contains KOI-linked TCE fields, but no standalone TCE catalog was available or queried, so absence of an association cannot establish novelty.
 
-## Discovery Lab
+## Atlas product interface
 
-The Developer Lab now includes a **Discovery Lab** tab. It exposes the protected expedition plan, explicit network permission, bounded downloads, real progress stages, persisted campaign selection, target-level diagnostics, and interactive Plotly views of:
+The approved Atlas interface is now the primary Stage 10 product surface at `/app/` on the FastAPI service. It consumes typed discovery, observation, inference, model, and research endpoints and renders only persisted scientific values. Users can plan and launch cache-only campaigns, monitor their real background jobs, inspect measured evidence, and review inconclusive signals without leaving the product interface. HTTP execution is disabled by default for publication safety and must be enabled explicitly for a local research session.
+
+See the [Atlas product-interface integration report](stage10-atlas-product-interface.md).
+
+## Internal Discovery Lab
+
+The internal Streamlit Developer Lab also retains a **Discovery Lab** tab for engineering inspection. It exposes the protected expedition plan, explicit network permission, bounded downloads, real progress stages, persisted campaign selection, target-level diagnostics, and interactive Plotly views of:
 
 - original observed luminosity;
 - independently detrended luminosity;
@@ -137,7 +143,7 @@ The interface always labels the output as screening evidence and displays zero c
 
 ## Validation evidence
 
-The final local suite completed with `77 passed` in 38.96 seconds. The focused Stage 09/10 and Streamlit suite completed with `17 passed`. The Streamlit AppTest loaded all 12 preserved tabs, including **Discovery Lab**, against the persisted final campaign. The local server health endpoint returned HTTP 200 with `ok` on `127.0.0.1:8501`.
+The final integrated local suite completed with `82 passed` in 26.78 seconds. This includes the preserved Streamlit AppTest coverage and the Atlas product-interface/API contracts. The product service returned HTTP 200 on `127.0.0.1:8000/app/`; Streamlit remains independently testable as an internal engineering tool.
 
 Two dependency warnings remain non-blocking: Lightkurve reports that its optional `tpfmodel` helper lacks `oktopus`, and FastAPI/Starlette reports a future TestClient migration to `httpx2`. Neither warning changes the BLS light-curve workflow or its results.
 

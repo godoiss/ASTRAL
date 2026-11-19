@@ -42,7 +42,8 @@ def test_health_version_and_restrictive_cors(client: TestClient) -> None:
 
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
-    assert health.json()["version"] == "0.8.0"
+    assert health.json()["version"] == "0.10.0"
+    assert health.json()["stage"] == 10
     assert info.json()["scientific_guardrails"] == {
         "frozen_test_accessed": False,
         "training_enabled": False,
@@ -84,8 +85,8 @@ def test_openapi_exposes_no_training_or_download_routes(client: TestClient) -> N
     ]
 
     assert "/api/v1/inference/{model_id}" in paths
-    assert len(operations) == 18
-    assert len({operation["operationId"] for operation in operations}) == 18
+    assert len(operations) == 24
+    assert len({operation["operationId"] for operation in operations}) == 24
     assert not any("train" in path.lower() or "download" in path.lower() for path in paths)
     write_operations = [
         (path, method)
@@ -93,10 +94,14 @@ def test_openapi_exposes_no_training_or_download_routes(client: TestClient) -> N
         for method in operations
         if method.lower() in {"post", "put", "patch", "delete"}
     ]
-    assert write_operations == [("/api/v1/inference/{model_id}", "post")]
+    assert write_operations == [
+        ("/api/v1/inference/{model_id}", "post"),
+        ("/api/v1/discovery/jobs", "post"),
+    ]
 
     for operation in operations:
-        success_schema = operation["responses"]["200"]["content"]["application/json"]["schema"]
+        success = operation["responses"].get("200") or operation["responses"].get("202")
+        success_schema = success["content"]["application/json"]["schema"]
         assert "$ref" in success_schema
         assert operation["responses"]["422"]["content"]["application/json"]["schema"] == {
             "$ref": "#/components/schemas/ErrorResponse"

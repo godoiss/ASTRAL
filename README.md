@@ -159,14 +159,13 @@ Open `http://127.0.0.1:8000/docs` for local interactive documentation. The Strea
 
 ## Branding & Discovery-first UX — visual evaluation
 
-Stage 09 established **Atlas** as the approved discovery-first identity after comparison with Signal Room and Quiet Orbit. The design-only package includes an original orbit/star mark, machine-readable tokens, five-area UX architecture (`Discover → Observatory → Candidates → Neural Lab → Research`), accessibility and motion standards, a future Next.js component plan, and a responsive buildless preview. The prototype performs no API requests or scientific computation; audited Stage 08 values are clearly labeled as snapshots and unavailable services remain explicit. No Next.js application or production frontend has been introduced.
+Stage 09 established **Atlas** as the approved discovery-first identity after comparison with Signal Room and Quiet Orbit. The package includes an original orbit/star mark, machine-readable tokens, five-area UX architecture (`Discover → Observatory → Candidates → Neural Lab → Research`), accessibility and motion standards, and a responsive buildless client. Stage 10 connected that approved client to the scientific API; scientific computation remains in Python services, not in the browser.
 
 ```powershell
-cd design/stage09/preview
-python -m http.server 3000 --bind 127.0.0.1
+.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
 ```
 
-Open `http://127.0.0.1:3000`; the design artifact has no API dependency. See the [Stage 09 branding and discovery-first design-system specification](docs/stage09-branding-design-system.md).
+Open `http://127.0.0.1:8000/app/`. See the [Stage 09 branding and discovery-first design-system specification](docs/stage09-branding-design-system.md).
 
 ## Discovery Engine
 
@@ -180,7 +179,14 @@ The completed bounded reference campaign investigated 12/12 stars, reused eight 
 .\.venv\Scripts\python.exe -m src.discovery.cli inspect
 ```
 
-The Developer Lab includes a **Discovery Lab** tab with bounded campaign controls, real progress, persisted evidence, and interactive raw-light-curve, processed-light-curve, BLS-periodogram, and phase-folded views. A screening score is never presented as confirmation or calibrated significance. See the [Stage 10 technical and scientific report](docs/stage10-discovery-engine.md).
+The approved Atlas interface is now connected directly to the FastAPI scientific services and is the primary Stage 10 product surface. It provides protected campaign planning, optional cache-only execution, real progress, persisted evidence, Observatory light curves, neural inference, model comparison, and unresolved-signal review without using fictional values.
+
+```powershell
+$env:ASTRAL_DISCOVERY_EXECUTION_ENABLED = "true"  # local research sessions only
+.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
+```
+
+Open `http://127.0.0.1:8000/app/`. Streamlit remains available as an internal engineering laboratory, but it is not the primary product interface. Browser campaign execution never downloads observations and is disabled by default for publication safety. See the [Stage 10 technical and scientific report](docs/stage10-discovery-engine.md) and the [Atlas product-interface report](docs/stage10-atlas-product-interface.md).
 
 ## Project structure
 

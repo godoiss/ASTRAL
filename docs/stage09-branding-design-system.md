@@ -1,6 +1,6 @@
 # ASTRAL Stage 09 — Branding & Discovery-first UX
 
-Status: **awaiting visual direction approval**  
+Status: **Atlas direction approved; superseded by the live Stage 10 integration**
 Package version: `0.9.1-evaluation`
 
 ## 1. Product north star
@@ -291,7 +291,8 @@ The artifact makes no API call, external download, model inference, training,
 or scientific computation. It does not modify models, datasets, checkpoints,
 backend, Streamlit, or frozen-test artifacts.
 
-Stage 09 remains open pending visual review of Atlas and Neural Lab, mark and
-font availability review, frontend token review, campaign state review, and
-responsive/keyboard accessibility acceptance. A successful HTML render alone
-is not approval.
+Atlas was subsequently approved as the product direction. Stage 10 connects the
+approved buildless client to typed FastAPI services while preserving this
+document as the historical design specification. See
+`docs/stage10-atlas-product-interface.md` for the live integration and its
+scientific and deployment boundaries.

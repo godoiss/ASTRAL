@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="ASTRAL Stage 09 discovery-first experience prototype">
-  <title>ASTRAL — Discovery-first UX</title>
+  <meta name="description" content="ASTRAL scientific discovery interface">
+  <title>ASTRAL — Astronomical Discovery</title>
   <link rel="icon" href="assets/astral-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -27,7 +27,7 @@
       <img src="assets/astral-mark.svg" alt="" width="40" height="40">
       <div><strong>ASTRAL</strong><span>Astronomical intelligence</span></div>
     </div>
-    <div class="stage-label"><span>Design study</span><strong>Stage 09 · open</strong></div>
+    <div class="stage-label"><span>Scientific platform</span><strong>Discovery Engine · Stage 10</strong></div>
     <nav class="primary-nav">
       <button class="nav-item is-active" data-view="discover" aria-current="page"><svg><use href="#icon-discover"/></svg><span>Discover</span><kbd>1</kbd></button>
       <button class="nav-item" data-view="observatory"><svg><use href="#icon-observatory"/></svg><span>Observatory</span><kbd>2</kbd></button>
@@ -37,7 +37,7 @@
     </nav>
     <div class="integrity-note">
       <svg><use href="#icon-lock"/></svg>
-      <p><strong>Scientific boundary</strong>Frozen test data remains inaccessible. This artifact performs no scientific computation.</p>
+      <p><strong>Scientific boundary</strong>Frozen test records remain inaccessible. Detection screens are not confirmations.</p>
     </div>
   </aside>
 
@@ -45,13 +45,7 @@
     <header class="topbar">
       <button class="menu-button" id="menu-button" aria-controls="rail" aria-expanded="false" aria-label="Open navigation"><span></span><span></span></button>
       <div class="route"><span>ASTRAL</span><i>/</i><strong id="route-name">Discover</strong></div>
-      <fieldset class="direction-switcher" aria-label="Visual direction">
-        <legend class="sr-only">Visual direction</legend>
-        <button type="button" data-direction="atlas" aria-pressed="true">Atlas</button>
-        <button type="button" data-direction="signal">Signal Room</button>
-        <button type="button" data-direction="orbit">Quiet Orbit</button>
-      </fieldset>
-      <span class="prototype-badge">Local prototype · no live data</span>
+      <span class="prototype-badge" id="api-status">Connecting scientific API</span>
     </header>
 
     <main id="main-content" tabindex="-1">
@@ -60,8 +54,9 @@
           <div class="hero-copy">
             <span class="eyebrow">DISCOVERY-FIRST ASTRONOMY</span>
             <h1>Find what hasn’t<br><em>been found.</em></h1>
-            <p>ASTRAL is being shaped as a scientific expedition instrument: define a real observational search, inspect its evidence, and preserve every boundary between signal, candidate, and confirmed knowledge.</p>
-            <div class="hero-status"><span aria-hidden="true"></span><p><strong>Discovery Engine is not implemented.</strong> Planned for Stage 10. The planner below only reviews an intended campaign.</p></div>
+            <p>ASTRAL is a scientific expedition instrument: define a protected Kepler search, inspect measured evidence, and preserve every boundary between signal, candidate, and confirmed knowledge.</p>
+            <div class="hero-status"><span aria-hidden="true"></span><p><strong>Discovery Engine operational.</strong> Real cached Kepler observations, Astropy BLS measurements, persisted evidence, and explicit scientific limitations.</p></div>
+            <button class="button secondary hero-action" id="view-campaign" type="button">Inspect latest campaign</button>
           </div>
           <figure class="atlas-art" aria-labelledby="atlas-caption">
             <div class="meridian m-one"></div><div class="meridian m-two"></div>
@@ -73,18 +68,26 @@
         </div>
 
         <section class="planner-section" aria-labelledby="planner-title">
-          <div class="section-intro"><span class="section-index">01</span><div><span class="eyebrow">EXPEDITION PLANNER</span><h2 id="planner-title">Define the question before the query.</h2></div><p>Planning creates a transparent search contract. It does not access MAST, run transit detection, or alter any dataset.</p></div>
+          <div class="section-intro"><span class="section-index">01</span><div><span class="eyebrow">EXPEDITION PLANNER</span><h2 id="planner-title">Define the question before the query.</h2></div><p>Planning verifies target eligibility and frozen-host exclusion. Browser campaigns use cache only and never contact MAST.</p></div>
           <form class="planner panel" id="expedition-form">
-            <label><span>Mission</span><select id="mission"><option>Kepler</option><option>TESS — experimental boundary</option></select><small>Mission sources remain scientifically distinct.</small></label>
-            <label><span>Sample</span><select id="sample"><option value="25">25 cached-compatible targets</option><option value="50">50 cached-compatible targets</option><option value="100">100 targets · future capacity review</option></select><small>No files are downloaded in this prototype.</small></label>
-            <label><span>Survey strategy</span><select id="strategy"><option>Balanced known-object audit</option><option>Unreviewed archive sweep</option><option>Cross-quarter consistency study</option></select><small>Strategy is descriptive until Stage 10.</small></label>
-            <label><span>Detection method</span><select id="method"><option>Transit-like periodic signal</option><option>Single-event signal review</option><option>Catalog cross-check only</option></select><small>Detection services do not yet exist.</small></label>
-            <div class="planner-action"><div><span>Execution state</span><strong>Unavailable · roadmap Stage 10</strong></div><button class="button primary" type="submit">Review expedition</button></div>
+            <label><span>Mission</span><select id="mission" disabled><option>Kepler</option></select><small>Kepler and TESS remain scientifically distinct.</small></label>
+            <label><span>Sample</span><select id="sample"><option value="5">5 protected targets</option><option value="10" selected>10 protected targets</option><option value="12">12 protected targets</option></select><small>Cached observations are always preferred.</small></label>
+            <label><span>Survey strategy</span><select id="strategy" disabled><option>Unlabeled candidates · cache first</option></select><small>All labeled train, validation, and test hosts are excluded.</small></label>
+            <label><span>Detection method</span><select id="method" disabled><option>Astropy Box Least Squares</option></select><small>Depth SNR is a screen, not validated significance.</small></label>
+            <div class="planner-action"><div><span>Execution state</span><strong id="planner-state">Reviewing protected target plan</strong></div><button class="button primary" id="review-expedition" type="submit">Review expedition</button></div>
           </form>
         </section>
 
+        <section class="campaign-section" id="campaign-workspace" aria-labelledby="campaign-title">
+          <div class="section-intro"><span class="section-index">02</span><div><span class="eyebrow">REAL CAMPAIGN EVIDENCE</span><h2 id="campaign-title">Measured signals, not decorated claims.</h2></div><p id="campaign-provenance">Loading the latest persisted campaign from the scientific API.</p></div>
+          <div class="campaign-metrics" id="campaign-metrics" aria-live="polite"></div>
+          <div class="campaign-console panel" id="campaign-console">
+            <div class="loading-state">Loading persisted discovery evidence…</div>
+          </div>
+        </section>
+
         <section class="future-pipeline" aria-labelledby="pipeline-title">
-          <div class="section-intro compact"><span class="section-index">02</span><div><span class="eyebrow">FUTURE CAMPAIGN CONTRACT</span><h2 id="pipeline-title">Evidence must remain traceable.</h2></div></div>
+          <div class="section-intro compact"><span class="section-index">03</span><div><span class="eyebrow">CAMPAIGN CONTRACT</span><h2 id="pipeline-title">Evidence remains traceable.</h2></div></div>
           <ol class="pipeline-list">
             <li><span>01</span><strong>Observe</strong><p>Record mission, product, cadence, coverage, quality flags, and provenance.</p></li>
             <li><span>02</span><strong>Detect</strong><p>Expose progress, method configuration, signal coverage, and rejection reasons.</p></li>
@@ -95,10 +98,10 @@
       </section>
 
       <section class="view" id="view-observatory" data-title="Observatory">
-        <div class="page-heading"><div><span class="eyebrow">KNOWN RESEARCH COHORT</span><h1>Observe what is known.<br><em>Keep every claim in frame.</em></h1></div><p>Three audited Kepler records demonstrate the information hierarchy. Catalog disposition and neural output are independent fields.</p></div>
+        <div class="page-heading"><div><span class="eyebrow">REAL KEPLER OBSERVATIONS</span><h1>Observe what is known.<br><em>Keep every claim in frame.</em></h1></div><p>Catalog disposition, measured luminosity, and neural output are independent fields served from persisted scientific artifacts.</p></div>
         <div class="object-layout">
           <article class="panel object-browser">
-            <header class="panel-header"><div><span class="eyebrow">PERSISTED STAGE 08 SNAPSHOT</span><h2>Audited objects</h2></div><span class="snapshot-label">3 records</span></header>
+            <header class="panel-header"><div><span class="eyebrow">SCIENTIFIC API</span><h2>Cached observations</h2></div><span class="snapshot-label" id="object-count">Loading</span></header>
             <div class="table-wrap"><table><caption class="sr-only">Audited Kepler object snapshot</caption><thead><tr><th>Object</th><th>Host</th><th>NASA catalog status</th><th>Observation</th></tr></thead><tbody id="object-table-body"></tbody></table></div>
           </article>
           <aside class="panel object-detail">
@@ -108,20 +111,19 @@
             <p class="fine-print">Uncalibrated classification scores from the audited Stage 08 artifact. They are not confirmation probabilities.</p>
           </aside>
         </div>
-        <article class="panel unavailable-workspace">
-          <div class="workspace-grid" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-          <div><span class="eyebrow">LIGHT-CURVE WORKSPACE</span><h2>Observation data is intentionally not embedded.</h2><p>The production interface will request actual processed curves through the documented FastAPI observation and light-curve endpoints. This design prototype has no API connection and draws no fictional series.</p><div class="dependency-list"><code>GET /objects/{id}</code><code>GET /objects/{id}/observations</code><code>GET /objects/{id}/light-curve</code></div></div>
-          <span class="state-chip">Unavailable in design artifact</span>
+        <article class="panel observation-workspace">
+          <header class="panel-header"><div><span class="eyebrow">LIGHT-CURVE WORKSPACE</span><h2 id="observation-chart-title">Processed Kepler luminosity</h2></div><span class="state-chip" id="observation-chart-state">API data</span></header>
+          <div class="chart-frame"><svg id="observation-chart" role="img" aria-label="Processed Kepler luminosity chart"></svg></div>
+          <p class="chart-caption" id="observation-chart-caption">Loading observed cadences…</p>
         </article>
       </section>
 
       <section class="view" id="view-candidates" data-title="Candidates">
-        <div class="page-heading"><div><span class="eyebrow">CANDIDATE INTELLIGENCE</span><h1>Evidence first.<br><em>Discovery later.</em></h1></div><p>A ranked model output is not a candidate discovery. This workspace remains empty until a traceable detection and vetting pipeline exists.</p></div>
-        <article class="empty-state panel">
-          <div class="empty-orbit" aria-hidden="true"><span></span></div>
-          <span class="eyebrow">HONEST EMPTY STATE</span><h2>No newly found candidates have been demonstrated.</h2>
-          <p>ASTRAL currently analyzes known catalog objects and cached observations. Automatic transit detection, rejection logging, catalog cross-checking, and evidence-led candidate vetting are planned work—not current capabilities.</p>
-          <div class="future-services"><span>Campaign service</span><span>Detection service</span><span>Catalog cross-check</span><span>Candidate registry</span><span>Vetting workflow</span></div>
+        <div class="page-heading"><div><span class="eyebrow">UNRESOLVED SIGNAL REVIEW</span><h1>Evidence first.<br><em>Discovery later.</em></h1></div><p>These are detector screens without local period association. They remain inconclusive and are never presented as new exoplanets.</p></div>
+        <article class="panel candidate-evidence">
+          <header class="panel-header"><div><span class="eyebrow">LATEST CAMPAIGN</span><h2>Unassociated screening signals</h2></div><span class="snapshot-label" id="candidate-count">Loading</span></header>
+          <div class="table-wrap"><table><thead><tr><th>Host</th><th>Period</th><th>Depth SNR</th><th>Events</th><th>Interpretation</th></tr></thead><tbody id="candidate-table-body"></tbody></table></div>
+          <div class="notice"><svg><use href="#icon-info"/></svg><p><strong>No novelty claim.</strong> The standalone TCE catalog was not queried. Absence of a local KOI-period association does not establish a new signal.</p></div>
         </article>
         <div class="candidate-principles">
           <article><span>01</span><h3>Signal</h3><p>A measurable feature in observational data, with provenance and quality context.</p></article>
@@ -155,15 +157,15 @@
       <section class="view" id="view-research" data-title="Research">
         <div class="page-heading"><div><span class="eyebrow">COMPARABLE COHORT</span><h1>Results with context.<br><em>Limits within reach.</em></h1></div><p>ANN-01 and ANN-02 are compared only on the shared 47-object validation cohort. These diagnostics are not final unseen-data performance.</p></div>
         <div class="metric-grid">
-          <article class="metric-card panel"><span>ANN-01 accuracy</span><strong>0.8723</strong><div class="meter"><i style="--value:87.23%"></i></div><small>Shared validation cohort</small></article>
-          <article class="metric-card panel"><span>ANN-02 accuracy</span><strong>0.7660</strong><div class="meter"><i style="--value:76.60%"></i></div><small>Selected seed_stability · seed 97</small></article>
-          <article class="metric-card panel"><span>ANN-01 balanced accuracy</span><strong>0.8696</strong><div class="meter"><i style="--value:86.96%"></i></div><small>Same 47 labeled objects</small></article>
-          <article class="metric-card panel"><span>ANN-02 balanced accuracy</span><strong>0.7681</strong><div class="meter"><i style="--value:76.81%"></i></div><small>Same 47 labeled objects</small></article>
+          <article class="metric-card panel" data-metric="ann01-accuracy"><span>ANN-01 accuracy</span><strong>Loading</strong><div class="meter"><i style="--value:0%"></i></div><small>Shared validation cohort</small></article>
+          <article class="metric-card panel" data-metric="ann02-accuracy"><span>ANN-02 accuracy</span><strong>Loading</strong><div class="meter"><i style="--value:0%"></i></div><small>Selected seed_stability · seed 97</small></article>
+          <article class="metric-card panel" data-metric="ann01-balanced"><span>ANN-01 balanced accuracy</span><strong>Loading</strong><div class="meter"><i style="--value:0%"></i></div><small>Same labeled objects</small></article>
+          <article class="metric-card panel" data-metric="ann02-balanced"><span>ANN-02 balanced accuracy</span><strong>Loading</strong><div class="meter"><i style="--value:0%"></i></div><small>Same labeled objects</small></article>
         </div>
         <div class="research-grid">
           <article class="panel research-record">
             <span class="eyebrow">INTERPRETATION</span><h2>Comparison is evidence, not a race.</h2>
-            <dl><div><dt>Cohort</dt><dd>47 shared validation objects</dd></div><div><dt>ANN-01 ROC-AUC</dt><dd>1.0000 · validation only, not definitive</dd></div><div><dt>Automatic ensemble</dt><dd>Not implemented</dd></div><div><dt>Frozen test</dt><dd>Isolated and inaccessible</dd></div></dl>
+            <dl><div><dt>Cohort</dt><dd id="research-cohort">Loading</dd></div><div><dt>ANN-01 ROC-AUC</dt><dd id="research-roc">Loading</dd></div><div><dt>Automatic ensemble</dt><dd>Not implemented</dd></div><div><dt>Frozen test</dt><dd>Isolated and inaccessible</dd></div></dl>
           </article>
           <article class="panel research-record">
             <span class="eyebrow">PROVENANCE CONTRACT</span><h2>Every result needs a route home.</h2>
@@ -175,14 +177,14 @@
       </section>
     </main>
 
-    <footer><span>ASTRAL · Stage 09 visual evaluation</span><span>Atlas recommended · direction pending approval</span></footer>
+    <footer><span>ASTRAL · Scientific discovery interface</span><span>Atlas · real persisted evidence</span></footer>
   </div>
 
   <dialog id="expedition-dialog" aria-labelledby="dialog-title">
-    <div class="dialog-header"><div><span class="eyebrow">PLAN REVIEW · NO EXECUTION</span><h2 id="dialog-title">Expedition contract</h2></div><button id="dialog-close" aria-label="Close plan review"><svg><use href="#icon-close"/></svg></button></div>
+    <div class="dialog-header"><div><span class="eyebrow">PROTECTED PLAN REVIEW</span><h2 id="dialog-title">Expedition contract</h2></div><button id="dialog-close" aria-label="Close plan review"><svg><use href="#icon-close"/></svg></button></div>
     <dl id="plan-summary"></dl>
-    <div class="notice"><svg><use href="#icon-info"/></svg><p><strong>Discovery Engine unavailable.</strong> Confirming this review would require Stage 10 services. Nothing has been searched, downloaded, classified, or persisted.</p></div>
-    <form method="dialog"><button class="button secondary">Return to planner</button></form>
+    <div class="notice"><svg><use href="#icon-info"/></svg><p><strong>Cache-only execution.</strong> The browser cannot contact MAST, train models, access frozen-test records, or confirm a discovery.</p></div>
+    <div class="dialog-actions"><button class="button secondary" id="dialog-close-secondary" type="button">Return to planner</button><button class="button primary" id="launch-expedition" type="button">Start real campaign</button></div>
   </dialog>
   <div class="nav-scrim" id="nav-scrim"></div>
   <script src="app.js"></script>

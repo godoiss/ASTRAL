@@ -22,7 +22,7 @@ def health(
         status="ok" if ready else "degraded",
         service=settings.title,
         version=settings.version,
-        stage=8,
+        stage=10,
         local_only=True,
         **availability,
     )
@@ -33,7 +33,7 @@ def info(settings: ApiSettings = Depends(get_settings)) -> ApiInfoResponse:
     return ApiInfoResponse(
         name=settings.title,
         version=settings.version,
-        stage=8,
+        stage=10,
         api_version="v1",
         documentation={"openapi": "/openapi.json", "swagger": "/docs", "redoc": "/redoc"},
         scientific_guardrails={
