@@ -165,7 +165,7 @@ Stage 09 established **Atlas** as the approved discovery-first identity after co
 .\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
 ```
 
-Open `http://127.0.0.1:8000/app/`. See the [Stage 09 branding and discovery-first design-system specification](docs/stage09-branding-design-system.md).
+Atlas is now implemented in the publication Next.js application. See the [Stage 09 branding and discovery-first design-system specification](docs/stage09-branding-design-system.md).
 
 ## Discovery Engine
 
@@ -186,7 +186,24 @@ $env:ASTRAL_DISCOVERY_EXECUTION_ENABLED = "true"  # local research sessions only
 .\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
 ```
 
-Open `http://127.0.0.1:8000/app/`. Streamlit remains available as an internal engineering laboratory, but it is not the primary product interface. Browser campaign execution never downloads observations and is disabled by default for publication safety. See the [Stage 10 technical and scientific report](docs/stage10-discovery-engine.md) and the [Atlas product-interface report](docs/stage10-atlas-product-interface.md).
+Streamlit remains available as an internal engineering laboratory, but it is not the primary product interface. Browser campaign execution never downloads observations and is disabled by default for publication safety. See the [Stage 10 technical and scientific report](docs/stage10-discovery-engine.md) and the [historical Atlas product-interface report](docs/stage10-atlas-product-interface.md).
+
+## Immersive scientific visualization
+
+The publication surface now lives in `web/` as a real Next.js application. It replaces the buildless Stage 10 client and provides the five Atlas areas as navigable routes: interactive real-coordinate stellar cartography, Plotly luminosity and BLS instruments, investigative candidate dossiers, checkpoint-faithful ANN visualizations, and a reproducible research timeline. Tables remain available only as secondary audit views.
+
+Run the FastAPI backend and Next.js client in separate terminals:
+
+```powershell
+$env:ASTRAL_DISCOVERY_EXECUTION_ENABLED = "true"  # optional, local cache-only campaigns
+.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
+
+cd web
+npm install
+npm run dev
+```
+
+Open `http://127.0.0.1:3000`. FastAPI `/` and the legacy `/app/` entry point redirect to this publication client. See the [immersive visualization technical report](docs/immersive-scientific-visualization.md).
 
 ## Project structure
 
@@ -201,6 +218,7 @@ ASTRAL/
 ├── models/            # Serialized model artifacts (not versioned)
 ├── docs/              # Architecture, mathematics, and technical reports
 ├── experiments/       # Versioned scientific-validation artifacts
+├── web/               # Publication Next.js interface and Atlas instruments
 ├── src/
 │   ├── api/           # FastAPI routers, schemas, services, and local safeguards
 │   ├── core/          # Mathematical and neural-network primitives

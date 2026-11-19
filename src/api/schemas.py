@@ -217,6 +217,8 @@ class ObjectSummary(StrictModel):
     split: Literal["train", "validation", "candidate", "unassigned"]
     period_days: float | None
     has_cached_observation: bool
+    ra_deg: float | None = None
+    dec_deg: float | None = None
 
 
 class KoiMetadataResponse(StrictModel):
@@ -242,6 +244,8 @@ class KoiMetadataResponse(StrictModel):
     split: Literal["train", "validation", "candidate", "unassigned"]
     class_label: int
     has_cached_observation: bool | None = None
+    ra_deg: float | None = None
+    dec_deg: float | None = None
 
 
 class ObservationData(StrictModel):
@@ -365,6 +369,28 @@ class InferenceResponse(StrictModel):
     input_kind: str
     details: Ann01InferenceDetails | Ann02InferenceDetails
     scientific_notice: str
+
+
+class NeuralTensorState(StrictModel):
+    """One bounded tensor read directly from a persisted neural model or inference."""
+
+    name: str
+    role: Literal["weight", "bias", "activation", "feature_map"]
+    shape: list[int]
+    values: list[Any]
+    minimum: float | None
+    maximum: float | None
+    mean: float | None
+    standard_deviation: float | None
+
+
+class NeuralVisualizationData(StrictModel):
+    model_id: Literal["ann-01", "ann-02"]
+    object_id: str
+    architecture: list[dict[str, Any]] | dict[str, Any]
+    parameters: list[NeuralTensorState]
+    activations: list[NeuralTensorState]
+    notes: list[str]
 
 
 class ComparisonCohort(StrictModel):

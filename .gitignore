@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
+web/node_modules/
+web/.next/
+web/out/
+web/coverage/
+web/.vitest-data/
+web/next-env.d.ts
 .mypy_cache/
 .ruff_cache/
 .cache/

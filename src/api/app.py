@@ -6,14 +6,11 @@ import logging
 import time
 import uuid
 
-from pathlib import Path
-
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.responses import RedirectResponse
-from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
@@ -154,13 +151,16 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
     app.include_router(experiments.router)
     app.include_router(discovery.router)
 
-    interface_directory = Path(__file__).resolve().parents[2] / "design" / "stage09" / "preview"
-
     @app.get("/", include_in_schema=False)
     def product_interface() -> RedirectResponse:
-        return RedirectResponse(url="/app/")
+        return RedirectResponse(url=settings.frontend_url)
 
-    app.mount("/app", StaticFiles(directory=interface_directory, html=True), name="atlas-interface")
+    @app.get("/app", include_in_schema=False)
+    @app.get("/app/", include_in_schema=False)
+    def legacy_product_interface() -> RedirectResponse:
+        """Send legacy Atlas entry points to the publication Next.js client."""
+        return RedirectResponse(url=settings.frontend_url)
+
     return app
 
 

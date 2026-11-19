@@ -12,6 +12,7 @@ from src.api.schemas import (
     ModelCollection,
     ModelComparisonData,
     ModelEntry,
+    NeuralVisualizationData,
     PageResponse,
     Pagination,
     ScientificResponse,
@@ -57,6 +58,25 @@ def inference(
     service: ScientificService = Depends(get_scientific_service),
 ) -> InferenceResponse:
     return InferenceResponse.model_validate(service.inference(model_id, request.object_id))
+
+
+@router.get(
+    "/models/{model_id}/visualization",
+    response_model=ScientificResponse[NeuralVisualizationData],
+    operation_id="getModelVisualization",
+)
+def model_visualization(
+    model_id: str = Path(min_length=3, max_length=32, pattern=r"^[a-z0-9-]+$"),
+    object_id: str = Query(min_length=3, max_length=64, pattern=r"^[A-Za-z0-9_. -]+$"),
+    service: ScientificService = Depends(get_scientific_service),
+) -> ScientificResponse[NeuralVisualizationData]:
+    return ScientificResponse[NeuralVisualizationData](
+        data=service.neural_visualization(model_id, object_id),
+        limitations=[
+            "Neural states describe model computation for one record and do not establish astrophysical causality."
+        ],
+        provenance={"artifact": "Persisted model checkpoint and real retained forward pass"},
+    )
 
 
 @router.get("/metrics/comparison", response_model=ScientificResponse[ModelComparisonData], operation_id="getModelComparison")

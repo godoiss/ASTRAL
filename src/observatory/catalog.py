@@ -37,6 +37,8 @@ OBSERVATORY_COLUMNS = (
     "koi_sma",
     "koi_insol",
     "koi_kepmag",
+    "ra",
+    "dec",
 )
 
 

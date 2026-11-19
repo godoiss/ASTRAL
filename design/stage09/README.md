@@ -1,12 +1,11 @@
 # ASTRAL Stage 09 — Discovery-first design package
 
-Status: **Atlas approved and connected to Stage 10 scientific services**
+Status: **Atlas approved; buildless client retained as a historical design artifact**
 
-This directory began as the Stage 09 design artifact. In Stage 10, the approved
-Atlas client was connected to the versioned FastAPI scientific services and is
-served at `/app/`. It still contains no scientific computation: observations,
-model scores, campaign evidence, and metrics come from typed API responses.
-No Next.js dependency or dataset mutation is introduced by the client.
+This directory contains the Stage 09 design artifact and the superseded Stage 10
+buildless client. The publication interface now lives in `web/` as a Next.js
+application. The historical files remain available for design provenance but are
+not served as the product interface.
 
 ## Contents
 
@@ -23,16 +22,16 @@ No Next.js dependency or dataset mutation is introduced by the client.
 Atlas is the approved direction. Historical comparison captures remain in this
 directory, but the running interface no longer exposes design-direction controls.
 
-## Local preview
+## Publication client
 
 ```powershell
-$env:ASTRAL_DISCOVERY_EXECUTION_ENABLED = "true"
-.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
+cd web
+npm install
+npm run dev
 ```
 
-Open `http://127.0.0.1:8000/app/`. The client requests real persisted values
-from the same-origin API. Campaign execution is cache-only and explicitly gated;
-public deployments should leave it disabled until authentication is implemented.
+Open `http://127.0.0.1:3000`. The Next.js client proxies the versioned FastAPI
+boundary and contains no independent scientific computation.
 
 ## Review boundary
 

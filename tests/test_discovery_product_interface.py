@@ -12,19 +12,18 @@ from src.api.config import ApiSettings
 from src.api.dependencies import get_discovery_jobs, get_discovery_service
 
 
-def test_product_root_serves_atlas_interface() -> None:
+def test_product_root_redirects_to_publication_nextjs_interface() -> None:
     with TestClient(create_app()) as client:
         root = client.get("/", follow_redirects=False)
-        interface = client.get("/app/")
+        legacy = client.get("/app/", follow_redirects=False)
 
     assert root.status_code in {302, 307}
-    assert root.headers["location"] == "/app/"
-    assert interface.status_code == 200
-    assert "Discovery Engine operational" in interface.text
-    assert "Local prototype" not in interface.text
-    assert interface.headers["x-frame-options"] == "DENY"
-    assert interface.headers["x-content-type-options"] == "nosniff"
-    assert "connect-src 'self'" in interface.headers["content-security-policy"]
+    assert legacy.status_code in {302, 307}
+    assert root.headers["location"] == "http://127.0.0.1:3000"
+    assert legacy.headers["location"] == "http://127.0.0.1:3000"
+    assert root.headers["x-frame-options"] == "DENY"
+    assert root.headers["x-content-type-options"] == "nosniff"
+    assert "connect-src 'self'" in root.headers["content-security-policy"]
 
 
 def test_discovery_plan_is_unlabeled_cached_and_protected() -> None:

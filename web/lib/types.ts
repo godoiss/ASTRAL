@@ -1,0 +1,93 @@
+export interface Provenance { source?: string | null; artifact?: string | null; cohort?: string | null; mission?: string | null; status?: string | null }
+export interface Scientific<T> { data: T; limitations: string[]; provenance: Provenance }
+export interface Pagination { offset: number; limit: number; returned: number; total: number }
+export interface ObjectPage<T> { items: T[]; pagination: Pagination }
+
+export interface ObjectSummary {
+  object_id: string; display_name: string; kic: number; kepler_name: string | null;
+  catalog_disposition: string; split: string; period_days: number | null;
+  has_cached_observation: boolean; ra_deg: number | null; dec_deg: number | null;
+}
+
+export interface ObjectDetail {
+  object_id: string; display_name: string; kic: number; kepler_name: string | null; disposition: string;
+  period_days: number; epoch_bkjd: number; epoch_bjd: number; duration_hours: number; depth_ppm: number | null;
+  planet_radius_earth: number | null; equilibrium_temperature_k: number | null; stellar_temperature_k: number | null;
+  stellar_radius_solar: number | null; stellar_mass_solar: number | null; stellar_logg: number | null;
+  semi_major_axis_au: number | null; insolation_earth: number | null; kepler_magnitude: number | null;
+  split: string; class_label: number; has_cached_observation: boolean; ra_deg: number | null; dec_deg: number | null;
+}
+
+export interface LightCurve {
+  object_id: string; mission: string; view: "raw" | "processed" | "phase" | "local";
+  records_total: number; records_returned: number; downsampled: boolean;
+  data: Record<string, Array<number | null>>;
+}
+
+export interface ClassificationMetrics {
+  accuracy: number; balanced_accuracy: number; precision: number; recall: number; f1: number;
+  roc_auc: number; pr_auc: number; binary_cross_entropy: number; confusion_matrix: number[][];
+  records: number; positive_prevalence: number; threshold: number;
+}
+
+export interface ModelEntry {
+  id: "ann-01" | "ann-02"; name: string; framework: string; architecture: unknown;
+  trainable_parameters: number; experiment_id: string; served_checkpoint: string; seed?: number | null;
+  shared_validation_metrics: ClassificationMetrics; definitive_scientific_validation: boolean;
+}
+
+export interface Inference {
+  model_id: string; model_experiment_id: string; object_id: string; kic: number; original_disposition: string;
+  score: number; threshold: number; predicted_class: string; input_kind: string;
+  details: Record<string, unknown>; scientific_notice: string;
+}
+
+export interface NeuralTensor {
+  name: string; role: "weight" | "bias" | "activation" | "feature_map"; shape: number[];
+  values: unknown[]; minimum: number | null; maximum: number | null; mean: number | null; standard_deviation: number | null;
+}
+
+export interface NeuralVisualization {
+  model_id: "ann-01" | "ann-02"; object_id: string; architecture: unknown;
+  parameters: NeuralTensor[]; activations: NeuralTensor[]; notes: string[];
+}
+
+export interface CampaignSummary {
+  campaign_id: string; status: string; started_at_utc: string; completed_at_utc: string | null;
+  investigated_stars: number; screening_detections: number; catalog_associated_detections: number;
+  unassociated_inconclusive_detections: number; below_threshold: number; failed_or_excluded_stars: number;
+  confirmed_discoveries: number;
+}
+
+export interface CampaignTarget {
+  kic: number; selection_reference: string; status: string; period_days: number | null; duration_hours: number | null;
+  depth_ppm: number | null; depth_snr: number | null; ranking_score: number | null; observed_events: number | null;
+  event_coverage: number | null; phase_coverage: number | null; possible_eclipsing_binary: boolean;
+  catalog_period_association: boolean; catalog_relations: string[]; interpretation: string; limitations: string[];
+}
+
+export interface CampaignDetail { campaign: CampaignSummary & Record<string, unknown>; targets: CampaignTarget[]; guardrails: Record<string, boolean>; limitations: string[] }
+export interface DiscoverySeries { kic: number; records_returned: number; time_bkjd: number[]; detrended_flux: number[]; periods: number[]; powers: number[]; phase: number[]; phase_flux: number[]; phase_bin_centers: number[]; phase_bin_flux: number[] }
+
+export interface ExperimentSummary { experiment_id: string; stage: string; kind: string; generated_at_utc: string | null; selected: boolean }
+export interface EpochMetric { epoch: number; train_loss: number; train_accuracy: number; validation_loss: number; validation_accuracy: number }
+
+export interface Comparison {
+  cohort: { definition: string; records: number; stars: number; class_0: number; class_1: number; test_accessed: boolean };
+  ann01_metrics: ClassificationMetrics; ann02_metrics: ClassificationMetrics;
+  agreement: { records: number; fraction: number; divergences: number };
+  rows: Array<{ object_id: string; kic: number; target: number; catalog_disposition: string; ann01_score: number; ann02_score: number; models_agree: boolean }>;
+  limitations: string[];
+}
+
+export interface ExplanationIndex {
+  ann01_permutation_importance: { method: string; records: number; features: Array<{ feature: string; mean_bce_increase: number; std_bce_increase: number }> };
+  objects: Array<{ object_id: string; kic: number; split: string; catalog_disposition: string }>;
+  guardrails: Record<string, boolean>;
+}
+
+export interface ExplanationDetail {
+  object_id: string; kic: number; split: string; catalog_disposition: string;
+  ann01: null | { score: number; method: string; features: Array<{ feature: string; local_contribution: number; raw_value: number | null }> ; limitations: string[] };
+  ann02: { score: number; method: string; regions: Array<{ view: string; start_coordinate: number; end_coordinate: number; score_delta: number; observed_fraction: number }>; saliency?: Record<string, { indices: number[]; values: Array<number | null> }>; limitations: string[] };
+}

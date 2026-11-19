@@ -7,7 +7,7 @@ import os
 from pydantic import BaseModel, ConfigDict, Field
 
 
-API_VERSION = "0.10.0"
+API_VERSION = "0.11.0"
 
 
 class ApiSettings(BaseModel):
@@ -28,6 +28,7 @@ class ApiSettings(BaseModel):
     default_curve_points: int = Field(default=1000, ge=10, le=5000)
     maximum_curve_points: int = Field(default=5000, ge=10, le=5000)
     discovery_execution_enabled: bool = False
+    frontend_url: str = Field(default="http://127.0.0.1:3000", pattern=r"^https?://")
 
     @classmethod
     def from_environment(cls) -> "ApiSettings":
@@ -46,4 +47,7 @@ class ApiSettings(BaseModel):
         execution = os.getenv("ASTRAL_DISCOVERY_EXECUTION_ENABLED", "").strip().lower()
         if execution:
             values["discovery_execution_enabled"] = execution in {"1", "true", "yes", "on"}
+        frontend_url = os.getenv("ASTRAL_FRONTEND_URL", "").strip()
+        if frontend_url:
+            values["frontend_url"] = frontend_url
         return cls(**values)

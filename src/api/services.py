@@ -116,6 +116,22 @@ def _finite_list(values: np.ndarray) -> list[float | None]:
     return [float(value) if np.isfinite(value) else None for value in values]
 
 
+def _tensor_state(name: str, role: str, values: Any) -> dict[str, Any]:
+    """Return a JSON-safe real tensor with summary statistics."""
+    array = np.asarray(values, dtype=np.float64)
+    finite = array[np.isfinite(array)]
+    return {
+        "name": name,
+        "role": role,
+        "shape": list(array.shape),
+        "values": public_payload(array.tolist()),
+        "minimum": float(finite.min()) if finite.size else None,
+        "maximum": float(finite.max()) if finite.size else None,
+        "mean": float(finite.mean()) if finite.size else None,
+        "standard_deviation": float(finite.std()) if finite.size else None,
+    }
+
+
 class ScientificService:
     """Facade that guarantees read-only access and blocks frozen test identities."""
 
@@ -293,6 +309,8 @@ class ScientificService:
             "split": str(row["split"]),
             "period_days": None if pd.isna(row["koi_period"]) else float(row["koi_period"]),
             "has_cached_observation": str(row["kepoi_name"]) in self.cached_observation_ids(),
+            "ra_deg": None if pd.isna(row.get("ra")) else float(row["ra"]),
+            "dec_deg": None if pd.isna(row.get("dec")) else float(row["dec"]),
         }
 
     def object_metadata(self, identifier: str) -> dict[str, Any]:
@@ -304,7 +322,13 @@ class ScientificService:
         metadata = matches[0]
         if metadata.split == "test":
             raise ApiError(404, "object_not_found", "No accessible astronomical object matches the identifier.")
-        return {**metadata.to_dict(), "has_cached_observation": metadata.object_id in self.cached_observation_ids()}
+        row = self.catalog.loc[self.catalog["kepoi_name"].astype(str).eq(metadata.object_id)].iloc[0]
+        return {
+            **metadata.to_dict(),
+            "has_cached_observation": metadata.object_id in self.cached_observation_ids(),
+            "ra_deg": None if pd.isna(row.get("ra")) else float(row["ra"]),
+            "dec_deg": None if pd.isna(row.get("dec")) else float(row["dec"]),
+        }
 
     def _artifact(self, identifier: str):
         metadata_dict = self.object_metadata(identifier)
@@ -474,6 +498,64 @@ class ScientificService:
                     },
                 },
                 "scientific_notice": notice,
+            }
+        raise ApiError(404, "model_not_found", "Unknown ASTRAL model identifier.")
+
+    def neural_visualization(self, model_id: str, object_id: str) -> dict[str, Any]:
+        """Expose bounded, real neural tensors for the publication interface."""
+        metadata = self.object_metadata(object_id)
+        canonical = str(metadata["object_id"])
+        if model_id == "ann-01":
+            matches = self.ann01_frame.loc[self.ann01_frame[OBJECT_ID_COLUMN].eq(canonical)]
+            if len(matches) != 1:
+                raise ApiError(422, "incompatible_object", "The object is not compatible with ANN-01 inference.")
+            result = infer_record(self.ann01, matches.iloc[0])
+            parameters: list[dict[str, Any]] = []
+            for index, (weights, biases) in enumerate(
+                zip(self.ann01.model.weights, self.ann01.model.biases, strict=True), start=1
+            ):
+                parameters.append(_tensor_state(f"layer_{index}.weights", "weight", weights))
+                parameters.append(_tensor_state(f"layer_{index}.biases", "bias", biases.reshape(-1)))
+            names = [str(layer["name"]) for layer in self.ann01.model.architecture]
+            activations = [
+                _tensor_state(f"{names[index]}.activation", "activation", values[0])
+                for index, values in enumerate(result.activations)
+            ]
+            return {
+                "model_id": model_id,
+                "object_id": canonical,
+                "architecture": self.ann01.model.architecture,
+                "parameters": parameters,
+                "activations": activations,
+                "notes": [
+                    "Weights and biases come from the persisted Stage 04 ANN-01 checkpoint.",
+                    "Activations belong only to the requested astronomical object.",
+                ],
+            }
+        if model_id == "ann-02":
+            sample = self.ann02_samples.get(canonical)
+            if sample is None:
+                raise ApiError(422, "incompatible_object", "The object has no ANN-02 signal representation.")
+            inference = infer_ann02(self.ann02, sample)
+            parameters = [
+                _tensor_state(name, "bias" if name.endswith("bias") else "weight", parameter.detach().cpu().numpy())
+                for name, parameter in self.ann02.model.named_parameters()
+            ]
+            activations = [
+                _tensor_state(name, "feature_map", values)
+                for name, values in inference["feature_maps"].items()
+            ]
+            return {
+                "model_id": model_id,
+                "object_id": canonical,
+                "architecture": self.ann02.model.architecture(),
+                "parameters": parameters,
+                "activations": activations,
+                "notes": [
+                    "Parameters come from the selected seed_stability checkpoint (seed 97).",
+                    "Feature maps are captured from a real forward pass for the requested object.",
+                    "The visualized tensors explain computation, not astrophysical causality.",
+                ],
             }
         raise ApiError(404, "model_not_found", "Unknown ASTRAL model identifier.")
 

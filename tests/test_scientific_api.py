@@ -42,7 +42,7 @@ def test_health_version_and_restrictive_cors(client: TestClient) -> None:
 
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
-    assert health.json()["version"] == "0.10.0"
+    assert health.json()["version"] == "0.11.0"
     assert health.json()["stage"] == 10
     assert info.json()["scientific_guardrails"] == {
         "frozen_test_accessed": False,
@@ -85,8 +85,8 @@ def test_openapi_exposes_no_training_or_download_routes(client: TestClient) -> N
     ]
 
     assert "/api/v1/inference/{model_id}" in paths
-    assert len(operations) == 24
-    assert len({operation["operationId"] for operation in operations}) == 24
+    assert len(operations) == 25
+    assert len({operation["operationId"] for operation in operations}) == 25
     assert not any("train" in path.lower() or "download" in path.lower() for path in paths)
     write_operations = [
         (path, method)
@@ -184,6 +184,8 @@ def test_real_candidate_metadata_observation_and_bounded_curves(client: TestClie
     assert detail.status_code == observation.status_code == 200
     assert detail.json()["data"]["disposition"] == "CANDIDATE"
     assert detail.json()["data"]["split"] == "candidate"
+    assert detail.json()["data"]["ra_deg"] == pytest.approx(297.00482)
+    assert detail.json()["data"]["dec_deg"] == pytest.approx(48.134129)
     assert observation.json()["data"]["mission"] == "Kepler"
     for view in ("raw", "processed", "phase", "local"):
         curve = client.get(
@@ -236,6 +238,27 @@ def test_real_ann01_and_ann02_candidate_inference(client: TestClient) -> None:
         "global.relu_2": [16, 500],
         "local.relu_2": [16, 100],
     }
+
+
+def test_real_neural_visualization_exposes_bounded_model_state(client: TestClient) -> None:
+    ann01 = client.get(
+        "/api/v1/models/ann-01/visualization",
+        params={"object_id": "K00753.01"},
+    )
+    ann02 = client.get(
+        "/api/v1/models/ann-02/visualization",
+        params={"object_id": "K00753.01"},
+    )
+
+    assert ann01.status_code == ann02.status_code == 200
+    assert ann01.json()["data"]["object_id"] == "K00753.01"
+    assert sum(len(layer["values"]) for layer in ann01.json()["data"]["parameters"]) > 0
+    maps = {item["name"]: item for item in ann02.json()["data"]["activations"]}
+    assert maps["global.relu_2"]["shape"] == [16, 500]
+    assert maps["local.relu_2"]["shape"] == [16, 100]
+    assert maps["global.relu_2"]["role"] == "feature_map"
+    _assert_no_internal_path(ann01.json())
+    _assert_no_internal_path(ann02.json())
 
 
 def test_inference_errors_are_consistent(client: TestClient) -> None:

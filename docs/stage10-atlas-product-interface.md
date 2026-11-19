@@ -1,5 +1,9 @@
 # ASTRAL Stage 10 — Atlas Product Interface
 
+> Historical note: this buildless client has been superseded by the publication
+> Next.js application in `web/`. FastAPI `/` and `/app/` now redirect to the
+> Next.js interface. The document remains as Stage 10 implementation provenance.
+
 ## Purpose
 
 The approved Atlas direction is now the primary user-facing ASTRAL interface. It is served by FastAPI at `/app/` and consumes the versioned scientific API on the same origin. Streamlit remains an internal developer instrument; it is no longer the product surface used to evaluate Stage 10.
