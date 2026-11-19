@@ -205,6 +205,24 @@ npm run dev
 
 Open `http://127.0.0.1:3000`. FastAPI `/` and the legacy `/app/` entry point redirect to this publication client. See the [immersive visualization technical report](docs/immersive-scientific-visualization.md).
 
+## Candidate Intelligence
+
+Stage 11 investigates all eight real screening detections from `stage10-kepler-reference-final`. The reproducible workflow cross-checks exactly those host stars against the official NASA KOI and DR25 TCE tables, persists complete JSON and Markdown dossiers, and ranks signals only by transparent **human-review priority**. The result contains three catalog-associated signals, five unassociated but inconclusive signals, one eclipsing-binary-compatible diagnostic, and zero confirmed discoveries.
+
+The publication interface at `http://127.0.0.1:3000/candidates` now provides the primary scientific investigation center: measured light curves, BLS evidence, phase folding, odd/even and secondary-event diagnostics, aliases, official catalog records, evidence and limitations, neural-compatibility decisions, Observatory handoff, Research archive integration, exports, and explicit human review records. Normal API and browser access use only persisted local artifacts and never trigger a scientific download or model training.
+
+```powershell
+# Explicit, bounded scientific rebuild (performs official catalog queries)
+.\.venv\Scripts\python.exe -m src.candidate_intelligence.cli
+
+# Local product services
+.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
+cd web
+npm run dev
+```
+
+See the [Stage 11 Candidate Intelligence report](docs/stage11-candidate-intelligence.md).
+
 ## Project structure
 
 ```text

@@ -85,8 +85,13 @@ def test_openapi_exposes_no_training_or_download_routes(client: TestClient) -> N
     ]
 
     assert "/api/v1/inference/{model_id}" in paths
-    assert len(operations) == 25
-    assert len({operation["operationId"] for operation in operations}) == 25
+    assert len(operations) == 31
+    assert len({operation["operationId"] for operation in operations}) == 31
+    assert "/api/v1/candidate-intelligence" in paths
+    assert "/api/v1/candidate-intelligence/{kic}" in paths
+    assert "/api/v1/candidate-intelligence/{kic}/export" in paths
+    assert "/api/v1/candidate-intelligence/{kic}/report" in paths
+    assert "/api/v1/candidate-intelligence/{kic}/reviews" in paths
     assert not any("train" in path.lower() or "download" in path.lower() for path in paths)
     write_operations = [
         (path, method)
@@ -97,12 +102,14 @@ def test_openapi_exposes_no_training_or_download_routes(client: TestClient) -> N
     assert write_operations == [
         ("/api/v1/inference/{model_id}", "post"),
         ("/api/v1/discovery/jobs", "post"),
+        ("/api/v1/candidate-intelligence/{kic}/reviews", "post"),
     ]
 
     for operation in operations:
-        success = operation["responses"].get("200") or operation["responses"].get("202")
-        success_schema = success["content"]["application/json"]["schema"]
-        assert "$ref" in success_schema
+        success = operation["responses"].get("200") or operation["responses"].get("201") or operation["responses"].get("202")
+        content = success["content"]
+        assert content
+        assert all(media["schema"] for media in content.values())
         assert operation["responses"]["422"]["content"]["application/json"]["schema"] == {
             "$ref": "#/components/schemas/ErrorResponse"
         }

@@ -69,6 +69,38 @@ export interface CampaignTarget {
 export interface CampaignDetail { campaign: CampaignSummary & Record<string, unknown>; targets: CampaignTarget[]; guardrails: Record<string, boolean>; limitations: string[] }
 export interface DiscoverySeries { kic: number; records_returned: number; time_bkjd: number[]; detrended_flux: number[]; periods: number[]; powers: number[]; phase: number[]; phase_flux: number[]; phase_bin_centers: number[]; phase_bin_flux: number[] }
 
+export interface CandidatePriority {
+  score: number; tier: "high" | "medium" | "low"; meaning: string; formula_version: string;
+  components: Record<string, number>;
+}
+export interface CandidateDossierSummary {
+  dossier_id: string; kic: number; selection_reference: string | null;
+  investigation_state: "catalog_associated" | "unassociated_inconclusive";
+  period_days: number; duration_hours: number; depth_ppm: number; depth_snr: number;
+  observed_events: number; event_coverage: number; possible_eclipsing_binary: boolean;
+  priority: CandidatePriority; review_count: number;
+}
+export interface CandidateIntelligenceIndex {
+  campaign_id: string; generated_at_utc: string; artifact_sha256: string | null;
+  summary: { investigated_signals: number; catalog_associated: number; unassociated_inconclusive: number; possible_eclipsing_binary: number; confirmed_discoveries: 0; neural_models_invoked: false; frozen_test_accessed: false };
+  ranking_method: Record<string, unknown>; catalog_sources: Array<{ name: string; table: string; url: string; records: number }>;
+  scientific_boundaries: string[]; dossiers: CandidateDossierSummary[];
+}
+export interface HumanReview { review_id: string; kic: number; reviewer: string; decision: string; notes: string; created_at_utc: string }
+export interface CandidateDossier {
+  dossier_id: string; campaign_id: string; generated_at_utc: string; kic: number; selection_reference: string | null;
+  mission: "Kepler"; investigation_state: "catalog_associated" | "unassociated_inconclusive"; interpretation: string;
+  observation: { source_kind: string; products: Array<{ productFilename?: string; mission?: string; author?: string }>; raw_sha256: string; start_bkjd: number; end_bkjd: number; span_days: number; raw_records: number; retained_records: number; retention_fraction: number; quality_rejected: number; quarter_bias: string };
+  measured_event: { period_days: number; period_uncertainty_days: number; transit_time_bkjd: number; transit_time_uncertainty_days: number; duration_hours: number; duration_uncertainty_hours: number; depth_ppm: number; depth_error_fraction: number; depth_snr: number; expected_events: number; observed_events: number; event_coverage: number; phase_coverage: number; event_depths: number[]; event_depth_mad: number | null };
+  diagnostics: { aliases: Array<{ period_days: number; depth_snr: number; ratio_to_primary: number; relation: string | null }>; odd_depth: number | null; even_depth: number | null; odd_even_sigma: number | null; secondary_depth: number | null; secondary_sigma: number | null; possible_eclipsing_binary: boolean };
+  catalog_verification: { checked_at_utc: string; koi_records: Array<Record<string, unknown>>; tce_records: Array<Record<string, unknown>>; local_period_association_found: boolean; novelty_established: false; eclipsing_binary_catalog: Record<string, string> };
+  instrumental_hypotheses: string[];
+  evidence: { favorable: string[]; contrary: string[]; inconclusive: string[] };
+  priority: CandidatePriority;
+  neural_compatibility: { ann01: { available: false; reason: string }; ann02: { available: false; reason: string }; models_invoked: false };
+  review_history: HumanReview[]; limitations: string[];
+}
+
 export interface ExperimentSummary { experiment_id: string; stage: string; kind: string; generated_at_utc: string | null; selected: boolean }
 export interface EpochMetric { epoch: number; train_loss: number; train_accuracy: number; validation_loss: number; validation_accuracy: number }
 

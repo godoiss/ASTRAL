@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "dossier_id": "stage10-kepler-reference-final-kic-9772531",
+  "campaign_id": "stage10-kepler-reference-final",
+  "generated_at_utc": "2026-11-19T19:01:08.527374+00:00",
+  "kic": 9772531,
+  "selection_reference": "K00950.01",
+  "mission": "Kepler",
+  "investigation_state": "catalog_associated",
+  "interpretation": "catalog_associated_signal",
+  "observation": {
+    "source_kind": "bounded_mast_download",
+    "products": [
+      {
+        "target_name": "kplr009772531",
+        "mission": "Kepler Quarter 03",
+        "author": "Kepler",
+        "exptime": 1800.0,
+        "distance": 0.0,
+        "year": 2009,
+        "obsid": "473092",
+        "productFilename": "kplr009772531-2009350155506_llc.fits",
+        "dataURI": "mast:KEPLER/url/missions/kepler/lightcurves/0097/009772531/kplr009772531-2009350155506_llc.fits"
+      }
+    ],
+    "raw_sha256": "79ad97a7839e229840ff4db986c15ff705afb1f358d728394bca72f0a84efe9c",
+    "start_bkjd": 260.24520891474094,
+    "end_bkjd": 349.49593928617105,
+    "span_days": 89.25073037143011,
+    "raw_records": 4228,
+    "retained_records": 4134,
+    "retention_fraction": 0.977767265846736,
+    "quality_rejected": 0,
+    "quarter_bias": "Quarter 3 long cadence only"
+  },
+  "measured_event": {
+    "period_days": 10.39691481064217,
+    "period_uncertainty_days": 0.013097764096812625,
+    "transit_time_bkjd": 266.62645891474097,
+    "transit_time_uncertainty_days": 0.0003147559033919827,
+    "duration_hours": 1.5,
+    "duration_uncertainty_hours": 0.5,
+    "depth_ppm": 11495.426970208277,
+    "depth_error_fraction": 0.00011578411202830299,
+    "depth_snr": 99.28328480334385,
+    "expected_events": 8,
+    "observed_events": 8,
+    "event_coverage": 1.0,
+    "phase_coverage": 1.0,
+    "event_depths": [
+      -0.0001672138192985173,
+      0.03422056150382091,
+      -6.847037595170136e-05,
+      -0.0004036917769197901,
+      0.032570233465630816,
+      0.00013403518203525255,
+      0.000682555352145342,
+      0.03408161371091134
+    ],
+    "event_depth_mad": 0.000693748065199451
+  },
+  "diagnostics": {
+    "aliases": [
+      {
+        "period_days": 20.799237170596395,
+        "depth_snr": 96.73646166429275,
+        "ratio_to_primary": 2.0005201109570043,
+        "relation": "double-period"
+      },
+      {
+        "period_days": 15.617026815933352,
+        "depth_snr": 93.30436998092054,
+        "ratio_to_primary": 1.5020827909398597,
+        "relation": null
+      },
+      {
+        "period_days": 6.240636704119851,
+        "depth_snr": 78.8305631036098,
+        "ratio_to_primary": 0.6002392842280484,
+        "relation": null
+      },
+      {
+        "period_days": 7.792283710054559,
+        "depth_snr": 73.19225496496583,
+        "ratio_to_primary": 0.7494803845154586,
+        "relation": null
+      },
+      {
+        "period_days": 27.234960272417705,
+        "depth_snr": 71.54686940888041,
+        "ratio_to_primary": 2.6195232690124857,
+        "relation": null
+      },
+      {
+        "period_days": 29.36123348017621,
+        "depth_snr": 69.4028358973256,
+        "ratio_to_primary": 2.8240332843857074,
+        "relation": null
+      },
+      {
+        "period_days": 27.598343685300208,
+        "depth_snr": 67.99285044148944,
+        "ratio_to_primary": 2.654474350126524,
+        "relation": null
+      },
+      {
+        "period_days": 5.197781725228544,
+        "depth_snr": 67.64762935919535,
+        "ratio_to_primary": 0.4999350114813051,
+        "relation": "half-period"
+      }
+    ],
+    "odd_depth": 0.00030704248809682033,
+    "even_depth": 0.017107824446473296,
+    "odd_even_sigma": 42.0101496336814,
+    "secondary_depth": -0.00013556537538661484,
+    "secondary_sigma": -1.24549043924249,
+    "possible_eclipsing_binary": true
+  },
+  "catalog_verification": {
+    "checked_at_utc": "2026-11-19T19:01:08.527374+00:00",
+    "koi_records": [
+      {
+        "kepid": 9772531,
+        "kepoi_name": "K00950.01",
+        "koi_disposition": "CANDIDATE",
+        "koi_pdisposition": "CANDIDATE",
+        "koi_period": 31.201692472,
+        "koi_duration": 2.15663,
+        "koi_depth": 34513.7,
+        "koi_model_snr": 607.4,
+        "koi_time0bk": 183.4076137,
+        "koi_fpflag_nt": 0,
+        "koi_fpflag_ss": 0,
+        "koi_fpflag_co": 0,
+        "koi_fpflag_ec": 0,
+        "koi_comment": "CENT_KIC_POS",
+        "koi_tce_plnt_num": 1,
+        "koi_tce_delivname": "q1_q17_dr25_tce",
+        "period_relation": "one_third_catalog_period",
+        "period_ratio": 0.3332163734378264
+      }
+    ],
+    "tce_records": [
+      {
+        "kepid": 9772531,
+        "tce_plnt_num": 1,
+        "tce_period": 31.2017,
+        "tce_duration": 2.212,
+        "tce_depth": 34470.0,
+        "tce_model_snr": 614.9,
+        "tce_num_transits": 44,
+        "tce_bin_oedp_stat": 4.054,
+        "tce_rogue_flag": 0,
+        "boot_fap": 0.0,
+        "tce_max_mult_ev": 595.1,
+        "tce_delivname": "q1_q17_dr25_tce",
+        "period_relation": "one_third_catalog_period",
+        "period_ratio": 0.3332162930430768
+      }
+    ],
+    "local_period_association_found": true,
+    "local_associations": [
+      {
+        "object_id": "K00950.01",
+        "disposition": "CANDIDATE",
+        "catalog_period_days": 31.201692472,
+        "period_ratio": 0.3332163734378264,
+        "relation": "one_third_catalog_period",
+        "tce_planet_number": 1,
+        "tce_delivery": "q1_q17_dr25_tce"
+      }
+    ],
+    "eclipsing_binary_catalog": {
+      "source": "Kepler Eclipsing Binary Catalog",
+      "status": "not_machine_queried",
+      "reason": "The NASA Exoplanet Archive documents the catalog but does not expose its table through the current TAP schema used by this reproducible verifier.",
+      "documentation": "https://exoplanetarchive.ipac.caltech.edu/docs/eclbin.html"
+    },
+    "novelty_established": false
+  },
+  "instrumental_hypotheses": [
+    "Quarter-level systematics or residual trends can produce coherent BLS peaks.",
+    "Flux contamination from nearby sources has not been excluded without pixel-level centroid analysis.",
+    "The centered rolling-median detrending can attenuate or reshape broad variability."
+  ],
+  "evidence": {
+    "favorable": [
+      "BLS screening threshold passed with depth SNR 99.28.",
+      "8 events were measured with 100.0% temporal coverage.",
+      "Phase-bin coverage is 100.0% in the retained Quarter 3 series.",
+      "The measured period has a simple relation to an existing KOI record on this host."
+    ],
+    "contrary": [
+      "Discovery diagnostics are compatible with an eclipsing-binary explanation.",
+      "Odd/even depth difference reaches 42.01 sigma."
+    ],
+    "inconclusive": [
+      "Only Kepler Quarter 3 was analyzed; multi-quarter repeatability was not tested.",
+      "No centroid, pixel-level contamination, or nearby-source analysis was performed.",
+      "The BLS depth SNR has not been calibrated with bootstrap or injection-recovery tests.",
+      "A missing KOI/TCE period association does not establish novelty or planetary nature."
+    ]
+  },
+  "priority": {
+    "score": 65.226,
+    "tier": "medium",
+    "meaning": "human_review_priority_not_planet_probability",
+    "components": {
+      "signal_quality": 1.0,
+      "observational_quality": 0.9778,
+      "repeatability": 0.9728,
+      "temporal_coverage": 1.0,
+      "processing_robustness": 0.9844,
+      "transit_consistency": 0.0,
+      "false_positive_evidence": 0.65,
+      "catalog_unresolved_value": 0.3,
+      "search_boundary_penalty": 0.0
+    },
+    "formula_version": "stage11-review-priority-v1"
+  },
+  "neural_compatibility": {
+    "ann01": {
+      "available": false,
+      "reason": "The detected event lacks an independently fitted planet radius, equilibrium temperature, and catalog model SNR required by ANN-01."
+    },
+    "ann02": {
+      "available": false,
+      "reason": "Discovery Engine arrays are not the validated catalog-centered ANN-02 representation; no out-of-distribution justification exists."
+    },
+    "models_invoked": false
+  },
+  "review_history": [],
+  "limitations": [
+    "BLS assumes a periodic box-shaped event and can favor stellar or instrumental signals.",
+    "Depth SNR is a screening diagnostic, not a calibrated false-alarm probability.",
+    "Only the configured period and duration grid was searched.",
+    "Independent quarters and pixel-level contamination were not validated here.",
+    "Reported uncertainties are grid/noise approximations, not posterior credible intervals.",
+    "Depth or odd/even behavior is compatible with an eclipsing binary hypothesis.",
+    "Official cross-checks are identifier and period comparisons, not independent astrophysical validation.",
+    "No frozen-test data, retraining, or model selection was used."
+  ],
+  "artifacts": {
+    "processed_arrays": "experiments/stage10/campaigns/stage10-kepler-reference-final/targets/kic_009772531/processed.npz",
+    "detection_arrays": "experiments/stage10/campaigns/stage10-kepler-reference-final/targets/kic_009772531/detection.npz",
+    "processed_sha256": "63b8b835075457461840fbc883315206cb7988615bbfd3e75f1ce3cfc12020c4",
+    "detection_sha256": "20c945751d8289ed1bbdcbc3709fbc25dde24ed4d42d70dfd7ccf6f15a59a1a0"
+  }
+}

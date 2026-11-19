@@ -9,7 +9,7 @@ import { formatDate, formatNumber } from "@/lib/format";
 import type { CampaignDetail, CampaignSummary, ObjectPage, ObjectSummary, Scientific } from "@/lib/types";
 
 interface Plan { sample_size: number; cached_targets: number; protected_host_overlap: number[]; network_enabled: boolean; execution_enabled: boolean; targets: Array<{ kic: number; label: number; selection_reference: string }> }
-interface Job { job_id: string; status: string; stage: string; completed_targets: number; total_targets: number; current_target: string | null; campaign_id: string | null; error: string | null }
+interface Job { job_id: string; status: string; stage: string; current: number; total: number; message: string; campaign_id: string | null; error_code: string | null }
 
 export default function DiscoverPage() {
   const [objects, setObjects] = useState<ObjectSummary[]>([]);
@@ -23,7 +23,8 @@ export default function DiscoverPage() {
 
   useEffect(() => { void Promise.all([getAllObjects(), api<ObjectPage<CampaignSummary>>("/api/v1/discovery/campaigns?limit=12")]).then(async ([catalog, page]) => {
     setObjects(catalog.items); setSelected(catalog.items.find((item) => item.catalog_disposition === "CANDIDATE") ?? catalog.items[0]); setCampaigns(page.items);
-    if (page.items[0]) setCampaign((await api<Scientific<CampaignDetail>>(`/api/v1/discovery/campaigns/${page.items[0].campaign_id}`)).data);
+    const reference = page.items.find((item) => item.campaign_id === "stage10-kepler-reference-final") ?? page.items[0];
+    if (reference) setCampaign((await api<Scientific<CampaignDetail>>(`/api/v1/discovery/campaigns/${reference.campaign_id}`)).data);
   }).catch((reason) => setError(reason.message)); }, []);
 
   useEffect(() => { void api<Scientific<Plan>>(`/api/v1/discovery/plan?sample_size=${sampleSize}`).then((payload) => setPlan(payload.data)).catch((reason) => setError(reason.message)); }, [sampleSize]);
@@ -53,10 +54,10 @@ export default function DiscoverPage() {
         <div className="control-grid"><label>Target volume<select value={sampleSize} onChange={(event) => setSampleSize(Number(event.target.value))}><option value={5}>5 stars</option><option value={10}>10 stars</option><option value={12}>12 stars</option></select></label><div className="contract-readout"><span><ShieldCheck />Network disabled</span><span><ShieldCheck />Candidates unlabeled</span><span><ShieldCheck />Frozen test excluded</span></div></div>
         {plan && <div className="plan-summary"><strong>{plan.cached_targets}/{plan.sample_size}</strong><span>targets available in local cache</span></div>}
         <button className="button primary" disabled={!plan?.execution_enabled || job?.status === "running"} onClick={launch}><Play />{plan?.execution_enabled ? "Launch cache-only expedition" : "Execution disabled in this deployment"}</button>
-        {job && <div className="job-progress"><div><span>{job.stage}</span><strong>{job.completed_targets}/{job.total_targets}</strong></div><progress value={job.completed_targets} max={job.total_targets} /><small>{job.current_target ?? job.status}{job.error ? ` · ${job.error}` : ""}</small></div>}
+        {job && <div className="job-progress"><div><span>{job.stage}</span><strong>{job.current}/{job.total}</strong></div><progress value={job.current} max={job.total} /><small>{job.message}{job.error_code ? ` · ${job.error_code}` : ""}</small></div>}
       </Panel>
       <Panel eyebrow="Persisted evidence" title="Latest expedition">
-        {campaign ? <><div className="campaign-hero"><span>Campaign</span><strong>{campaign.campaign.campaign_id}</strong><small>{formatDate(campaign.campaign.completed_at_utc)}</small></div><div className="campaign-stats"><Metric label="Investigated" value={campaign.campaign.investigated_stars} /><Metric label="Screening signals" value={campaign.campaign.screening_detections} /><Metric label="Catalog associated" value={campaign.campaign.catalog_associated_detections} /><Metric label="Inconclusive" value={campaign.campaign.unassociated_inconclusive_detections} tone="signal" /></div></> : <Loading />}
+        {campaign ? <><div className="campaign-hero"><span>Campaign</span><strong>{campaign.campaign.campaign_id}</strong><small>{formatDate(campaign.campaign.completed_at_utc)}</small></div><div className="campaign-stats"><Metric label="Investigated" value={campaign.campaign.investigated_stars} /><Metric label="Screening signals" value={campaign.campaign.screening_detections} /><Metric label="Catalog associated" value={campaign.campaign.catalog_associated_detections} /><Metric label="Inconclusive" value={campaign.campaign.unassociated_inconclusive_detections} tone="signal" /></div><a className="button secondary campaign-investigate-link" href="/candidates"><Telescope />Inspect eight scientific dossiers</a></> : <Loading />}
         <ScientificNotice>Screening detections are not confirmed discoveries. The reference campaign reports {campaign?.campaign.confirmed_discoveries ?? 0} confirmed discoveries.</ScientificNotice>
       </Panel>
     </section>

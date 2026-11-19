@@ -1,13 +1,13 @@
 "use client";
 
-import { Activity, Radio, ScanLine } from "lucide-react";
+import { Activity, BookOpenCheck, Radio, ScanLine } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { OrbitalSystem } from "@/components/orbital-system";
 import { ScientificPlot } from "@/components/scientific-plot";
 import { AuditTable, ErrorState, Loading, Metric, PageIntro, Panel, ScientificNotice } from "@/components/ui";
 import { api } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
-import type { Inference, LightCurve, ObjectDetail, ObjectPage, ObjectSummary, Scientific } from "@/lib/types";
+import type { CandidateDossier, Inference, LightCurve, ObjectDetail, ObjectPage, ObjectSummary, Scientific } from "@/lib/types";
 
 interface Observation { mission: string; author: string; cadence_seconds: number; observation_start_bkjd: number; observation_end_bkjd: number; observation_span_days: number; segments: string[]; raw_records: number; processed_records: number; provenance: Record<string, unknown> }
 
@@ -15,9 +15,11 @@ export default function ObservatoryPage() {
   const [objects, setObjects] = useState<ObjectSummary[]>([]); const [objectId, setObjectId] = useState("");
   const [detail, setDetail] = useState<ObjectDetail | null>(null); const [observation, setObservation] = useState<Observation | null>(null);
   const [curves, setCurves] = useState<Record<string, LightCurve>>({}); const [inferences, setInferences] = useState<Inference[]>([]);
+  const [discoveryContext, setDiscoveryContext] = useState<CandidateDossier | null>(null);
   const [mode, setMode] = useState<"processed" | "raw">("processed"); const [error, setError] = useState(""); const [loading, setLoading] = useState(true);
 
   useEffect(() => { void api<ObjectPage<ObjectSummary>>("/api/v1/objects?observed_only=true&limit=100").then((page) => { setObjects(page.items); const requested = new URLSearchParams(window.location.search).get("object"); setObjectId(page.items.find((item) => item.object_id === requested)?.object_id ?? page.items[0]?.object_id ?? ""); }).catch((reason) => setError(reason.message)); }, []);
+  useEffect(() => { const signal = Number(new URLSearchParams(window.location.search).get("signal")); if (!signal) return; void api<Scientific<CandidateDossier>>(`/api/v1/candidate-intelligence/${signal}`).then((payload) => setDiscoveryContext(payload.data)).catch((reason) => setError(reason.message)); }, []);
   useEffect(() => { if (!objectId) return; setLoading(true); setError(""); void Promise.all([
     api<Scientific<ObjectDetail>>(`/api/v1/objects/${objectId}`), api<Scientific<Observation>>(`/api/v1/objects/${objectId}/observation`),
     api<Scientific<LightCurve>>(`/api/v1/objects/${objectId}/light-curve?view=raw&limit=2200`), api<Scientific<LightCurve>>(`/api/v1/objects/${objectId}/light-curve?view=processed&limit=2200`),
@@ -32,6 +34,7 @@ export default function ObservatoryPage() {
   return <div className="page"><PageIntro eyebrow="Deep Space Observatory / Kepler" title="Read the rhythm of a distant star." description="Inspect observed luminosity, processing stages, orbital phase, catalog context, and both neural interpretations without leaving the scientific record."><label className="object-selector"><span>Active object</span><select value={objectId} onChange={(event) => setObjectId(event.target.value)}>{objects.map((object) => <option key={object.object_id} value={object.object_id}>{object.display_name} · KIC {object.kic}</option>)}</select></label></PageIntro>
     {error && <ErrorState message={error} />}{loading ? <Loading label="Synchronizing observation instruments…" /> : detail && <>
       <section className="object-command"><div><span className={`disposition ${detail.disposition.toLowerCase().replace(" ", "-")}`}>{detail.disposition}</span><h2>{detail.display_name}</h2><p>{detail.kepler_name ?? `KIC ${detail.kic}`} · RA {detail.ra_deg?.toFixed(5)}° · Dec {detail.dec_deg?.toFixed(5)}°</p></div><div className="signal-pulse"><Radio /><span>Observation cache online<small>{observation?.mission} · {observation?.author}</small></span></div></section>
+      {discoveryContext && <section className="discovery-context"><div><span className="eyebrow">Stage 11 investigation context</span><strong>Independent BLS signal on KIC {discoveryContext.kic}</strong><p>The dossier period ({formatNumber(discoveryContext.measured_event.period_days, 6)} d) is shown separately from this Observatory&apos;s catalog-centered ephemeris ({formatNumber(detail.period_days, 6)} d).</p></div><span><small>Review priority</small><strong>{formatNumber(discoveryContext.priority.score, 2)}</strong><em>not a planet probability</em></span><a className="button secondary" href={`/candidates?kic=${discoveryContext.kic}`}><BookOpenCheck />Return to dossier</a></section>}
       <section className="metric-strip"><Metric label="Orbital period" value={detail.period_days} unit="days" /><Metric label="Transit duration" value={detail.duration_hours} unit="hours" /><Metric label="Transit depth" value={detail.depth_ppm} unit="ppm" tone="signal" /><Metric label="Observation span" value={observation?.observation_span_days} unit="days" /><Metric label="Cadence" value={observation?.cadence_seconds} unit="seconds" /></section>
       <Panel className="instrument-panel" eyebrow="Observed time domain" title="Luminosity stream" action={<div className="segmented"><button className={mode === "raw" ? "active" : ""} onClick={() => setMode("raw")}>Original</button><button className={mode === "processed" ? "active" : ""} onClick={() => setMode("processed")}>Detrended</button></div>}>
         <ScientificPlot title={`${detail.display_name} ${mode} luminosity`} data={mainPlot} layout={{ height: 440, xaxis: { title: "Time (BKJD)" }, yaxis: { title: "Relative flux" }, dragmode: "pan" }} />

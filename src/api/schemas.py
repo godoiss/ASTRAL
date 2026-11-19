@@ -686,6 +686,135 @@ class DiscoveryJob(StrictModel):
     error_code: str | None = None
 
 
+class CandidatePriorityComponents(StrictModel):
+    signal_quality: float = Field(ge=0.0, le=1.0)
+    observational_quality: float = Field(ge=0.0, le=1.0)
+    repeatability: float = Field(ge=0.0, le=1.0)
+    temporal_coverage: float = Field(ge=0.0, le=1.0)
+    processing_robustness: float = Field(ge=0.0, le=1.0)
+    transit_consistency: float = Field(ge=0.0, le=1.0)
+    false_positive_evidence: float = Field(ge=0.0, le=1.0)
+    catalog_unresolved_value: float = Field(ge=0.0, le=1.0)
+    search_boundary_penalty: float = Field(ge=0.0, le=1.0)
+
+
+class CandidatePriority(StrictModel):
+    score: float = Field(ge=0.0, le=100.0)
+    tier: Literal["high", "medium", "low"]
+    meaning: Literal["human_review_priority_not_planet_probability"]
+    components: CandidatePriorityComponents
+    formula_version: str
+
+
+class CandidateDossierSummary(StrictModel):
+    dossier_id: str
+    kic: int
+    selection_reference: str | None
+    investigation_state: Literal["catalog_associated", "unassociated_inconclusive"]
+    period_days: float
+    duration_hours: float
+    depth_ppm: float
+    depth_snr: float
+    observed_events: int
+    event_coverage: float
+    possible_eclipsing_binary: bool
+    priority: CandidatePriority
+    review_count: int = Field(ge=0)
+
+
+class CandidateIntelligenceSummary(StrictModel):
+    investigated_signals: int
+    catalog_associated: int
+    unassociated_inconclusive: int
+    possible_eclipsing_binary: int
+    confirmed_discoveries: Literal[0]
+    neural_models_invoked: Literal[False]
+    frozen_test_accessed: Literal[False]
+
+
+class CandidateIntelligenceIndex(StrictModel):
+    campaign_id: str
+    generated_at_utc: str
+    artifact_sha256: str | None
+    summary: CandidateIntelligenceSummary
+    ranking_method: dict[str, Any]
+    catalog_sources: list[dict[str, Any]]
+    scientific_boundaries: list[str]
+    dossiers: list[CandidateDossierSummary]
+
+
+class CandidateMeasuredEvent(StrictModel):
+    period_days: float
+    period_uncertainty_days: float
+    transit_time_bkjd: float
+    transit_time_uncertainty_days: float
+    duration_hours: float
+    duration_uncertainty_hours: float
+    depth_ppm: float
+    depth_error_fraction: float
+    depth_snr: float
+    expected_events: int
+    observed_events: int
+    event_coverage: float
+    phase_coverage: float
+    event_depths: list[float]
+    event_depth_mad: float | None
+
+
+class CandidateDiagnostics(StrictModel):
+    aliases: list[dict[str, Any]]
+    odd_depth: float | None
+    even_depth: float | None
+    odd_even_sigma: float | None
+    secondary_depth: float | None
+    secondary_sigma: float | None
+    possible_eclipsing_binary: bool
+
+
+class CandidateEvidence(StrictModel):
+    favorable: list[str]
+    contrary: list[str]
+    inconclusive: list[str]
+
+
+class HumanReview(StrictModel):
+    review_id: str
+    kic: int
+    reviewer: str
+    decision: Literal["needs_follow_up", "insufficient_evidence", "likely_false_positive", "archived"]
+    notes: str
+    created_at_utc: str
+
+
+class HumanReviewRequest(StrictModel):
+    reviewer: str = Field(min_length=2, max_length=80, pattern=r"^[A-Za-zÀ-ÿ0-9 ._-]+$")
+    decision: Literal["needs_follow_up", "insufficient_evidence", "likely_false_positive", "archived"]
+    notes: str = Field(min_length=3, max_length=1200)
+
+
+class CandidateDossier(StrictModel):
+    schema_version: int
+    dossier_id: str
+    campaign_id: str
+    generated_at_utc: str
+    kic: int
+    selection_reference: str | None
+    mission: Literal["Kepler"]
+    investigation_state: Literal["catalog_associated", "unassociated_inconclusive"]
+    interpretation: str
+    observation: dict[str, Any]
+    measured_event: CandidateMeasuredEvent
+    diagnostics: CandidateDiagnostics
+    catalog_verification: dict[str, Any]
+    instrumental_hypotheses: list[str]
+    evidence: CandidateEvidence
+    priority: CandidatePriority
+    neural_compatibility: dict[str, Any]
+    review_history: list[HumanReview]
+    limitations: list[str]
+    artifacts: dict[str, Any]
+
+
 class ErrorBody(StrictModel):
     code: str
     message: str

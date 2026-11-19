@@ -16,7 +16,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from src.api.config import ApiSettings
 from src.api.errors import ApiError
-from src.api.routers import catalog, discovery, experiments, health, science
+from src.api.routers import candidate_intelligence, catalog, discovery, experiments, health, science
 from src.api.schemas import ErrorResponse
 
 
@@ -150,6 +150,7 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
     app.include_router(science.router)
     app.include_router(experiments.router)
     app.include_router(discovery.router)
+    app.include_router(candidate_intelligence.router)
 
     @app.get("/", include_in_schema=False)
     def product_interface() -> RedirectResponse:
