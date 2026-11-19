@@ -77,8 +77,8 @@ def test_missing_validation_artifact_is_reported(tmp_path) -> None:
     assert scientific_validation_results(tmp_path / "missing.json") is None
 
 
-def test_streamlit_exposes_ann02_without_breaking_existing_tabs() -> None:
-    """Smoke-test all original tabs plus both signal-intelligence surfaces."""
+def test_streamlit_exposes_discovery_and_ann02_without_breaking_existing_tabs() -> None:
+    """Smoke-test all original tabs plus discovery and signal intelligence."""
     app = AppTest.from_file(PROJECT_ROOT / "developer_lab.py")
     app.run(timeout=45)
 
@@ -88,6 +88,7 @@ def test_streamlit_exposes_ann02_without_breaking_existing_tabs() -> None:
         "Training Console",
         "Object Inference",
         "Deep Space Observatory",
+        "Discovery Lab",
         "ANN-02 — Signal Intelligence",
         "Scientific Validation",
         "NASA Dataset",

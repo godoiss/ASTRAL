@@ -59,3 +59,9 @@ data/ann02/*
 
 # Isolated Stage 07 TESS pilot products (never mixed with Kepler training)
 data/tess_experimental/
+
+# Stage 10 bounded discovery cache (real downloaded cadences stay local)
+data/discovery/raw/*
+data/discovery/provenance/*
+!data/discovery/raw/.gitkeep
+!data/discovery/provenance/.gitkeep

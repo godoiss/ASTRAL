@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "target": {
+    "kic": 8527297,
+    "mission": "Kepler",
+    "selection_strategy": "unlabeled_candidates_cache_first",
+    "cache_available": true,
+    "selection_reference": "K08157.01",
+    "label": -1
+  },
+  "elapsed_seconds": 0.51667599985376,
+  "raw_provenance": {
+    "schema_version": 1,
+    "generated_at_utc": "2026-11-19T15:02:23.173980+00:00",
+    "kic": 8527297,
+    "source_kind": "bounded_mast_download",
+    "mission": "Kepler",
+    "query_identifier": "KIC 8527297",
+    "products": [
+      {
+        "target_name": "kplr008527297",
+        "mission": "Kepler Quarter 03",
+        "author": "Kepler",
+        "exptime": 1800.0,
+        "distance": 0.0,
+        "year": 2009,
+        "obsid": "537202",
+        "productFilename": "kplr008527297-2009350155506_llc.fits",
+        "dataURI": "mast:KEPLER/url/missions/kepler/lightcurves/0085/008527297/kplr008527297-2009350155506_llc.fits"
+      }
+    ],
+    "selected_records": 1,
+    "search_records": 1,
+    "download_elapsed_seconds": 4.037635599961504,
+    "raw_sha256": "8f38208a39483ea1dc7432ac702aeb19b7178338570eb846acadf0bd12750dfa",
+    "catalog_ephemeris_used_for_discovery_processing": false,
+    "software": {
+      "lightkurve": "2.6.0",
+      "astropy": "8.0.2",
+      "astroquery": "0.4.11",
+      "numpy": "2.5.5"
+    }
+  },
+  "processing": {
+    "raw_records": 4228,
+    "finite_records": 4134,
+    "quality_rejected": 0,
+    "retained_records": 4134,
+    "retention_fraction": 0.977767265846736,
+    "observation_start_bkjd": 260.2458286563633,
+    "observation_end_bkjd": 349.4961571735694,
+    "observation_span_days": 89.25032851720607,
+    "robust_flux_noise": 0.00027323348206494374,
+    "catalog_ephemeris_used": false,
+    "gap_policy": "no synthetic cadences; rolling baseline evaluated at observed times only",
+    "segments": [
+      {
+        "segment": 0,
+        "records": 4134,
+        "cadence_days": 0.020432732468179893,
+        "detrend_window_cadences": 97,
+        "detrending": "centered_rolling_median"
+      }
+    ]
+  },
+  "detection": {
+    "status": "screening_detection",
+    "period_days": 21.670881502890172,
+    "period_uncertainty_days": 0.05705970252259185,
+    "transit_time_bkjd": 261.4052036563633,
+    "transit_time_uncertainty_days": 0.013790129004608985,
+    "duration_hours": 4.050000000000001,
+    "duration_uncertainty_hours": 0.5,
+    "depth_fraction": 0.00026239273667821086,
+    "depth_ppm": 262.39273667821084,
+    "depth_error_fraction": 4.2885092606399085e-05,
+    "depth_snr": 6.118506938680552,
+    "ranking_score": 6.118506938680552,
+    "expected_events": 5,
+    "observed_events": 5,
+    "event_coverage": 1.0,
+    "phase_coverage": 1.0,
+    "event_depths": [
+      0.0005573640548885983,
+      8.494292519800606e-05,
+      0.0003217783510520711,
+      0.0001598061072343171,
+      8.410098260636101e-05
+    ],
+    "event_depth_mad": 7.570512462795609e-05,
+    "odd_depth": 0.0003217783510520711,
+    "even_depth": 0.00012237451621616158,
+    "odd_even_sigma": 0.7994479854171206,
+    "secondary_depth": 3.345910262053664e-05,
+    "secondary_sigma": 0.6927162272089215,
+    "possible_eclipsing_binary": false,
+    "aliases": [
+      {
+        "period_days": 23.789411064842355,
+        "depth_snr": 5.838162457936852,
+        "ratio_to_primary": 1.0977592702756296,
+        "relation": null
+      },
+      {
+        "period_days": 2.923815558588419,
+        "depth_snr": 5.8145613300326335,
+        "ratio_to_primary": 0.1349190875414311,
+        "relation": null
+      },
+      {
+        "period_days": 12.732965400127362,
+        "depth_snr": 5.794391247897431,
+        "ratio_to_primary": 0.5875610273827214,
+        "relation": null
+      },
+      {
+        "period_days": 16.42299794661191,
+        "depth_snr": 5.7917346535736325,
+        "ratio_to_primary": 0.7578370978781658,
+        "relation": null
+      },
+      {
+        "period_days": 29.36123348017621,
+        "depth_snr": 5.740051631894866,
+        "ratio_to_primary": 1.3548702887909936,
+        "relation": null
+      },
+      {
+        "period_days": 15.384714029238266,
+        "depth_snr": 5.681514841063051,
+        "ratio_to_primary": 0.7099256219543473,
+        "relation": null
+      },
+      {
+        "period_days": 2.655437260674207,
+        "depth_snr": 5.6743455725156595,
+        "ratio_to_primary": 0.12253480599393525,
+        "relation": null
+      },
+      {
+        "period_days": 28.7491013659238,
+        "depth_snr": 5.652927392078764,
+        "ratio_to_primary": 1.3266235322310092,
+        "relation": null
+      }
+    ],
+    "limitations": [
+      "BLS assumes a periodic box-shaped event and can favor stellar or instrumental signals.",
+      "Depth SNR is a screening diagnostic, not a calibrated false-alarm probability.",
+      "Only the configured period and duration grid was searched.",
+      "Independent quarters and pixel-level contamination were not validated here.",
+      "Reported uncertainties are grid/noise approximations, not posterior credible intervals."
+    ]
+  },
+  "catalog_associations": [
+    {
+      "object_id": "K08157.01",
+      "disposition": "CANDIDATE",
+      "catalog_period_days": 0.58730021,
+      "period_ratio": 36.899155038426045,
+      "relation": null,
+      "tce_planet_number": 3,
+      "tce_delivery": "q1_q17_dr25_tce"
+    }
+  ],
+  "crossmatch": {
+    "host_has_koi_records": true,
+    "period_association_found": false,
+    "period_associations": 0,
+    "koi_linked_tce_records": 1,
+    "standalone_tce_catalog_checked": false,
+    "novelty_established": false,
+    "limitation": "TCE information is limited to fields linked from the local KOI snapshot; absence of a match does not establish a new discovery."
+  },
+  "interpretation": "unassociated_inconclusive_signal",
+  "artifacts": {
+    "processed_arrays": "experiments/stage10/campaigns/stage10-kepler-reference-final/targets/kic_008527297/processed.npz",
+    "detection_arrays": "experiments/stage10/campaigns/stage10-kepler-reference-final/targets/kic_008527297/detection.npz",
+    "processed_sha256": "a16cecd36efa411862889d6f7f6e44e81cfd68aeebdcbe37f63127e60d7d8bd3",
+    "detection_sha256": "0c29468a67e908d713e4ccce03a292ede1b94b4f4b3ba78495ef4a24dbda7e86"
+  }
+}

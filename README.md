@@ -157,6 +157,31 @@ Stage 08 provides a local, versioned FastAPI interface over the existing ASTRAL 
 
 Open `http://127.0.0.1:8000/docs` for local interactive documentation. The Streamlit Developer Lab remains independently available on port 8501. See the [Stage 08 technical report](docs/stage08-backend-scientific-api.md) and the [technical and scientific API audit](docs/stage08-api-audit.md).
 
+## Branding & Discovery-first UX — visual evaluation
+
+Stage 09 established **Atlas** as the approved discovery-first identity after comparison with Signal Room and Quiet Orbit. The design-only package includes an original orbit/star mark, machine-readable tokens, five-area UX architecture (`Discover → Observatory → Candidates → Neural Lab → Research`), accessibility and motion standards, a future Next.js component plan, and a responsive buildless preview. The prototype performs no API requests or scientific computation; audited Stage 08 values are clearly labeled as snapshots and unavailable services remain explicit. No Next.js application or production frontend has been introduced.
+
+```powershell
+cd design/stage09/preview
+python -m http.server 3000 --bind 127.0.0.1
+```
+
+Open `http://127.0.0.1:3000`; the design artifact has no API dependency. See the [Stage 09 branding and discovery-first design-system specification](docs/stage09-branding-design-system.md).
+
+## Discovery Engine
+
+Stage 10 adds an independent Astropy Box Least Squares pipeline for real Kepler light curves. It performs catalog-independent quality filtering and detrending, measures periodic box-shaped dips, evaluates event and phase coverage, records aliases and eclipsing-binary diagnostics, and cross-checks the local KOI/TCE-linked catalog only after detection. Campaign targets remain unlabeled and exclude every host in the existing train, validation, and frozen-test partitions.
+
+The completed bounded reference campaign investigated 12/12 stars, reused eight local observations, performed four new Quarter 3 downloads, produced eight screening detections, found three local KOI-period associations, and retained five unmatched screens as explicitly inconclusive. It reported zero confirmed discoveries, did not access the frozen test set, and did not invoke ANN-01 or ANN-02.
+
+```powershell
+.\.venv\Scripts\python.exe -m src.discovery.cli plan --sample-size 10
+.\.venv\Scripts\python.exe -m src.discovery.cli run --sample-size 10 --max-new-downloads 5 --allow-network
+.\.venv\Scripts\python.exe -m src.discovery.cli inspect
+```
+
+The Developer Lab includes a **Discovery Lab** tab with bounded campaign controls, real progress, persisted evidence, and interactive raw-light-curve, processed-light-curve, BLS-periodogram, and phase-folded views. A screening score is never presented as confirmation or calibrated significance. See the [Stage 10 technical and scientific report](docs/stage10-discovery-engine.md).
+
 ## Project structure
 
 ```text
@@ -179,6 +204,7 @@ ASTRAL/
 │   ├── lab/           # Streamlit integration and neural visualizations
 │   ├── observatory/   # MAST acquisition, signal processing, and Plotly
 │   ├── deep_learning/ # ANN-02 dataset, CNN, training, persistence, and observability
+│   ├── discovery/     # Protected Kepler campaigns, BLS detection, diagnostics, and evidence
 │   └── explorer/      # Astronomical-data exploration utilities
 ├── visualization/     # Visualization modules and outputs
 ├── tests/             # Automated tests
@@ -192,4 +218,4 @@ ASTRAL/
 
 ## Current scope
 
-The current platform includes a local read-only REST API but excludes public deployment, external AI services, automatic model combination, authentication infrastructure, and standalone frontend frameworks. TESS support is an isolated technical experiment and is not part of Kepler training. ANN-01 remains an exclusively NumPy neural engine. PyTorch is used only by ANN-02. Scikit-learn provides scientific metrics and classical comparison models. Network access is limited to explicitly invoked public scientific acquisition workflows; API inference and scientific queries remain local.
+The current platform includes a local read-only REST API and an exploratory Kepler signal detector, but excludes public deployment, external AI services, automatic model combination, authentication infrastructure, and standalone frontend frameworks. TESS support is an isolated technical experiment and is not part of Kepler training. ANN-01 remains an exclusively NumPy neural engine. PyTorch is used only by ANN-02. Scikit-learn provides scientific metrics and classical comparison models. Network access is limited to explicitly invoked, bounded public scientific acquisition workflows; API inference and scientific queries remain local.

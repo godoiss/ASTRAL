@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "target": {
+    "kic": 4366323,
+    "mission": "Kepler",
+    "selection_strategy": "unlabeled_candidates_cache_first",
+    "cache_available": true,
+    "selection_reference": "K03258.01",
+    "label": -1
+  },
+  "elapsed_seconds": 0.4067738999146968,
+  "raw_provenance": {
+    "schema_version": 1,
+    "generated_at_utc": "2026-11-19T15:02:40.218086+00:00",
+    "kic": 4366323,
+    "source_kind": "bounded_mast_download",
+    "mission": "Kepler",
+    "query_identifier": "KIC 4366323",
+    "products": [
+      {
+        "target_name": "kplr004366323",
+        "mission": "Kepler Quarter 03",
+        "author": "Kepler",
+        "exptime": 1800.0,
+        "distance": 0.0,
+        "year": 2009,
+        "obsid": "564572",
+        "productFilename": "kplr004366323-2009350155506_llc.fits",
+        "dataURI": "mast:KEPLER/url/missions/kepler/lightcurves/0043/004366323/kplr004366323-2009350155506_llc.fits"
+      }
+    ],
+    "selected_records": 1,
+    "search_records": 1,
+    "download_elapsed_seconds": 3.756971500115469,
+    "raw_sha256": "7fa19a6b0f7c9643e148db9630ec932009a549cfa3366186bc99cd4d8ddf5af5",
+    "catalog_ephemeris_used_for_discovery_processing": false,
+    "software": {
+      "lightkurve": "2.6.0",
+      "astropy": "8.0.2",
+      "astroquery": "0.4.11",
+      "numpy": "2.5.5"
+    }
+  },
+  "processing": {
+    "raw_records": 4228,
+    "finite_records": 4134,
+    "quality_rejected": 0,
+    "retained_records": 4134,
+    "retention_fraction": 0.977767265846736,
+    "observation_start_bkjd": 260.245486926171,
+    "observation_end_bkjd": 349.49537042112934,
+    "observation_span_days": 89.24988349495834,
+    "robust_flux_noise": 0.0006905857462090789,
+    "catalog_ephemeris_used": false,
+    "gap_policy": "no synthetic cadences; rolling baseline evaluated at observed times only",
+    "segments": [
+      {
+        "segment": 0,
+        "records": 4134,
+        "cadence_days": 0.020432667166460305,
+        "detrend_window_cadences": 97,
+        "detrending": "centered_rolling_median"
+      }
+    ]
+  },
+  "detection": {
+    "status": "below_screening_threshold",
+    "period_days": 2.6134977344022308,
+    "period_uncertainty_days": 0.008920814050272473,
+    "transit_time_bkjd": 262.376736926171,
+    "transit_time_uncertainty_days": 0.02483449527827021,
+    "duration_hours": 6.0,
+    "duration_uncertainty_hours": 0.5,
+    "depth_fraction": 0.0001886911097338976,
+    "depth_ppm": 188.69110973389758,
+    "depth_error_fraction": 3.7488387789904366e-05,
+    "depth_snr": 5.033321539229067,
+    "ranking_score": 4.589204932826502,
+    "expected_events": 34,
+    "observed_events": 31,
+    "event_coverage": 0.9117647058823529,
+    "phase_coverage": 1.0,
+    "event_depths": [
+      0.00018331319199704765,
+      -0.0005171361641889138,
+      -4.2975679058310234e-05,
+      0.0004981439769151663,
+      0.00034412411974960033,
+      0.00044042368531704845,
+      6.494880474139375e-05,
+      0.00018643653905747737,
+      8.31793703190975e-05,
+      0.0005633207665133311,
+      0.00036955454740383864,
+      0.00021376292029295918,
+      0.00041260379708929484,
+      6.479968756734067e-05,
+      -8.958444602757965e-05,
+      -7.809358288679569e-05,
+      0.0008063860905824782,
+      -3.504658934327942e-05,
+      -0.0001043983864555953,
+      -0.00010296406016463422,
+      0.00022605401874864484,
+      0.0004715473696190742,
+      -0.0002322729002798285,
+      0.00014390813050679796,
+      0.00027396355570274977,
+      0.0002388891617890465,
+      0.0003913986835488714,
+      0.00034432652316329637,
+      0.00022229970085019257,
+      0.00010387370248343686,
+      0.000226611140416777
+    ],
+    "event_depth_mad": 0.00015579162711087946,
+    "odd_depth": 0.00022605401874864484,
+    "even_depth": 0.00014847114530602834,
+    "odd_even_sigma": 0.31128334305562305,
+    "secondary_depth": -5.7435972905972577e-05,
+    "secondary_sigma": -1.6799503760040813,
+    "possible_eclipsing_binary": false,
+    "aliases": [
+      {
+        "period_days": 1.6423447596101195,
+        "depth_snr": 4.883854874067523,
+        "ratio_to_primary": 0.6284087175555799,
+        "relation": null
+      },
+      {
+        "period_days": 7.284595300261096,
+        "depth_snr": 4.779047339333273,
+        "ratio_to_primary": 2.7872973465298436,
+        "relation": null
+      },
+      {
+        "period_days": 2.4279035881245825,
+        "depth_snr": 4.767923189885689,
+        "ratio_to_primary": 0.928986299152045,
+        "relation": null
+      },
+      {
+        "period_days": 1.3887345464647867,
+        "depth_snr": 4.719480149501911,
+        "ratio_to_primary": 0.5313700976987544,
+        "relation": null
+      },
+      {
+        "period_days": 1.4546578880360848,
+        "depth_snr": 4.709064974386038,
+        "ratio_to_primary": 0.5565942793399052,
+        "relation": null
+      },
+      {
+        "period_days": 2.082089552238806,
+        "depth_snr": 4.6915861702131245,
+        "ratio_to_primary": 0.796667823672336,
+        "relation": null
+      },
+      {
+        "period_days": 10.293436293436294,
+        "depth_snr": 4.636050611923697,
+        "ratio_to_primary": 3.9385671385671386,
+        "relation": null
+      },
+      {
+        "period_days": 20.592173017507726,
+        "depth_snr": 4.614780620157757,
+        "ratio_to_primary": 7.879162375557844,
+        "relation": null
+      }
+    ],
+    "limitations": [
+      "BLS assumes a periodic box-shaped event and can favor stellar or instrumental signals.",
+      "Depth SNR is a screening diagnostic, not a calibrated false-alarm probability.",
+      "Only the configured period and duration grid was searched.",
+      "Independent quarters and pixel-level contamination were not validated here.",
+      "Reported uncertainties are grid/noise approximations, not posterior credible intervals."
+    ]
+  },
+  "catalog_associations": [
+    {
+      "object_id": "K03258.01",
+      "disposition": "CANDIDATE",
+      "catalog_period_days": 40.3511707,
+      "period_ratio": 0.06476882055871135,
+      "relation": null,
+      "tce_planet_number": 1,
+      "tce_delivery": "q1_q17_dr25_tce"
+    }
+  ],
+  "crossmatch": {
+    "host_has_koi_records": true,
+    "period_association_found": false,
+    "period_associations": 0,
+    "koi_linked_tce_records": 1,
+    "standalone_tce_catalog_checked": false,
+    "novelty_established": false,
+    "limitation": "TCE information is limited to fields linked from the local KOI snapshot; absence of a match does not establish a new discovery."
+  },
+  "interpretation": "no_signal_above_screening_threshold",
+  "artifacts": {
+    "processed_arrays": "experiments/stage10/campaigns/stage10-kepler-reference-12/targets/kic_004366323/processed.npz",
+    "detection_arrays": "experiments/stage10/campaigns/stage10-kepler-reference-12/targets/kic_004366323/detection.npz",
+    "processed_sha256": "3e84ae8f746f6aca943dce912ba72ed6f9fcfc1065df9573f105e74eb73095f9",
+    "detection_sha256": "e089ee4ca7a1484186dc4f36cb857957147204b97b832c1797d4b93c6c942230"
+  }
+}

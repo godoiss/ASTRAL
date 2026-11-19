@@ -24,6 +24,7 @@ from src.lab.services import (
     train_developer_model,
 )
 from src.lab.ann02 import render_ann02
+from src.lab.discovery import render_discovery_lab
 from src.lab.intelligence import (
     render_dataset_intelligence,
     render_explainable_ai,
@@ -104,6 +105,13 @@ def _inject_styles() -> None:
             color:#E8F7FF; border-radius:10px; font-weight:650;
         }
         .stButton > button:hover { border-color:#00E5FF; color:#00E5FF; box-shadow:0 0 20px rgba(0,229,255,.12); }
+        .atlas-discovery {
+            padding:1.6rem 1.8rem; margin-bottom:1rem; border:1px solid #26394D;
+            border-radius:14px; background:#0D1724; box-shadow:inset 3px 0 #70DBF7;
+        }
+        .atlas-discovery span { color:#70DBF7; font:600 .75rem Consolas,monospace; letter-spacing:.12em; }
+        .atlas-discovery h2 { margin:.45rem 0; color:#F0F5F8; font:400 2.2rem Georgia,serif; }
+        .atlas-discovery p { margin:0; max-width:850px; color:#B5C4D0; }
         div[data-baseweb="tab-list"] { gap:.4rem; border-bottom:1px solid #182847; }
         div[data-baseweb="tab"] { background:#091027; border-radius:9px 9px 0 0; padding:.7rem 1rem; }
         hr { border-color:#182847; }
@@ -736,6 +744,7 @@ def main() -> None:
             "Training Console",
             "Object Inference",
             "Deep Space Observatory",
+            "Discovery Lab",
             "ANN-02 — Signal Intelligence",
             "Scientific Validation",
             "NASA Dataset",
@@ -754,18 +763,20 @@ def main() -> None:
     with tabs[3]:
         _render_deep_space(state, frame, observatory_catalog)
     with tabs[4]:
-        render_ann02(state, frame)
+        render_discovery_lab()
     with tabs[5]:
-        _render_validation(results)
+        render_ann02(state, frame)
     with tabs[6]:
-        _render_dataset(frame, overview)
+        _render_validation(results)
     with tabs[7]:
-        render_dataset_intelligence()
+        _render_dataset(frame, overview)
     with tabs[8]:
-        render_model_comparison(state, frame)
+        render_dataset_intelligence()
     with tabs[9]:
-        render_explainable_ai(state, frame)
+        render_model_comparison(state, frame)
     with tabs[10]:
+        render_explainable_ai(state, frame)
+    with tabs[11]:
         render_research_experiments()
 
     st.divider()

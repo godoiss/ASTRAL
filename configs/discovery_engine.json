@@ -1,0 +1,32 @@
+{
+  "campaign": {
+    "mission": "Kepler",
+    "strategy": "unlabeled_candidates_cache_first",
+    "sample_size": 10,
+    "random_seed": 10103,
+    "quarter": 3,
+    "cadence": "long",
+    "max_products_per_star": 1,
+    "max_new_downloads": 9,
+    "storage_limit_mb": 350.0,
+    "per_star_timeout_seconds": 90,
+    "allow_network": false
+  },
+  "detection": {
+    "minimum_period_days": 1.0,
+    "maximum_period_days": 30.0,
+    "durations_hours": [1.5, 2.5, 4.0, 6.0],
+    "period_samples": 4000,
+    "bls_oversample": 10,
+    "minimum_depth_snr": 6.0,
+    "minimum_observed_events": 2,
+    "minimum_event_coverage": 0.5,
+    "minimum_points_per_event": 2,
+    "detrend_window_days": 2.0,
+    "quality_bitmask": 1130799,
+    "phase_bins": 120,
+    "alias_ratio_tolerance": 0.02,
+    "odd_even_sigma_threshold": 3.0,
+    "max_reported_aliases": 8
+  }
+}
