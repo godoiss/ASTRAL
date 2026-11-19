@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ASTRAL Stage 09 discovery-first experience prototype">
+  <title>ASTRAL — Discovery-first UX</title>
+  <link rel="icon" href="assets/astral-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-direction="atlas">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <svg class="svg-defs" aria-hidden="true">
+    <symbol id="icon-discover" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m15.6 8.4-2.2 5-5 2.2 2.2-5z"/></symbol>
+    <symbol id="icon-observatory" viewBox="0 0 24 24"><path d="M5 19h14M8 19l2-5h4l2 5M7 10a5 5 0 0 1 10 0v4H7zM12 5V2"/></symbol>
+    <symbol id="icon-candidates" viewBox="0 0 24 24"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7zM9 12h6M12 9v6"/></symbol>
+    <symbol id="icon-neural" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><circle cx="19" cy="12" r="2"/><path d="m7 11 3.4-3.5M7 13l3.4 3.5M13.6 7.5 17 11M13.6 16.5 17 13"/></symbol>
+    <symbol id="icon-research" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 8.5A2.3 2.3 0 0 0 7 21h10a2.3 2.3 0 0 0 2-3.5L14 9V3M7.5 16h9"/></symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.1"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  </svg>
+
+  <aside class="rail" id="rail" aria-label="Primary navigation">
+    <div class="brand">
+      <img src="assets/astral-mark.svg" alt="" width="40" height="40">
+      <div><strong>ASTRAL</strong><span>Astronomical intelligence</span></div>
+    </div>
+    <div class="stage-label"><span>Design study</span><strong>Stage 09 · open</strong></div>
+    <nav class="primary-nav">
+      <button class="nav-item is-active" data-view="discover" aria-current="page"><svg><use href="#icon-discover"/></svg><span>Discover</span><kbd>1</kbd></button>
+      <button class="nav-item" data-view="observatory"><svg><use href="#icon-observatory"/></svg><span>Observatory</span><kbd>2</kbd></button>
+      <button class="nav-item" data-view="candidates"><svg><use href="#icon-candidates"/></svg><span>Candidates</span><kbd>3</kbd></button>
+      <button class="nav-item" data-view="neural"><svg><use href="#icon-neural"/></svg><span>Neural Lab</span><kbd>4</kbd></button>
+      <button class="nav-item" data-view="research"><svg><use href="#icon-research"/></svg><span>Research</span><kbd>5</kbd></button>
+    </nav>
+    <div class="integrity-note">
+      <svg><use href="#icon-lock"/></svg>
+      <p><strong>Scientific boundary</strong>Frozen test data remains inaccessible. This artifact performs no scientific computation.</p>
+    </div>
+  </aside>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="menu-button" id="menu-button" aria-controls="rail" aria-expanded="false" aria-label="Open navigation"><span></span><span></span></button>
+      <div class="route"><span>ASTRAL</span><i>/</i><strong id="route-name">Discover</strong></div>
+      <fieldset class="direction-switcher" aria-label="Visual direction">
+        <legend class="sr-only">Visual direction</legend>
+        <button type="button" data-direction="atlas" aria-pressed="true">Atlas</button>
+        <button type="button" data-direction="signal">Signal Room</button>
+        <button type="button" data-direction="orbit">Quiet Orbit</button>
+      </fieldset>
+      <span class="prototype-badge">Local prototype · no live data</span>
+    </header>
+
+    <main id="main-content" tabindex="-1">
+      <section class="view is-active" id="view-discover" data-title="Discover">
+        <div class="discover-hero">
+          <div class="hero-copy">
+            <span class="eyebrow">DISCOVERY-FIRST ASTRONOMY</span>
+            <h1>Find what hasn’t<br><em>been found.</em></h1>
+            <p>ASTRAL is being shaped as a scientific expedition instrument: define a real observational search, inspect its evidence, and preserve every boundary between signal, candidate, and confirmed knowledge.</p>
+            <div class="hero-status"><span aria-hidden="true"></span><p><strong>Discovery Engine is not implemented.</strong> Planned for Stage 10. The planner below only reviews an intended campaign.</p></div>
+          </div>
+          <figure class="atlas-art" aria-labelledby="atlas-caption">
+            <div class="meridian m-one"></div><div class="meridian m-two"></div>
+            <i class="star s-one"></i><i class="star s-two"></i><i class="star s-three"></i><i class="star s-four"></i><i class="star s-five"></i>
+            <svg viewBox="0 0 560 420" role="img" aria-label="Illustrative constellation path"><path d="M74 286 158 132 266 218 358 91 476 177"/><circle cx="74" cy="286" r="5"/><circle cx="158" cy="132" r="5"/><circle cx="266" cy="218" r="5"/><circle cx="358" cy="91" r="5"/><circle cx="476" cy="177" r="5"/></svg>
+            <div class="art-coordinate">RA 19H · DEC +44°</div>
+            <figcaption id="atlas-caption">Illustrative brand artwork · not an observation or detected signal</figcaption>
+          </figure>
+        </div>
+
+        <section class="planner-section" aria-labelledby="planner-title">
+          <div class="section-intro"><span class="section-index">01</span><div><span class="eyebrow">EXPEDITION PLANNER</span><h2 id="planner-title">Define the question before the query.</h2></div><p>Planning creates a transparent search contract. It does not access MAST, run transit detection, or alter any dataset.</p></div>
+          <form class="planner panel" id="expedition-form">
+            <label><span>Mission</span><select id="mission"><option>Kepler</option><option>TESS — experimental boundary</option></select><small>Mission sources remain scientifically distinct.</small></label>
+            <label><span>Sample</span><select id="sample"><option value="25">25 cached-compatible targets</option><option value="50">50 cached-compatible targets</option><option value="100">100 targets · future capacity review</option></select><small>No files are downloaded in this prototype.</small></label>
+            <label><span>Survey strategy</span><select id="strategy"><option>Balanced known-object audit</option><option>Unreviewed archive sweep</option><option>Cross-quarter consistency study</option></select><small>Strategy is descriptive until Stage 10.</small></label>
+            <label><span>Detection method</span><select id="method"><option>Transit-like periodic signal</option><option>Single-event signal review</option><option>Catalog cross-check only</option></select><small>Detection services do not yet exist.</small></label>
+            <div class="planner-action"><div><span>Execution state</span><strong>Unavailable · roadmap Stage 10</strong></div><button class="button primary" type="submit">Review expedition</button></div>
+          </form>
+        </section>
+
+        <section class="future-pipeline" aria-labelledby="pipeline-title">
+          <div class="section-intro compact"><span class="section-index">02</span><div><span class="eyebrow">FUTURE CAMPAIGN CONTRACT</span><h2 id="pipeline-title">Evidence must remain traceable.</h2></div></div>
+          <ol class="pipeline-list">
+            <li><span>01</span><strong>Observe</strong><p>Record mission, product, cadence, coverage, quality flags, and provenance.</p></li>
+            <li><span>02</span><strong>Detect</strong><p>Expose progress, method configuration, signal coverage, and rejection reasons.</p></li>
+            <li><span>03</span><strong>Cross-check</strong><p>Separate catalog matches, known dispositions, model scores, and unresolved evidence.</p></li>
+            <li><span>04</span><strong>Reproduce</strong><p>Export campaign configuration, artifact versions, decisions, and limitations.</p></li>
+          </ol>
+        </section>
+      </section>
+
+      <section class="view" id="view-observatory" data-title="Observatory">
+        <div class="page-heading"><div><span class="eyebrow">KNOWN RESEARCH COHORT</span><h1>Observe what is known.<br><em>Keep every claim in frame.</em></h1></div><p>Three audited Kepler records demonstrate the information hierarchy. Catalog disposition and neural output are independent fields.</p></div>
+        <div class="object-layout">
+          <article class="panel object-browser">
+            <header class="panel-header"><div><span class="eyebrow">PERSISTED STAGE 08 SNAPSHOT</span><h2>Audited objects</h2></div><span class="snapshot-label">3 records</span></header>
+            <div class="table-wrap"><table><caption class="sr-only">Audited Kepler object snapshot</caption><thead><tr><th>Object</th><th>Host</th><th>NASA catalog status</th><th>Observation</th></tr></thead><tbody id="object-table-body"></tbody></table></div>
+          </article>
+          <aside class="panel object-detail">
+            <span class="eyebrow">SELECTED OBJECT</span><h2 id="observatory-object">K00753.01</h2><p class="mono" id="observatory-host">KIC 10811496</p>
+            <div id="observatory-disposition" class="disposition candidate">◇ CANDIDATE</div>
+            <dl class="score-pair"><div><dt>ANN-01 stored score</dt><dd id="observatory-ann01">0.4148</dd></div><div><dt>ANN-02 stored score</dt><dd id="observatory-ann02">0.7588</dd></div></dl>
+            <p class="fine-print">Uncalibrated classification scores from the audited Stage 08 artifact. They are not confirmation probabilities.</p>
+          </aside>
+        </div>
+        <article class="panel unavailable-workspace">
+          <div class="workspace-grid" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+          <div><span class="eyebrow">LIGHT-CURVE WORKSPACE</span><h2>Observation data is intentionally not embedded.</h2><p>The production interface will request actual processed curves through the documented FastAPI observation and light-curve endpoints. This design prototype has no API connection and draws no fictional series.</p><div class="dependency-list"><code>GET /objects/{id}</code><code>GET /objects/{id}/observations</code><code>GET /objects/{id}/light-curve</code></div></div>
+          <span class="state-chip">Unavailable in design artifact</span>
+        </article>
+      </section>
+
+      <section class="view" id="view-candidates" data-title="Candidates">
+        <div class="page-heading"><div><span class="eyebrow">CANDIDATE INTELLIGENCE</span><h1>Evidence first.<br><em>Discovery later.</em></h1></div><p>A ranked model output is not a candidate discovery. This workspace remains empty until a traceable detection and vetting pipeline exists.</p></div>
+        <article class="empty-state panel">
+          <div class="empty-orbit" aria-hidden="true"><span></span></div>
+          <span class="eyebrow">HONEST EMPTY STATE</span><h2>No newly found candidates have been demonstrated.</h2>
+          <p>ASTRAL currently analyzes known catalog objects and cached observations. Automatic transit detection, rejection logging, catalog cross-checking, and evidence-led candidate vetting are planned work—not current capabilities.</p>
+          <div class="future-services"><span>Campaign service</span><span>Detection service</span><span>Catalog cross-check</span><span>Candidate registry</span><span>Vetting workflow</span></div>
+        </article>
+        <div class="candidate-principles">
+          <article><span>01</span><h3>Signal</h3><p>A measurable feature in observational data, with provenance and quality context.</p></article>
+          <article><span>02</span><h3>Candidate</h3><p>A vetted, unresolved object or event. It is not established by model score alone.</p></article>
+          <article><span>03</span><h3>Confirmation</h3><p>A scientific status requiring evidence beyond this platform’s current models.</p></article>
+        </div>
+      </section>
+
+      <section class="view" id="view-neural" data-title="Neural Lab">
+        <div class="page-heading"><div><span class="eyebrow">MODEL INTERPRETATION</span><h1>Inspect the instrument.<br><em>Question the score.</em></h1></div><p>Conceptual topology, real audited scores, and implemented explanation methods are shown without inventing measured activations or connection weights.</p></div>
+        <div class="lab-toolbar panel">
+          <fieldset class="segmented" aria-label="Neural model"><legend>Model schematic</legend><button type="button" data-model="ann01" aria-pressed="true">ANN-01</button><button type="button" data-model="ann02" aria-pressed="false">ANN-02</button></fieldset>
+          <label><span>Audited object</span><select id="neural-object"><option value="K00753.01">K00753.01 · CANDIDATE</option><option value="K00097.01">K00097.01 · CONFIRMED</option><option value="K07977.01">K07977.01 · FALSE POSITIVE</option></select></label>
+          <div class="score-readout"><span id="neural-score-label">ANN-01 stored score</span><strong id="neural-score">0.4148</strong><small>uncalibrated</small></div>
+        </div>
+        <div class="neural-layout">
+          <article class="panel topology-panel">
+            <header class="panel-header"><div><span class="eyebrow">CONCEPTUAL MAP</span><h2 id="topology-title">ANN-01 · catalog features</h2></div><span class="state-chip">Schematic</span></header>
+            <div class="topology" id="topology" aria-describedby="node-description"></div>
+            <p id="node-description" class="node-description" aria-live="polite">Focus or hover a node to inspect its conceptual role.</p>
+            <div class="notice"><svg><use href="#icon-info"/></svg><p>This is not an exact topology recovered from a checkpoint. Node positions and connections are explanatory; no live activation, gradient, or weight is represented.</p></div>
+          </article>
+          <aside class="panel explanation-panel">
+            <span class="eyebrow">IMPLEMENTED EXPLANATION METHODS</span><h2 id="explanation-title">ANN-01 evidence</h2>
+            <div id="explanation-methods"></div>
+            <div class="api-contract"><span>Future production dependencies</span><code>GET /models</code><code>GET /models/{id}</code><code>GET /explanations/{object_id}</code><code>POST /inference/{model}</code></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-research" data-title="Research">
+        <div class="page-heading"><div><span class="eyebrow">COMPARABLE COHORT</span><h1>Results with context.<br><em>Limits within reach.</em></h1></div><p>ANN-01 and ANN-02 are compared only on the shared 47-object validation cohort. These diagnostics are not final unseen-data performance.</p></div>
+        <div class="metric-grid">
+          <article class="metric-card panel"><span>ANN-01 accuracy</span><strong>0.8723</strong><div class="meter"><i style="--value:87.23%"></i></div><small>Shared validation cohort</small></article>
+          <article class="metric-card panel"><span>ANN-02 accuracy</span><strong>0.7660</strong><div class="meter"><i style="--value:76.60%"></i></div><small>Selected seed_stability · seed 97</small></article>
+          <article class="metric-card panel"><span>ANN-01 balanced accuracy</span><strong>0.8696</strong><div class="meter"><i style="--value:86.96%"></i></div><small>Same 47 labeled objects</small></article>
+          <article class="metric-card panel"><span>ANN-02 balanced accuracy</span><strong>0.7681</strong><div class="meter"><i style="--value:76.81%"></i></div><small>Same 47 labeled objects</small></article>
+        </div>
+        <div class="research-grid">
+          <article class="panel research-record">
+            <span class="eyebrow">INTERPRETATION</span><h2>Comparison is evidence, not a race.</h2>
+            <dl><div><dt>Cohort</dt><dd>47 shared validation objects</dd></div><div><dt>ANN-01 ROC-AUC</dt><dd>1.0000 · validation only, not definitive</dd></div><div><dt>Automatic ensemble</dt><dd>Not implemented</dd></div><div><dt>Frozen test</dt><dd>Isolated and inaccessible</dd></div></dl>
+          </article>
+          <article class="panel research-record">
+            <span class="eyebrow">PROVENANCE CONTRACT</span><h2>Every result needs a route home.</h2>
+            <p>Future production views resolve experiment identity, model checkpoint, dataset version, cohort compatibility, training history, metric definition, and limitations through the scientific API.</p>
+            <div class="dependency-list"><code>GET /models/{id}/history</code><code>GET /metrics/comparison</code><code>GET /experiments</code><code>GET /experiments/{id}</code></div>
+          </article>
+        </div>
+        <div class="notice wide"><svg><use href="#icon-lock"/></svg><p><strong>Scientific guardrail.</strong> The frozen test partition is not exposed by the Stage 08 API and must not be used to tune the experience, select a model, or decorate a product claim.</p></div>
+      </section>
+    </main>
+
+    <footer><span>ASTRAL · Stage 09 visual evaluation</span><span>Atlas recommended · direction pending approval</span></footer>
+  </div>
+
+  <dialog id="expedition-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-header"><div><span class="eyebrow">PLAN REVIEW · NO EXECUTION</span><h2 id="dialog-title">Expedition contract</h2></div><button id="dialog-close" aria-label="Close plan review"><svg><use href="#icon-close"/></svg></button></div>
+    <dl id="plan-summary"></dl>
+    <div class="notice"><svg><use href="#icon-info"/></svg><p><strong>Discovery Engine unavailable.</strong> Confirming this review would require Stage 10 services. Nothing has been searched, downloaded, classified, or persisted.</p></div>
+    <form method="dialog"><button class="button secondary">Return to planner</button></form>
+  </dialog>
+  <div class="nav-scrim" id="nav-scrim"></div>
+  <script src="app.js"></script>
+</body>
+</html>

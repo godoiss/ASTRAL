@@ -1,0 +1,79 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "meta": {
+    "name": "ASTRAL Atlas",
+    "version": "0.9.1-evaluation",
+    "status": "awaiting-visual-approval",
+    "recommendedDirection": "atlas"
+  },
+  "direction": {
+    "atlas": {
+      "canvas": "#070D17",
+      "panel": "#0D1724",
+      "raised": "#111E2D",
+      "stroke": "#26394D",
+      "text": "#F0F5F8",
+      "textSoft": "#B5C4D0",
+      "textDim": "#8295A5",
+      "accent": "#70DBF7",
+      "signal": "#EFB681"
+    },
+    "signalRoom": {
+      "canvas": "#080815",
+      "panel": "#121225",
+      "stroke": "#36304D",
+      "text": "#F4F1FA",
+      "textSoft": "#C9C1D7",
+      "accent": "#D4B7FA",
+      "signal": "#70C9C0"
+    },
+    "quietOrbit": {
+      "canvas": "#0B1110",
+      "panel": "#151F1D",
+      "stroke": "#32443F",
+      "text": "#EDF3EF",
+      "textSoft": "#C3CEC7",
+      "accent": "#B5D3C6",
+      "signal": "#D5A780"
+    }
+  },
+  "semantic": {
+    "catalogConfirmed": "#7BD7BA",
+    "catalogFalsePositive": "#ED9A9F",
+    "catalogCandidate": "#EFC77C",
+    "scientificUnavailable": "#8295A5",
+    "frozenBoundary": "#B5C4D0",
+    "plotRawFlux": "#D7E1E8",
+    "plotProcessedFlux": "#70DBF7",
+    "plotPhaseFolded": "#80A8F5",
+    "plotTransitWindow": "#BFA7EF"
+  },
+  "typography": {
+    "family": {
+      "display": "Georgia, Times New Roman, serif",
+      "interface": "Segoe UI, Arial, sans-serif",
+      "data": "Consolas, Cascadia Mono, monospace"
+    },
+    "sizePx": {
+      "eyebrow": 12,
+      "label": 14,
+      "body": 16,
+      "bodyLarge": 18,
+      "section": 28,
+      "displayMin": 48,
+      "displayMax": 76
+    },
+    "lineHeight": { "tight": 0.98, "heading": 1.15, "body": 1.55 }
+  },
+  "spacingPx": [4, 8, 12, 16, 24, 32, 48, 64],
+  "radiusPx": [6, 8, 10, 14, 20],
+  "layout": {
+    "desktopColumns": 12,
+    "tabletColumns": 6,
+    "mobileColumns": 4,
+    "contentMaxPx": 1680,
+    "railWidthPx": 252,
+    "minimumTouchTargetPx": 44
+  },
+  "motionMs": { "instant": 80, "fast": 140, "standard": 220, "slow": 420 }
+}
