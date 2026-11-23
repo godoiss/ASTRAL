@@ -2,6 +2,15 @@ export interface Provenance { source?: string | null; artifact?: string | null; 
 export interface Scientific<T> { data: T; limitations: string[]; provenance: Provenance }
 export interface Pagination { offset: number; limit: number; returned: number; total: number }
 export interface ObjectPage<T> { items: T[]; pagination: Pagination }
+export interface ApiInfo {
+  name: string; version: string; stage: number; api_version: string;
+  documentation: { openapi: string; swagger: string; redoc: string };
+  scientific_guardrails: {
+    frozen_test_accessed: boolean; training_enabled: boolean; downloads_enabled: boolean;
+    automatic_ensemble_enabled: boolean; kepler_tess_mixed: boolean;
+    campaign_execution_enabled: boolean; candidate_reviews_enabled: boolean; public_read_only: boolean;
+  };
+}
 
 export interface ObjectSummary {
   object_id: string; display_name: string; kic: number; kepler_name: string | null;

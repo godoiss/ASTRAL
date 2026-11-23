@@ -1,13 +1,13 @@
 "use client";
 
-import { AlertOctagon, ArrowUpRight, Binary, BookOpenCheck, CheckCircle2, CircleDashed, Download, Fingerprint, Orbit, Save, SearchCheck, Telescope, Waves } from "lucide-react";
+import { AlertOctagon, ArrowUpRight, Binary, BookOpenCheck, CheckCircle2, CircleDashed, Download, Fingerprint, Orbit, Save, SearchCheck, ShieldLock, Telescope, Waves } from "lucide-react";
 import type { FormEvent, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { ScientificPlot } from "@/components/scientific-plot";
 import { AuditTable, EmptyState, ErrorState, Loading, Metric, PageIntro, Panel, ScientificNotice } from "@/components/ui";
 import { api } from "@/lib/api";
 import { formatDate, formatNumber } from "@/lib/format";
-import type { CandidateDossier, CandidateDossierSummary, CandidateIntelligenceIndex, DiscoverySeries, HumanReview, Scientific } from "@/lib/types";
+import type { ApiInfo, CandidateDossier, CandidateDossierSummary, CandidateIntelligenceIndex, DiscoverySeries, HumanReview, Scientific } from "@/lib/types";
 
 const DECISIONS = [
   ["needs_follow_up", "Needs follow-up"], ["insufficient_evidence", "Insufficient evidence"],
@@ -20,10 +20,11 @@ export default function CandidatesPage() {
   const [dossier, setDossier] = useState<CandidateDossier | null>(null);
   const [series, setSeries] = useState<DiscoverySeries | null>(null);
   const [error, setError] = useState("");
+  const [reviewsEnabled, setReviewsEnabled] = useState(false);
   const [reviewer, setReviewer] = useState(""); const [decision, setDecision] = useState("needs_follow_up"); const [notes, setNotes] = useState(""); const [saving, setSaving] = useState(false);
 
-  useEffect(() => { void api<Scientific<CandidateIntelligenceIndex>>("/api/v1/candidate-intelligence").then((payload) => {
-    setIndex(payload.data); const requested = Number(new URLSearchParams(window.location.search).get("kic"));
+  useEffect(() => { void Promise.all([api<Scientific<CandidateIntelligenceIndex>>("/api/v1/candidate-intelligence"), api<ApiInfo>("/api/v1/info")]).then(([payload, info]) => {
+    setIndex(payload.data); setReviewsEnabled(info.scientific_guardrails.candidate_reviews_enabled); const requested = Number(new URLSearchParams(window.location.search).get("kic"));
     setSelectedKic(payload.data.dossiers.some((item) => item.kic === requested) ? requested : payload.data.dossiers[0]?.kic ?? null);
   }).catch((reason) => setError(reason.message)); }, []);
 
@@ -71,7 +72,7 @@ export default function CandidatesPage() {
         <Panel eyebrow="Cross-signal context" title="Review priority landscape"><ScientificPlot title="Eight-signal comparison" data={comparisonPlot} layout={{ height: 380, xaxis: { title: "BLS depth SNR", type: "log" }, yaxis: { title: "Human-review priority", range: [0, 100] } }} /><p className="caption">Marker size encodes event coverage. Color separates catalog-associated and unresolved signals.</p></Panel>
 
         <section className="candidate-workflow-grid"><Panel eyebrow="Investigation history" title="Traceable timeline"><div className="candidate-timeline"><TimelineItem title="Stage 10 detection" detail={`${dossier.measured_event.observed_events} events retained from real Q3 observations`} /><TimelineItem title="Official catalog verification" detail={`${dossier.catalog_verification.koi_records.length} KOI and ${dossier.catalog_verification.tce_records.length} DR25 TCE records checked`} /><TimelineItem title="Stage 11 dossier" detail={`Priority ${formatNumber(dossier.priority.score, 2)} · ${dossier.priority.tier} review tier`} />{dossier.review_history.map((review) => <TimelineItem key={review.review_id} title={review.decision.replaceAll("_", " ")} detail={`${review.reviewer} · ${formatDate(review.created_at_utc)} · ${review.notes}`} />)}</div></Panel>
-          <Panel eyebrow="Human review" title="Record a scientific decision"><form className="review-form" onSubmit={submitReview}><label>Reviewer<input value={reviewer} onChange={(event) => setReviewer(event.target.value)} minLength={2} maxLength={80} required placeholder="Name or initials" /></label><label>Review decision<select value={decision} onChange={(event) => setDecision(event.target.value)}>{DECISIONS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label><label className="review-notes">Scientific notes<textarea value={notes} onChange={(event) => setNotes(event.target.value)} minLength={3} maxLength={1200} required placeholder="Record evidence considered and unresolved questions." /></label><button className="button primary" disabled={saving}><Save />{saving ? "Recording…" : "Record review"}</button></form></Panel></section>
+          <Panel eyebrow="Human review" title={reviewsEnabled ? "Record a scientific decision" : "Read-only public archive"}>{reviewsEnabled ? <form className="review-form" onSubmit={submitReview}><label>Reviewer<input value={reviewer} onChange={(event) => setReviewer(event.target.value)} minLength={2} maxLength={80} required placeholder="Name or initials" /></label><label>Review decision<select value={decision} onChange={(event) => setDecision(event.target.value)}>{DECISIONS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label><label className="review-notes">Scientific notes<textarea value={notes} onChange={(event) => setNotes(event.target.value)} minLength={3} maxLength={1200} required placeholder="Record evidence considered and unresolved questions." /></label><button className="button primary" disabled={saving}><Save />{saving ? "Recording…" : "Record review"}</button></form> : <div className="review-locked"><ShieldLock /><strong>Review recording is protected</strong><p>This public surface exposes persisted evidence without accepting anonymous scientific decisions. Enable authorized local review operations to append a decision.</p></div>}</Panel></section>
 
         <section className="candidate-actions"><a className="button secondary" href={`/observatory?object=${dossier.selection_reference}&campaign=${dossier.campaign_id}&signal=${dossier.kic}`}><Telescope />Analyze in Observatory</a><a className="button secondary" href={`/research?campaign=${dossier.campaign_id}`}><BookOpenCheck />Open research history</a><a className="button secondary" href={`/api/v1/candidate-intelligence/${dossier.kic}/export`}><Download />Export JSON</a><a className="button secondary" href={`/api/v1/candidate-intelligence/${dossier.kic}/report`}><Download />Scientific report</a></section>
         <ScientificNotice>ASTRAL has identified a repeatable screening signal for investigation. It has not established a new planet, a calibrated probability, or an independent confirmation.</ScientificNotice>

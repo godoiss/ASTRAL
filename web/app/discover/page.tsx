@@ -53,7 +53,7 @@ export default function DiscoverPage() {
     setPlan(payload.data); if (!payload.data.downloads_enabled) setAllowNetwork(false);
   }).catch((reason) => setError(reason.message)); }, [sampleSize]);
 
-  useEffect(() => { if (!job) { setEvents([]); return; } void api<ObjectPage<ResearchCampaignEvent>>(`/api/v1/discovery/jobs/${job.job_id}/events?limit=250`).then((page) => setEvents(page.items)).catch((reason) => setError(reason.message)); }, [job?.job_id, job?.updated_at_utc]);
+  useEffect(() => { if (!job) { setEvents([]); return; } void api<ObjectPage<ResearchCampaignEvent>>(`/api/v1/discovery/jobs/${job.job_id}/events?limit=250`).then((page) => setEvents(page.items)).catch((reason) => setError(reason.message)); }, [job]);
 
   useEffect(() => { if (!job || !activeStates.has(job.status)) return; const timer = window.setTimeout(() => { void api<ResearchCampaignJob>(`/api/v1/discovery/jobs/${job.job_id}`).then(async (next) => {
     setJob(next); if (next.current_kic) setSelected(objects.find((item) => item.kic === next.current_kic) ?? selected);

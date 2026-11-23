@@ -5,9 +5,16 @@ import { OrbitalSystem } from "@/components/orbital-system";
 import { computeAtlasBounds, projectCatalogCoordinate } from "@/lib/atlas";
 import { formatNumber } from "@/lib/format";
 import { mergeExperimentTimeline } from "@/lib/research";
+import HomePage from "@/app/page";
 import type { ExperimentSummary, ModelEntry, NeuralVisualization, ObjectDetail, ObjectSummary } from "@/lib/types";
 
 describe("scientific visualization contracts", () => {
+  it("presents real reference-campaign results without a discovery claim", () => {
+    render(<HomePage />);
+    expect(screen.getByText("12 stars investigated · 8 signals screened")).toBeInTheDocument();
+    expect(screen.getByText("Zero discovery claims · frozen test isolated")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Enter Mission Control/ })).toHaveAttribute("href", "/discover");
+  });
   it("labels orbital geometry as illustrative while preserving catalog values", () => {
     const object = {
       display_name: "KOI-753.01", object_id: "K00753.01", kic: 10811496, kepler_name: null,

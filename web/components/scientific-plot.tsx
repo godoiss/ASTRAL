@@ -8,12 +8,17 @@ export function ScientificPlot({ data, layout = {}, title, className = "" }: Plo
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let active = true;
-    let module: typeof import("plotly.js-basic-dist-min") | null = null;
+    let started = false;
+    const plotNode = ref.current;
+    let plotlyModule: typeof import("plotly.js-basic-dist-min") | null = null;
     let resizeObserver: ResizeObserver | null = null;
+    let visibilityObserver: IntersectionObserver | null = null;
     const render = async () => {
-      module = await import("plotly.js-basic-dist-min");
+      if (started) return;
+      started = true;
+      plotlyModule = await import("plotly.js-basic-dist-min");
       if (!active || !ref.current) return;
-      await module.default.react(ref.current, data, {
+      await plotlyModule.default.react(ref.current, data, {
         paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
         font: { color: "#B5C4D0", family: "Segoe UI, sans-serif", size: 12 },
         margin: { l: 52, r: 24, t: 28, b: 48 }, autosize: true,
@@ -23,15 +28,20 @@ export function ScientificPlot({ data, layout = {}, title, className = "" }: Plo
         ...layout,
       }, { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] });
       resizeObserver = new ResizeObserver(() => {
-        if (active && module && ref.current) void module.default.Plots.resize(ref.current);
+        if (active && plotlyModule && ref.current) void plotlyModule.default.Plots.resize(ref.current);
       });
       resizeObserver.observe(ref.current.parentElement ?? ref.current);
     };
-    void render();
+    if (typeof IntersectionObserver === "undefined" || !ref.current) void render();
+    else {
+      visibilityObserver = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { visibilityObserver?.disconnect(); void render(); } }, { rootMargin: "320px 0px" });
+      visibilityObserver.observe(ref.current);
+    }
     return () => {
       active = false;
+      visibilityObserver?.disconnect();
       resizeObserver?.disconnect();
-      if (module && ref.current) module.default.purge(ref.current);
+      if (plotlyModule && plotNode) plotlyModule.default.purge(plotNode);
     };
   }, [data, layout]);
   return <div className={`scientific-plot ${className}`} ref={ref} role="img" aria-label={title} />;
