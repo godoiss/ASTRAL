@@ -13,15 +13,29 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.14"
           cache: pip
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -r requirements.txt
       - run: python -m pip check
-      - run: python -m pytest -q
+      # Raw mission data, local checkpoints, and observation caches are intentionally
+      # not committed. This clean-checkout suite covers portable math, contracts,
+      # acquisition guards, validation logic, and persisted dossier artifacts.
+      - name: Run portable scientific suite
+        run: |
+          python -m pytest -q \
+            tests/test_candidate_intelligence.py \
+            tests/test_core_math.py \
+            tests/test_environment.py \
+            tests/test_kepler_koi_acquisition.py \
+            tests/test_mlp.py \
+            tests/test_preprocessing.py \
+            tests/test_scientific_validation.py \
+            tests/test_stage09_design.py \
+            tests/test_training.py
 
   atlas-frontend:
     runs-on: ubuntu-latest
@@ -30,8 +44,8 @@ jobs:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm

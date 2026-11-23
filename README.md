@@ -292,6 +292,8 @@ npm run build
 npm run test:e2e  # requires the local API/client and Chrome or Edge
 ```
 
+The local command runs all 94 artifact-backed scientific tests. CI uses a documented 37-test clean-checkout subset because raw mission data, observation caches, and model checkpoints are deliberately excluded from Git; it never substitutes mock observations for those missing artifacts.
+
 ## Project structure
 
 ```text

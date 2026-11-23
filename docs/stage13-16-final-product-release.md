@@ -159,6 +159,7 @@ Final checks completed in the local CPU environment:
 | Gate | Result |
 |---|---:|
 | Python/FastAPI suite | 94 passed |
+| Clean-checkout CI scientific suite | 37 passed |
 | TypeScript typecheck | passed |
 | ESLint | passed, zero warnings |
 | Vitest components | 6 passed |
@@ -170,6 +171,8 @@ Final checks completed in the local CPU environment:
 | `pip check` | no broken requirements |
 | `pip-audit -r requirements.txt` | no known vulnerabilities |
 | `docker compose config` | valid |
+
+The full 94-test scientific suite is intentionally a local, artifact-backed gate because raw NASA data, observation caches and trained checkpoints are not committed. GitHub Actions runs a 37-test portable suite on a clean checkout, covering neural mathematics, preprocessing, acquisition guards, scientific-validation logic, environment contracts, persisted candidate dossiers and training primitives. This distinction prevents either uploading large scientific data or making data-dependent tests pass with fabricated fixtures.
 
 The controlled browser pass started and observed a real cache-only campaign (`research-20261123T122834Z-18273fe4`): 5/5 targets completed, no network acquisition, persisted evidence, and a completed terminal state. The public read-only pass separately verifies that the publication profile exposes evidence without exposing mutation.
 
