@@ -22,8 +22,8 @@ def health(
         status="ok" if ready else "degraded",
         service=settings.title,
         version=settings.version,
-        stage=12,
-        local_only=True,
+        stage=16,
+        local_only=not settings.public_read_only,
         **availability,
     )
 
@@ -33,7 +33,7 @@ def info(settings: ApiSettings = Depends(get_settings)) -> ApiInfoResponse:
     return ApiInfoResponse(
         name=settings.title,
         version=settings.version,
-        stage=12,
+        stage=16,
         api_version="v1",
         documentation={"openapi": "/openapi.json", "swagger": "/docs", "redoc": "/redoc"},
         scientific_guardrails={
@@ -42,5 +42,8 @@ def info(settings: ApiSettings = Depends(get_settings)) -> ApiInfoResponse:
             "downloads_enabled": settings.discovery_downloads_enabled,
             "automatic_ensemble_enabled": False,
             "kepler_tess_mixed": False,
+            "campaign_execution_enabled": settings.discovery_execution_enabled and not settings.public_read_only,
+            "candidate_reviews_enabled": settings.candidate_reviews_enabled and not settings.public_read_only,
+            "public_read_only": settings.public_read_only,
         },
     )

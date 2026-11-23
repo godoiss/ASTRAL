@@ -33,7 +33,7 @@ CampaignState = Literal["planned", "queued", "running", "completed", "failed", "
 
 def _authorize_operation(request: Request, *, require_execution: bool = True) -> ApiSettings:
     settings: ApiSettings = request.app.state.settings
-    if require_execution and not settings.discovery_execution_enabled:
+    if settings.public_read_only or (require_execution and not settings.discovery_execution_enabled):
         raise ApiError(403, "discovery_execution_disabled", "Campaign execution is disabled for this deployment.")
     supplied = request.headers.get("X-ASTRAL-Operation-Key")
     if settings.operation_key and (not supplied or not secrets.compare_digest(supplied, settings.operation_key)):
@@ -52,8 +52,8 @@ def plan_campaign(
 ) -> ScientificResponse[DiscoveryPlanData]:
     plan = service.plan(sample_size)
     settings: ApiSettings = request.app.state.settings
-    plan["execution_enabled"] = settings.discovery_execution_enabled
-    plan["downloads_enabled"] = settings.discovery_downloads_enabled
+    plan["execution_enabled"] = settings.discovery_execution_enabled and not settings.public_read_only
+    plan["downloads_enabled"] = settings.discovery_downloads_enabled and not settings.public_read_only
     plan["maximum_campaign_downloads"] = settings.maximum_campaign_downloads
     return ScientificResponse[DiscoveryPlanData](
         data=plan,

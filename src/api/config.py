@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import os
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
-API_VERSION = "0.12.0"
+API_VERSION = "0.16.0"
 
 
 class ApiSettings(BaseModel):
@@ -30,6 +32,10 @@ class ApiSettings(BaseModel):
     discovery_execution_enabled: bool = False
     discovery_downloads_enabled: bool = False
     maximum_campaign_downloads: int = Field(default=5, ge=0, le=10)
+    deployment_mode: Literal["local", "public_read_only"] = "local"
+    candidate_reviews_enabled: bool = False
+    rate_limit_per_minute: int = Field(default=60, ge=10, le=600)
+    maximum_request_body_bytes: int = Field(default=1_048_576, ge=1024, le=10_485_760)
     operation_key: str | None = Field(default=None, min_length=16, max_length=256)
     frontend_url: str = Field(default="http://127.0.0.1:3000", pattern=r"^https?://")
 
@@ -53,6 +59,15 @@ class ApiSettings(BaseModel):
         downloads = os.getenv("ASTRAL_DISCOVERY_DOWNLOADS_ENABLED", "").strip().lower()
         if downloads:
             values["discovery_downloads_enabled"] = downloads in {"1", "true", "yes", "on"}
+        deployment_mode = os.getenv("ASTRAL_DEPLOYMENT_MODE", "").strip().lower()
+        if deployment_mode:
+            values["deployment_mode"] = deployment_mode
+        reviews = os.getenv("ASTRAL_CANDIDATE_REVIEWS_ENABLED", "").strip().lower()
+        if reviews:
+            values["candidate_reviews_enabled"] = reviews in {"1", "true", "yes", "on"}
+        rate_limit = os.getenv("ASTRAL_RATE_LIMIT_PER_MINUTE", "").strip()
+        if rate_limit:
+            values["rate_limit_per_minute"] = int(rate_limit)
         operation_key = os.getenv("ASTRAL_OPERATION_KEY", "").strip()
         if operation_key:
             values["operation_key"] = operation_key
@@ -60,3 +75,8 @@ class ApiSettings(BaseModel):
         if frontend_url:
             values["frontend_url"] = frontend_url
         return cls(**values)
+
+    @property
+    def public_read_only(self) -> bool:
+        """Return whether every scientific mutation must remain disabled."""
+        return self.deployment_mode == "public_read_only"

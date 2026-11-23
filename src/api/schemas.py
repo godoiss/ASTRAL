@@ -50,6 +50,9 @@ class ScientificGuardrails(StrictModel):
     downloads_enabled: bool
     automatic_ensemble_enabled: bool
     kepler_tess_mixed: bool
+    campaign_execution_enabled: bool
+    candidate_reviews_enabled: bool
+    public_read_only: bool
 
 
 class ApiInfoResponse(StrictModel):

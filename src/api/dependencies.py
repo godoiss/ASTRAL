@@ -4,15 +4,17 @@ from __future__ import annotations
 
 from functools import lru_cache
 
+from fastapi import Request
+
 from src.api.config import ApiSettings
 from src.api.candidate_service import CandidateIntelligenceService
 from src.api.discovery_service import DiscoveryJobManager, DiscoveryService
 from src.api.services import ScientificService
 
 
-@lru_cache(maxsize=1)
-def get_settings() -> ApiSettings:
-    return ApiSettings.from_environment()
+def get_settings(request: Request) -> ApiSettings:
+    """Return the settings bound to this exact application instance."""
+    return request.app.state.settings
 
 
 @lru_cache(maxsize=1)

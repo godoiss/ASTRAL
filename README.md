@@ -1,8 +1,12 @@
 # ASTRAL — Astronomical Neural Network
 
-ASTRAL is a local-first research project for astronomical data analysis, initially focused on identifying potential exoplanets. Its first neural-network implementation will be built from scratch with Python and NumPy so that the learning mathematics remains explicit and testable. PyTorch may be evaluated in a later phase.
+[![ASTRAL quality gate](https://github.com/godoiss/ASTRAL/actions/workflows/ci.yml/badge.svg)](https://github.com/godoiss/ASTRAL/actions/workflows/ci.yml)
 
-The current stage includes real Kepler Objects of Interest (KOI) acquisition, the proprietary NumPy ANN-01 engine, scientific validation, the Deep Space Observatory, and the PyTorch ANN-02 signal-intelligence pilot.
+ASTRAL is a scientific exploration platform for real astronomical observations, periodic transit-signal screening, candidate investigation, and transparent neural intelligence. Its publication interface is a responsive Next.js application backed by a versioned FastAPI scientific API, a NumPy neural engine, a PyTorch convolutional engine, and an Astropy Box Least Squares Discovery Engine.
+
+The platform preserves a complete evidence chain from real NASA Kepler catalog coordinates and cached light curves through observations, detections, dossiers, model states, experiments, human-review history, and provenance. Screening detections and neural scores are explicitly not presented as confirmed discoveries or calibrated planet probabilities.
+
+The official product surface is `http://127.0.0.1:3000`; Streamlit remains an internal diagnostic laboratory only.
 
 ## Principles
 
@@ -11,6 +15,7 @@ The current stage includes real Kepler Objects of Interest (KOI) acquisition, th
 - Modular architecture and English naming in source code.
 - Reproducible dependencies and automated tests.
 - Compatibility with CPU-only development; optional GPU support may be introduced later.
+- Public exploration defaults to read-only; scientific mutations require an explicitly controlled local deployment.
 
 ## Requirements
 
@@ -241,6 +246,51 @@ npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
 Open `http://127.0.0.1:3000/discover`; operational history is at `/research` and OpenAPI at `http://127.0.0.1:8000/docs`. See the [Stage 12 technical report](docs/stage12-discovery-api-research-infrastructure.md).
+
+## Final product and production profile
+
+Stages 13–16 consolidate ASTRAL into one publication-ready experience:
+
+- `/` introduces the scientific purpose, validated reference results, neural engines, and evidence boundaries.
+- `/discover` provides the real-coordinate stellar atlas and persistent Mission Control.
+- `/observatory` provides real raw/processed luminosity, phase folding, transit detail, catalog context, and model readings.
+- `/candidates` exposes all eight Stage 11 dossiers, BLS evidence, catalog cross-checks, alternatives, exports, and protected reviews.
+- `/neural` renders actual ANN-01/ANN-02 architecture, weights, activations, feature maps, sensitivities, and explanations.
+- `/research` indexes operational campaign events, immutable artifacts, candidate evidence, experiments, metrics, and limitations.
+
+Mobile navigation, explicit touch controls, reduced-motion support, responsive scientific plots, lazy Plotly loading, social metadata, a generated favicon/Open Graph image, sitemap, robots policy, security headers, request-size/rate limits, public read-only capabilities, Docker images, and GitHub Actions quality gates are included.
+
+For safe public-style local execution, copy `.env.example` values and keep all mutations disabled:
+
+```powershell
+$env:ASTRAL_DEPLOYMENT_MODE = "public_read_only"
+$env:ASTRAL_DISCOVERY_EXECUTION_ENABLED = "false"
+$env:ASTRAL_DISCOVERY_DOWNLOADS_ENABLED = "false"
+$env:ASTRAL_CANDIDATE_REVIEWS_ENABLED = "false"
+
+.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
+cd web
+$env:ASTRAL_API_ORIGIN = "http://127.0.0.1:8000"
+npm ci
+npm run build
+npm run start
+```
+
+Or run the same read-only profile with `docker compose up --build`. Before an internet deployment, configure real HTTPS, a persistent volume/object store, backups, upstream rate limiting, and identity-aware authorization. See the [final product and release report](docs/stage13-16-final-product-release.md).
+
+Original ASTRAL source is currently all rights reserved; mission data and dependencies retain their respective terms. See [licensing and attribution](docs/licensing-and-attribution.md) before redistribution or scientific publication.
+
+Quality gates:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+cd web
+npm run typecheck
+npm run lint
+npm run test
+npm run build
+npm run test:e2e  # requires the local API/client and Chrome or Edge
+```
 
 ## Project structure
 

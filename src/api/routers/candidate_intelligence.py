@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Path, status
+from fastapi import APIRouter, Depends, Path, Request, status
 from fastapi.responses import JSONResponse, PlainTextResponse
 
 from src.api.candidate_service import CandidateIntelligenceService
 from src.api.dependencies import get_candidate_intelligence_service
+from src.api.dependencies import get_settings
+from src.api.config import ApiSettings
+from src.api.security import authorize_mutation
 from src.api.schemas import CandidateDossier, CandidateIntelligenceIndex, HumanReview, HumanReviewRequest, ScientificResponse
 
 
@@ -99,7 +102,15 @@ def candidate_reviews(
 @router.post("/{kic}/reviews", response_model=HumanReview, status_code=status.HTTP_201_CREATED, operation_id="recordCandidateReview")
 def record_candidate_review(
     request: HumanReviewRequest,
+    http_request: Request,
     kic: int = Path(ge=1, le=999_999_999),
     service: CandidateIntelligenceService = Depends(get_candidate_intelligence_service),
+    settings: ApiSettings = Depends(get_settings),
 ) -> HumanReview:
+    authorize_mutation(
+        http_request,
+        settings,
+        feature_enabled=settings.candidate_reviews_enabled,
+        feature_name="Candidate review recording",
+    )
     return HumanReview.model_validate(service.add_review(kic, request.reviewer, request.decision, request.notes))

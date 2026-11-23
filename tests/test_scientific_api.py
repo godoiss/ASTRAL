@@ -42,14 +42,17 @@ def test_health_version_and_restrictive_cors(client: TestClient) -> None:
 
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
-    assert health.json()["version"] == "0.12.0"
-    assert health.json()["stage"] == 12
+    assert health.json()["version"] == "0.16.0"
+    assert health.json()["stage"] == 16
     assert info.json()["scientific_guardrails"] == {
         "frozen_test_accessed": False,
         "training_enabled": False,
         "downloads_enabled": False,
         "automatic_ensemble_enabled": False,
         "kepler_tess_mixed": False,
+        "campaign_execution_enabled": False,
+        "candidate_reviews_enabled": False,
+        "public_read_only": False,
     }
     assert health.headers["cache-control"] == "no-store"
     assert health.headers["x-request-id"]
@@ -71,6 +74,50 @@ def test_health_version_and_restrictive_cors(client: TestClient) -> None:
     assert allowed.status_code == 200
     assert allowed.headers["access-control-allow-origin"] == "http://localhost:3000"
     assert denied.status_code == 400
+
+
+def test_public_profile_blocks_scientific_mutations() -> None:
+    settings = ApiSettings(
+        deployment_mode="public_read_only",
+        discovery_execution_enabled=True,
+        candidate_reviews_enabled=True,
+        allowed_hosts=("testserver",),
+    )
+    with TestClient(create_app(settings)) as public:
+        health = public.get("/health")
+        review = public.post(
+            "/api/v1/candidate-intelligence/10811496/reviews",
+            json={"reviewer": "Anonymous", "decision": "needs_follow_up", "notes": "Must not be persisted."},
+        )
+        campaign = public.post(
+            "/api/v1/discovery/campaigns",
+            json={"sample_size": 1, "allow_network": False, "max_new_downloads": 0},
+        )
+
+    assert health.json()["local_only"] is False
+    assert review.status_code == 403
+    assert campaign.status_code == 403
+    assert review.json()["error"]["code"] == "operation_disabled"
+
+
+def test_request_size_and_mutation_rate_are_bounded() -> None:
+    settings = ApiSettings(
+        allowed_hosts=("testserver",),
+        maximum_request_body_bytes=1024,
+        rate_limit_per_minute=10,
+    )
+    with TestClient(create_app(settings)) as bounded:
+        oversized = bounded.post(
+            "/api/v1/inference/ann-01",
+            content=b"x" * 1025,
+            headers={"Content-Type": "application/json"},
+        )
+        responses = [bounded.post("/route-that-does-not-exist") for _ in range(11)]
+
+    assert oversized.status_code == 413
+    assert oversized.json()["error"]["code"] == "request_too_large"
+    assert responses[-1].status_code == 429
+    assert responses[-1].headers["retry-after"] == "60"
 
 
 def test_openapi_exposes_persistent_campaign_control_without_training_or_download_routes(client: TestClient) -> None:

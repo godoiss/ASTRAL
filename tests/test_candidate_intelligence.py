@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 
 from src.api.app import create_app
 from src.api.candidate_service import CandidateIntelligenceService
+from src.api.config import ApiSettings
 from src.api.dependencies import get_candidate_intelligence_service
 from src.candidate_intelligence.catalogs import ExoplanetArchiveClient
 from src.candidate_intelligence.engine import PROJECT_ROOT, build_candidate_intelligence
@@ -91,7 +92,7 @@ def test_human_review_is_validated_and_persisted_locally(tmp_path: Path) -> None
     source = PROJECT_ROOT / "experiments" / "stage11"
     shutil.copytree(source, tmp_path, dirs_exist_ok=True)
     service = CandidateIntelligenceService(tmp_path)
-    app = create_app()
+    app = create_app(ApiSettings(candidate_reviews_enabled=True))
     app.dependency_overrides[get_candidate_intelligence_service] = lambda: service
 
     with TestClient(app) as client:

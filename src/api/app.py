@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import time
 import uuid
+from collections import defaultdict, deque
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -49,6 +50,7 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         },
     )
     app.state.settings = settings
+    request_windows: dict[str, deque[float]] = defaultdict(deque)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(settings.allowed_hosts))
     app.add_middleware(
         CORSMiddleware,
@@ -63,6 +65,29 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))[:128]
         request.state.request_id = request_id
         started = time.perf_counter()
+        content_length = request.headers.get("content-length", "0")
+        try:
+            request_bytes = int(content_length)
+        except ValueError:
+            request_bytes = settings.maximum_request_body_bytes + 1
+        if request_bytes > settings.maximum_request_body_bytes:
+            return JSONResponse(
+                status_code=413,
+                content={"error": {"code": "request_too_large", "message": "Request body exceeds the configured limit.", "details": None, "request_id": request_id}},
+            )
+        if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
+            client = request.client.host if request.client else "unknown"
+            window = request_windows[client]
+            now = time.monotonic()
+            while window and now - window[0] >= 60:
+                window.popleft()
+            if len(window) >= settings.rate_limit_per_minute:
+                return JSONResponse(
+                    status_code=429,
+                    content={"error": {"code": "rate_limit_exceeded", "message": "Mutation request limit exceeded. Try again later.", "details": None, "request_id": request_id}},
+                    headers={"Retry-After": "60"},
+                )
+            window.append(now)
         response = await call_next(request)
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Process-Time-Ms"] = f"{1000 * (time.perf_counter() - started):.3f}"
@@ -70,6 +95,10 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+        if request.url.scheme == "https":
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "script-src 'self'; "
