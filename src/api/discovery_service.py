@@ -3,20 +3,24 @@
 from __future__ import annotations
 
 import json
+import re
 import threading
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from time import perf_counter
+from typing import Any, Callable
 
 import numpy as np
 
 from src.api.errors import ApiError
+from src.discovery.acquisition import DISCOVERY_ROOT
 from src.discovery.campaign import CAMPAIGN_ROOT, PROJECT_ROOT, run_campaign
 from src.discovery.catalog import protected_host_stars, select_exploration_targets
 from src.discovery.config import CampaignConfig, DiscoveryConfig
+from src.research.campaign_store import ACTIVE_STATES, CampaignStore
 
 
 DEFAULT_DISCOVERY_CONFIG = PROJECT_ROOT / "configs" / "discovery_engine.json"
@@ -189,74 +193,239 @@ class DiscoveryService:
 
 
 class DiscoveryJobManager:
-    """Run at most one cache-only campaign and expose real progress safely."""
+    """Persist and execute one bounded local campaign at a time."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        store: CampaignStore | None = None,
+        runner: Callable[..., dict[str, Any]] | None = None,
+    ) -> None:
         self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="astral-discovery")
         self._lock = threading.Lock()
-        self._jobs: dict[str, dict[str, Any]] = {}
+        self.store = store or CampaignStore()
+        self._runner = runner or run_campaign
+
+    @staticmethod
+    def _storage_bytes(path: Path) -> int:
+        return sum(item.stat().st_size for item in path.rglob("*") if item.is_file()) if path.exists() else 0
+
+    @staticmethod
+    def _job_error(exc: Exception) -> ApiError:
+        if isinstance(exc, ApiError):
+            return exc
+        if isinstance(exc, ValueError):
+            return ApiError(422, "invalid_campaign_state", str(exc))
+        if isinstance(exc, KeyError):
+            return ApiError(404, "job_not_found", "No discovery job matches the identifier.")
+        return ApiError(500, "campaign_state_error", "Campaign state could not be updated.")
+
+    def plan(
+        self,
+        sample_size: int,
+        *,
+        allow_network: bool = False,
+        max_new_downloads: int = 0,
+    ) -> dict[str, Any]:
+        base = DiscoveryConfig.load(DEFAULT_DISCOVERY_CONFIG)
+        campaign = replace(
+            base.campaign,
+            sample_size=sample_size,
+            allow_network=allow_network,
+            max_new_downloads=max_new_downloads if allow_network else 0,
+        )
+        config = replace(base, campaign=campaign)
+        targets = select_exploration_targets(campaign)
+        overlap = sorted({target.kic for target in targets} & protected_host_stars())
+        if overlap:
+            raise ApiError(409, "protected_host_overlap", "Campaign selection intersects protected host stars.")
+        campaign_id = f"research-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}-{uuid.uuid4().hex[:8]}"
+        try:
+            return self.store.create_plan(
+                campaign_id=campaign_id,
+                mission=campaign.mission,
+                selection_strategy=campaign.strategy,
+                total=sample_size,
+                allow_network=allow_network,
+                max_new_downloads=campaign.max_new_downloads,
+                campaign_config=config.to_dict()["campaign"],
+                detector_config=config.to_dict()["detection"],
+                provenance={
+                    "config_source": "configs/discovery_engine.json",
+                    "protected_host_overlap": overlap,
+                    "frozen_test_records_accessed": False,
+                    "targets": [target.to_dict() for target in targets],
+                },
+                resources={
+                    "cached_targets": sum(target.cache_available for target in targets),
+                    "discovery_cache_bytes_at_plan": self._storage_bytes(DISCOVERY_ROOT),
+                    "storage_limit_bytes": int(campaign.storage_limit_mb * 1024**2),
+                    "worker_concurrency_limit": 1,
+                    "per_star_timeout_seconds": campaign.per_star_timeout_seconds,
+                },
+            )
+        except Exception as exc:
+            raise self._job_error(exc) from exc
+
+    def _ensure_no_active_job(self, excluding: str | None = None) -> None:
+        active, _ = self.store.list(offset=0, limit=10, statuses=ACTIVE_STATES)
+        if any(item["job_id"] != excluding for item in active):
+            raise ApiError(409, "campaign_in_progress", "A discovery campaign is already queued or running.")
+
+    def start_planned(self, job_id: str) -> dict[str, Any]:
+        with self._lock:
+            try:
+                job = self.store.get(job_id)
+                if job["status"] != "planned":
+                    raise ApiError(409, "invalid_campaign_state", "Only a planned campaign can be started.")
+                self._ensure_no_active_job(excluding=job_id)
+                queued = self.store.transition(
+                    job_id,
+                    "queued",
+                    stage="queued",
+                    message="Campaign queued for the single local research worker.",
+                )
+                self._executor.submit(self._execute, job_id, False)
+                return queued
+            except Exception as exc:
+                raise self._job_error(exc) from exc
 
     def start(self, sample_size: int) -> dict[str, Any]:
-        with self._lock:
-            if any(job["status"] in {"queued", "running"} for job in self._jobs.values()):
-                raise ApiError(409, "campaign_in_progress", "A discovery campaign is already running.")
-            job_id = str(uuid.uuid4())
-            campaign_id = f"web-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}-{job_id[:8]}"
-            job = {
-                "job_id": job_id,
-                "status": "queued",
-                "stage": "queued",
-                "current": 0,
-                "total": sample_size,
-                "message": "Campaign accepted; network acquisition is disabled.",
-                "campaign_id": campaign_id,
-                "error_code": None,
-            }
-            self._jobs[job_id] = job
-            self._executor.submit(self._execute, job_id, campaign_id, sample_size)
-            return dict(job)
+        """Compatibility path: persist a cache-only plan and start it."""
+        planned = self.plan(sample_size)
+        return self.start_planned(planned["job_id"])
 
-    def _execute(self, job_id: str, campaign_id: str, sample_size: int) -> None:
-        def progress(stage: str, current: int, total: int, message: str) -> None:
-            with self._lock:
-                self._jobs[job_id].update(
-                    status="running", stage=stage, current=current, total=total, message=message[:240]
+    def resume(self, job_id: str) -> dict[str, Any]:
+        with self._lock:
+            try:
+                job = self.store.get(job_id)
+                if job["status"] not in {"interrupted", "failed", "cancelled"}:
+                    raise ApiError(409, "campaign_not_resumable", "Campaign is not in a resumable state.")
+                self._ensure_no_active_job(excluding=job_id)
+                queued = self.store.transition(
+                    job_id,
+                    "queued",
+                    stage="queued",
+                    message="Persisted campaign queued for safe resume.",
+                    event_type="campaign_resume_queued",
                 )
+                self._executor.submit(self._execute, job_id, True)
+                return queued
+            except Exception as exc:
+                raise self._job_error(exc) from exc
+
+    def cancel(self, job_id: str) -> dict[str, Any]:
+        try:
+            return self.store.request_cancel(job_id)
+        except Exception as exc:
+            raise self._job_error(exc) from exc
+
+    def _execute(self, job_id: str, resume: bool) -> None:
+        started = perf_counter()
+
+        def progress(stage: str, current: int, total: int, message: str) -> None:
+            match = re.search(r"KIC\s+(\d+)", message)
+            self.store.progress(
+                job_id,
+                stage=stage,
+                current=current,
+                total=total,
+                message=message,
+                kic=int(match.group(1)) if match else None,
+                elapsed_seconds=float(perf_counter() - started),
+            )
 
         try:
-            base = DiscoveryConfig.load(DEFAULT_DISCOVERY_CONFIG)
-            campaign = replace(
-                base.campaign,
-                sample_size=sample_size,
-                allow_network=False,
-                max_new_downloads=0,
+            job = self.store.transition(
+                job_id,
+                "running",
+                stage="initializing",
+                message="Scientific configuration and persisted state are being validated.",
             )
-            run_campaign(replace(base, campaign=campaign), campaign_id=campaign_id, progress_callback=progress)
+            config = DiscoveryConfig.from_dict(
+                {"campaign": job["campaign_config"], "detection": job["detector_config"]}
+            )
+            report = self._runner(
+                config,
+                campaign_id=job["campaign_id"],
+                progress_callback=progress,
+                cancellation_callback=lambda: self.store.is_cancel_requested(job_id),
+                resume=resume,
+            )
         except Exception as exc:
-            with self._lock:
-                self._jobs[job_id].update(
-                    status="failed",
-                    stage="failed",
-                    message="Campaign stopped safely.",
-                    error_code=type(exc).__name__,
-                )
+            try:
+                if self.store.is_cancel_requested(job_id):
+                    self.store.transition(
+                        job_id,
+                        "cancelled",
+                        stage="cancelled",
+                        message="Campaign cancelled at a safe scientific boundary.",
+                    )
+                else:
+                    self.store.transition(
+                        job_id,
+                        "failed",
+                        stage="failed",
+                        message="Campaign stopped safely; persisted evidence was retained.",
+                        error_code=type(exc).__name__,
+                        level="error",
+                    )
+            except Exception:
+                pass
         else:
-            with self._lock:
-                self._jobs[job_id].update(
-                    status="completed",
-                    stage="completed",
-                    current=sample_size,
-                    total=sample_size,
-                    message="Campaign evidence persisted.",
-                )
+            operational_status = "cancelled" if report["status"] == "cancelled" else "completed"
+            self.store.transition(
+                job_id,
+                operational_status,
+                stage=str(report["status"]),
+                message=(
+                    "Campaign cancelled at a safe boundary; partial evidence remains resumable."
+                    if operational_status == "cancelled"
+                    else "Campaign evidence and provenance persisted successfully."
+                ),
+                result_summary=report.get("summary", {}),
+                artifact_path=f"experiments/stage10/campaigns/{report['campaign_id']}/campaign.json",
+                event_type=f"campaign_{operational_status}",
+                level="warning" if operational_status == "cancelled" else "info",
+            )
 
     def get(self, job_id: str) -> dict[str, Any]:
         try:
-            uuid.UUID(job_id)
-        except ValueError as exc:
-            raise ApiError(422, "invalid_job_id", "The discovery job identifier is invalid.") from exc
-        with self._lock:
-            job = self._jobs.get(job_id)
-            if job is None:
-                raise ApiError(404, "job_not_found", "No discovery job matches the identifier.")
-            return dict(job)
+            return self.store.get(job_id)
+        except Exception as exc:
+            raise self._job_error(exc) from exc
+
+    def list(self, offset: int, limit: int, statuses: tuple[str, ...] = ()) -> tuple[list[dict[str, Any]], int]:
+        try:
+            return self.store.list(offset=offset, limit=limit, statuses=statuses)
+        except Exception as exc:
+            raise self._job_error(exc) from exc
+
+    def events(self, job_id: str, offset: int, limit: int) -> tuple[list[dict[str, Any]], int]:
+        try:
+            return self.store.events(job_id, offset=offset, limit=limit)
+        except Exception as exc:
+            raise self._job_error(exc) from exc
+
+    def provenance(self, job_id: str) -> dict[str, Any]:
+        job = self.get(job_id)
+        return {
+            "job_id": job["job_id"],
+            "campaign_id": job["campaign_id"],
+            "mission": job["mission"],
+            "selection_strategy": job["selection_strategy"],
+            "campaign_config": job["campaign_config"],
+            "detector_config": job["detector_config"],
+            "provenance": job["provenance"],
+            "resources": {
+                **job["resource"],
+                "discovery_cache_bytes_current": self._storage_bytes(DISCOVERY_ROOT),
+                "campaign_artifact_bytes": self._storage_bytes(CAMPAIGN_ROOT / job["campaign_id"]),
+            },
+            "artifact_path": job["artifact_path"],
+            "scientific_guardrails": {
+                "frozen_test_records_accessed": False,
+                "neural_models_invoked": False,
+                "mission_data_mixed": False,
+            },
+        }

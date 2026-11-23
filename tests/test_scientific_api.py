@@ -42,8 +42,8 @@ def test_health_version_and_restrictive_cors(client: TestClient) -> None:
 
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
-    assert health.json()["version"] == "0.11.0"
-    assert health.json()["stage"] == 10
+    assert health.json()["version"] == "0.12.0"
+    assert health.json()["stage"] == 12
     assert info.json()["scientific_guardrails"] == {
         "frozen_test_accessed": False,
         "training_enabled": False,
@@ -73,7 +73,7 @@ def test_health_version_and_restrictive_cors(client: TestClient) -> None:
     assert denied.status_code == 400
 
 
-def test_openapi_exposes_no_training_or_download_routes(client: TestClient) -> None:
+def test_openapi_exposes_persistent_campaign_control_without_training_or_download_routes(client: TestClient) -> None:
     schema = client.get("/openapi.json").json()
     paths = schema["paths"]
 
@@ -85,8 +85,8 @@ def test_openapi_exposes_no_training_or_download_routes(client: TestClient) -> N
     ]
 
     assert "/api/v1/inference/{model_id}" in paths
-    assert len(operations) == 31
-    assert len({operation["operationId"] for operation in operations}) == 31
+    assert len(operations) == 40
+    assert len({operation["operationId"] for operation in operations}) == 40
     assert "/api/v1/candidate-intelligence" in paths
     assert "/api/v1/candidate-intelligence/{kic}" in paths
     assert "/api/v1/candidate-intelligence/{kic}/export" in paths
@@ -101,7 +101,11 @@ def test_openapi_exposes_no_training_or_download_routes(client: TestClient) -> N
     ]
     assert write_operations == [
         ("/api/v1/inference/{model_id}", "post"),
+        ("/api/v1/discovery/campaigns", "post"),
         ("/api/v1/discovery/jobs", "post"),
+        ("/api/v1/discovery/jobs/{job_id}/start", "post"),
+        ("/api/v1/discovery/jobs/{job_id}/cancel", "post"),
+        ("/api/v1/discovery/jobs/{job_id}/resume", "post"),
         ("/api/v1/candidate-intelligence/{kic}/reviews", "post"),
     ]
 

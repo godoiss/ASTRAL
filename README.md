@@ -223,6 +223,25 @@ npm run dev
 
 See the [Stage 11 Candidate Intelligence report](docs/stage11-candidate-intelligence.md).
 
+## Discovery API and research infrastructure
+
+Stage 12 makes local Kepler discovery campaigns durable and auditable. FastAPI `0.12.0` now separates campaign planning from execution, persists the seven-state lifecycle and append-only event stream in SQLite, supports cooperative cancellation and target-granular resume, recovers orphaned work after restart, and preserves scientific measurements in versioned JSON/NPZ artifacts. The frozen-test partition remains excluded and network acquisition has a separate deployment gate.
+
+The publication Next.js application exposes the workflow directly: **Discover** is now Atlas Mission Control with plan review, live KIC/stage telemetry, cancel/resume, event history, and persisted results; **Research** provides the operational archive alongside the existing candidate and ANN evidence. The cache-only reference validation completed 3/3 real Kepler targets, made zero downloads, persisted 13 events, and survived an API restart.
+
+```powershell
+$env:ASTRAL_DISCOVERY_EXECUTION_ENABLED = "true"
+$env:ASTRAL_DISCOVERY_DOWNLOADS_ENABLED = "false"
+# Optional for local mutation protection:
+# $env:ASTRAL_OPERATION_KEY = "replace-with-a-local-secret"
+
+.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
+cd web
+npm run dev -- --hostname 127.0.0.1 --port 3000
+```
+
+Open `http://127.0.0.1:3000/discover`; operational history is at `/research` and OpenAPI at `http://127.0.0.1:8000/docs`. See the [Stage 12 technical report](docs/stage12-discovery-api-research-infrastructure.md).
+
 ## Project structure
 
 ```text
@@ -260,4 +279,4 @@ ASTRAL/
 
 ## Current scope
 
-The current platform includes a local read-only REST API and an exploratory Kepler signal detector, but excludes public deployment, external AI services, automatic model combination, authentication infrastructure, and standalone frontend frameworks. TESS support is an isolated technical experiment and is not part of Kepler training. ANN-01 remains an exclusively NumPy neural engine. PyTorch is used only by ANN-02. Scikit-learn provides scientific metrics and classical comparison models. Network access is limited to explicitly invoked, bounded public scientific acquisition workflows; API inference and scientific queries remain local.
+The current platform includes a local REST API, persistent campaign orchestration, the publication Next.js Atlas interface, and an exploratory Kepler signal detector, but excludes public deployment, external AI services, automatic model combination, and production authentication infrastructure. TESS support is an isolated technical experiment and is not part of Kepler training. ANN-01 remains an exclusively NumPy neural engine. PyTorch is used only by ANN-02. Scikit-learn provides scientific metrics and classical comparison models. Network access requires explicit deployment and per-campaign authorization; API inference and normal scientific queries remain local.

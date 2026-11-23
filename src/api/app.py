@@ -32,8 +32,8 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         summary="Scientific services for the ASTRAL Atlas product interface",
         description=(
             "ASTRAL scientific API. It exposes persisted Kepler/TESS artifacts, "
-            "trained ANN-01/ANN-02 inference, and cache-only Discovery Engine campaigns. "
-            "It never trains models or downloads observations through HTTP."
+            "trained ANN-01/ANN-02 inference, and persistent Discovery Engine campaigns. "
+            "It never trains models; scientific downloads require separate explicit authorization."
         ),
         docs_url="/docs",
         redoc_url="/redoc",
@@ -55,7 +55,7 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         allow_origins=list(settings.cors_origins),
         allow_credentials=False,
         allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["Accept", "Content-Type", "X-Request-ID"],
+        allow_headers=["Accept", "Content-Type", "X-Request-ID", "X-ASTRAL-Operation-Key"],
     )
 
     @app.middleware("http")

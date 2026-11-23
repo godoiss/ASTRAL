@@ -611,6 +611,8 @@ class DiscoveryPlanData(StrictModel):
     cached_targets: int = Field(ge=0)
     network_enabled: Literal[False]
     execution_enabled: bool
+    downloads_enabled: bool
+    maximum_campaign_downloads: int = Field(ge=0, le=10)
     protected_host_overlap: list[int]
     targets: list[DiscoveryPlanTarget]
 
@@ -675,15 +677,67 @@ class DiscoveryRunRequest(StrictModel):
     sample_size: int = Field(default=10, ge=1, le=25)
 
 
+class DiscoveryPlanRequest(StrictModel):
+    mission: Literal["Kepler"] = "Kepler"
+    sample_size: int = Field(default=10, ge=1, le=25)
+    allow_network: bool = False
+    max_new_downloads: int = Field(default=0, ge=0, le=10)
+
+
 class DiscoveryJob(StrictModel):
     job_id: str
-    status: Literal["queued", "running", "completed", "failed"]
+    campaign_id: str
+    mission: Literal["Kepler"]
+    selection_strategy: str
+    status: Literal["planned", "queued", "running", "completed", "failed", "cancelled", "interrupted"]
+    stage: str
+    current: int = Field(ge=0)
+    total: int = Field(ge=1)
+    current_kic: int | None
+    message: str
+    error_code: str | None = None
+    cancel_requested: bool
+    allow_network: bool
+    max_new_downloads: int = Field(ge=0)
+    campaign_config: dict[str, Any]
+    detector_config: dict[str, Any]
+    provenance: dict[str, Any]
+    resource: dict[str, Any]
+    result_summary: dict[str, Any] | None
+    artifact_path: str | None
+    created_at_utc: str
+    queued_at_utc: str | None
+    started_at_utc: str | None
+    completed_at_utc: str | None
+    updated_at_utc: str
+
+
+class DiscoveryEvent(StrictModel):
+    event_id: int = Field(ge=1)
+    job_id: str
+    created_at_utc: str
+    event_type: str
+    level: Literal["info", "warning", "error"]
     stage: str
     current: int = Field(ge=0)
     total: int = Field(ge=0)
+    kic: int | None
     message: str
-    campaign_id: str | None = None
-    error_code: str | None = None
+    elapsed_seconds: float | None
+    details: dict[str, Any]
+
+
+class DiscoveryProvenanceData(StrictModel):
+    job_id: str
+    campaign_id: str
+    mission: Literal["Kepler"]
+    selection_strategy: str
+    campaign_config: dict[str, Any]
+    detector_config: dict[str, Any]
+    provenance: dict[str, Any]
+    resources: dict[str, Any]
+    artifact_path: str | None
+    scientific_guardrails: dict[str, bool]
 
 
 class CandidatePriorityComponents(StrictModel):

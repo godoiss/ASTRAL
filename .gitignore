@@ -13,6 +13,7 @@ web/next-env.d.ts
 .ruff_cache/
 .cache/
 logs/
+.codex/
 
 # Virtual environments
 .venv/
@@ -71,3 +72,7 @@ data/discovery/raw/*
 data/discovery/provenance/*
 !data/discovery/raw/.gitkeep
 !data/discovery/provenance/.gitkeep
+
+# Stage 12 operational research metadata (local SQLite state and journals)
+data/research/*
+!data/research/.gitkeep

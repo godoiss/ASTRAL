@@ -69,6 +69,27 @@ export interface CampaignTarget {
 export interface CampaignDetail { campaign: CampaignSummary & Record<string, unknown>; targets: CampaignTarget[]; guardrails: Record<string, boolean>; limitations: string[] }
 export interface DiscoverySeries { kic: number; records_returned: number; time_bkjd: number[]; detrended_flux: number[]; periods: number[]; powers: number[]; phase: number[]; phase_flux: number[]; phase_bin_centers: number[]; phase_bin_flux: number[] }
 
+export type ResearchCampaignState = "planned" | "queued" | "running" | "completed" | "failed" | "cancelled" | "interrupted";
+export interface ResearchCampaignJob {
+  job_id: string; campaign_id: string; mission: "Kepler"; selection_strategy: string;
+  status: ResearchCampaignState; stage: string; current: number; total: number; current_kic: number | null;
+  message: string; error_code: string | null; cancel_requested: boolean; allow_network: boolean; max_new_downloads: number;
+  campaign_config: Record<string, unknown>; detector_config: Record<string, unknown>; provenance: Record<string, unknown>;
+  resource: Record<string, number>; result_summary: Record<string, number> | null; artifact_path: string | null;
+  created_at_utc: string; queued_at_utc: string | null; started_at_utc: string | null;
+  completed_at_utc: string | null; updated_at_utc: string;
+}
+export interface ResearchCampaignEvent {
+  event_id: number; job_id: string; created_at_utc: string; event_type: string; level: "info" | "warning" | "error";
+  stage: string; current: number; total: number; kic: number | null; message: string; elapsed_seconds: number | null;
+  details: Record<string, unknown>;
+}
+export interface ResearchCampaignProvenance {
+  job_id: string; campaign_id: string; mission: "Kepler"; selection_strategy: string;
+  campaign_config: Record<string, unknown>; detector_config: Record<string, unknown>; provenance: Record<string, unknown>;
+  resources: Record<string, number>; artifact_path: string | null; scientific_guardrails: Record<string, boolean>;
+}
+
 export interface CandidatePriority {
   score: number; tier: "high" | "medium" | "low"; meaning: string; formula_version: string;
   components: Record<string, number>;

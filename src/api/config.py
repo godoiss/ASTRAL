@@ -7,7 +7,7 @@ import os
 from pydantic import BaseModel, ConfigDict, Field
 
 
-API_VERSION = "0.11.0"
+API_VERSION = "0.12.0"
 
 
 class ApiSettings(BaseModel):
@@ -28,6 +28,9 @@ class ApiSettings(BaseModel):
     default_curve_points: int = Field(default=1000, ge=10, le=5000)
     maximum_curve_points: int = Field(default=5000, ge=10, le=5000)
     discovery_execution_enabled: bool = False
+    discovery_downloads_enabled: bool = False
+    maximum_campaign_downloads: int = Field(default=5, ge=0, le=10)
+    operation_key: str | None = Field(default=None, min_length=16, max_length=256)
     frontend_url: str = Field(default="http://127.0.0.1:3000", pattern=r"^https?://")
 
     @classmethod
@@ -47,6 +50,12 @@ class ApiSettings(BaseModel):
         execution = os.getenv("ASTRAL_DISCOVERY_EXECUTION_ENABLED", "").strip().lower()
         if execution:
             values["discovery_execution_enabled"] = execution in {"1", "true", "yes", "on"}
+        downloads = os.getenv("ASTRAL_DISCOVERY_DOWNLOADS_ENABLED", "").strip().lower()
+        if downloads:
+            values["discovery_downloads_enabled"] = downloads in {"1", "true", "yes", "on"}
+        operation_key = os.getenv("ASTRAL_OPERATION_KEY", "").strip()
+        if operation_key:
+            values["operation_key"] = operation_key
         frontend_url = os.getenv("ASTRAL_FRONTEND_URL", "").strip()
         if frontend_url:
             values["frontend_url"] = frontend_url

@@ -34,6 +34,11 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CAMPAIGN_ROOT = PROJECT_ROOT / "experiments" / "stage10" / "campaigns"
 LATEST_CAMPAIGN = PROJECT_ROOT / "experiments" / "stage10" / "latest_campaign.json"
 ProgressCallback = Callable[[str, int, int, str], None]
+CancellationCallback = Callable[[], bool]
+
+
+class CampaignCancellationRequested(RuntimeError):
+    """Internal cooperative-cancellation signal between scientific stages."""
 
 
 def _sha256(path: Path) -> str:
@@ -139,44 +144,62 @@ def run_campaign(
     *,
     campaign_id: str | None = None,
     progress_callback: ProgressCallback | None = None,
+    cancellation_callback: CancellationCallback | None = None,
+    resume: bool = False,
 ) -> dict[str, Any]:
     """Run a bounded Kepler campaign and persist every result or failure."""
     identifier = campaign_id or _campaign_id()
     if not identifier.replace("-", "").replace("_", "").isalnum():
         raise ValueError("campaign_id may contain only letters, numbers, hyphens, and underscores")
     campaign_directory = CAMPAIGN_ROOT / identifier
-    if campaign_directory.exists():
-        raise FileExistsError(f"campaign already exists: {identifier}")
-    campaign_directory.mkdir(parents=True)
-    targets = select_exploration_targets(config.campaign)
-    started_at = datetime.now(UTC)
-    started_clock = time.perf_counter()
-    report: dict[str, Any] = {
-        "schema_version": 1,
-        "campaign_id": identifier,
-        "status": "running",
-        "started_at_utc": started_at.isoformat(),
-        "completed_at_utc": None,
-        "elapsed_seconds": None,
-        "mission": config.campaign.mission,
-        "selection_strategy": config.campaign.strategy,
-        "configuration": config.to_dict(),
-        "source_versions": _source_versions(),
-        "targets": [target.to_dict() for target in targets],
-        "results": [],
-        "failures": [],
-        "summary": {},
-        "scientific_boundaries": [
-            "Targets are unlabeled and excluded from all labeled train/validation/test host stars.",
-            "Frozen-test host identifiers are read only from the split manifest to enforce exclusion; no frozen-test feature, observation, label, or metric enters the campaign.",
-            "No ANN-01 or ANN-02 inference, training, or confirmation is performed.",
-            "A BLS screening detection is not validated statistical significance.",
-            "No unmatched signal is presented as a new exoplanet discovery.",
-        ],
-    }
     campaign_path = campaign_directory / "campaign.json"
+    targets = select_exploration_targets(config.campaign)
+    serialized_config = json.loads(json.dumps(config.to_dict()))
+    started_clock = time.perf_counter()
+    if campaign_directory.exists():
+        if not resume or not campaign_path.is_file():
+            raise FileExistsError(f"campaign already exists: {identifier}")
+        report = json.loads(campaign_path.read_text(encoding="utf-8"))
+        if report.get("configuration") != serialized_config:
+            raise ValueError("resume configuration does not match persisted campaign")
+        expected = [target.to_dict() for target in targets]
+        if report.get("targets") != expected:
+            raise ValueError("resume targets do not match persisted campaign")
+        if report.get("status") in {"completed", "completed_with_failures"}:
+            return report
+        report["status"] = "running"
+        report["completed_at_utc"] = None
+        report["resume_count"] = int(report.get("resume_count", 0)) + 1
+        report["last_resumed_at_utc"] = datetime.now(UTC).isoformat()
+    else:
+        campaign_directory.mkdir(parents=True)
+        report = {
+            "schema_version": 2,
+            "campaign_id": identifier,
+            "status": "running",
+            "started_at_utc": datetime.now(UTC).isoformat(),
+            "completed_at_utc": None,
+            "elapsed_seconds": None,
+            "mission": config.campaign.mission,
+            "selection_strategy": config.campaign.strategy,
+            "configuration": serialized_config,
+            "source_versions": _source_versions(),
+            "targets": [target.to_dict() for target in targets],
+            "results": [],
+            "failures": [],
+            "summary": {},
+            "resume_count": 0,
+            "scientific_boundaries": [
+                "Targets are unlabeled and excluded from all labeled train/validation/test host stars.",
+                "Frozen-test host identifiers are read only from the split manifest to enforce exclusion; no frozen-test feature, observation, label, or metric enters the campaign.",
+                "No ANN-01 or ANN-02 inference, training, or confirmation is performed.",
+                "A BLS screening detection is not validated statistical significance.",
+                "No unmatched signal is presented as a new exoplanet discovery.",
+            ],
+        }
+    previous_elapsed = float(report.get("elapsed_seconds") or 0.0)
     _atomic_json(campaign_path, report)
-    new_downloads = 0
+    new_downloads = int(report.get("summary", {}).get("new_downloads_started", 0))
     observatory_config = ObservatoryConfig(
         mission="Kepler",
         author="Kepler",
@@ -187,7 +210,29 @@ def run_campaign(
         retries=2,
     )
 
+    completed_kics = {int(item["target"]["kic"]) for item in report.get("results", [])}
+    failed_kics = {int(item["kic"]) for item in report.get("failures", []) if item.get("kic") is not None}
+    cancelled = False
+    if progress_callback and (completed_kics or failed_kics):
+        progress_callback(
+            "resuming",
+            len(completed_kics | failed_kics),
+            len(targets),
+            "Validated persisted campaign state; completed targets will not be recomputed.",
+        )
+
+    def ensure_not_cancelled() -> None:
+        if cancellation_callback and cancellation_callback():
+            raise CampaignCancellationRequested("campaign cancellation requested")
+
     for index, target in enumerate(targets, start=1):
+        if target.kic in completed_kics or target.kic in failed_kics:
+            continue
+        try:
+            ensure_not_cancelled()
+        except CampaignCancellationRequested:
+            cancelled = True
+            break
         if progress_callback:
             progress_callback("target", index, len(targets), f"KIC {target.kic}")
         target_started = time.perf_counter()
@@ -222,12 +267,15 @@ def run_campaign(
                 allow_network=config.campaign.allow_network,
                 progress_callback=acquisition_progress,
             )
+            ensure_not_cancelled()
             if progress_callback:
                 progress_callback("processing", index, len(targets), f"KIC {target.kic}")
             processed = process_discovery_light_curve(raw, config.detection)
+            ensure_not_cancelled()
             if progress_callback:
                 progress_callback("bls", index, len(targets), f"KIC {target.kic}")
             detection = detect_periodic_signal(processed, config.detection)
+            ensure_not_cancelled()
             associations = crossmatch_detection(
                 target.kic,
                 detection.period_days,
@@ -258,6 +306,10 @@ def run_campaign(
             target_path = _atomic_json(target_directory / "result.json", target_report)
             target_report["result_path"] = _relative(target_path)
             report["results"].append(target_report)
+        except CampaignCancellationRequested:
+            cancelled = True
+            _atomic_json(campaign_path, report)
+            break
         except Exception as exc:
             report["failures"].append(
                 {
@@ -287,18 +339,20 @@ def run_campaign(
         "split_manifest_identifiers_read_for_exclusion": True,
         "neural_models_invoked": False,
     }
-    report["status"] = "completed_with_failures" if report["failures"] else "completed"
+    report["status"] = "cancelled" if cancelled else "completed_with_failures" if report["failures"] else "completed"
     report["completed_at_utc"] = datetime.now(UTC).isoformat()
-    report["elapsed_seconds"] = float(time.perf_counter() - started_clock)
+    report["last_run_elapsed_seconds"] = float(time.perf_counter() - started_clock)
+    report["elapsed_seconds"] = previous_elapsed + report["last_run_elapsed_seconds"]
     _atomic_json(campaign_path, report)
-    _atomic_json(
-        LATEST_CAMPAIGN,
-        {
-            "campaign_id": identifier,
-            "campaign_path": _relative(campaign_path),
-            "updated_at_utc": report["completed_at_utc"],
-        },
-    )
+    if not cancelled:
+        _atomic_json(
+            LATEST_CAMPAIGN,
+            {
+                "campaign_id": identifier,
+                "campaign_path": _relative(campaign_path),
+                "updated_at_utc": report["completed_at_utc"],
+            },
+        )
     return report
 
 

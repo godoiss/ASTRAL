@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from pathlib import Path
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
@@ -10,6 +11,8 @@ from fastapi.testclient import TestClient
 from src.api.app import create_app
 from src.api.config import ApiSettings
 from src.api.dependencies import get_discovery_jobs, get_discovery_service
+from src.api.discovery_service import DiscoveryJobManager
+from src.research.campaign_store import CampaignStore
 
 
 def test_product_root_redirects_to_publication_nextjs_interface() -> None:
@@ -64,16 +67,21 @@ def test_persisted_campaign_and_bounded_series_are_real() -> None:
     assert len(arrays["periods"]) == len(arrays["powers"])
 
 
-def test_browser_job_is_cache_only_and_reports_real_progress_contract() -> None:
-    def fake_campaign(config, *, campaign_id, progress_callback):
+def test_browser_job_is_cache_only_and_reports_real_progress_contract(tmp_path: Path) -> None:
+    def fake_campaign(config, *, campaign_id, progress_callback, cancellation_callback, resume):
         assert config.campaign.allow_network is False
         assert config.campaign.max_new_downloads == 0
+        assert cancellation_callback() is False
+        assert resume is False
         progress_callback("processing", 1, config.campaign.sample_size, "KIC 10811496")
-        return {"campaign_id": campaign_id}
+        return {"campaign_id": campaign_id, "status": "completed", "summary": {"investigated_stars": 5}}
 
     get_discovery_jobs.cache_clear()
     with patch("src.api.discovery_service.run_campaign", side_effect=fake_campaign):
-        with TestClient(create_app(ApiSettings(discovery_execution_enabled=True))) as client:
+        manager = DiscoveryJobManager(store=CampaignStore(tmp_path / "operations.db"))
+        app = create_app(ApiSettings(discovery_execution_enabled=True))
+        app.dependency_overrides[get_discovery_jobs] = lambda: manager
+        with TestClient(app) as client:
             started = client.post("/api/v1/discovery/jobs", json={"sample_size": 5})
             assert started.status_code == 202
             job_id = started.json()["job_id"]
@@ -83,11 +91,10 @@ def test_browser_job_is_cache_only_and_reports_real_progress_contract() -> None:
                     break
                 time.sleep(0.01)
 
-    get_discovery_jobs.cache_clear()
     assert job.status_code == 200
     assert job.json()["status"] == "completed"
-    assert job.json()["current"] == 5
-    assert job.json()["campaign_id"].startswith("web-")
+    assert job.json()["current"] == 1
+    assert job.json()["campaign_id"].startswith("research-")
 
 
 def test_discovery_errors_are_bounded_and_structured() -> None:
